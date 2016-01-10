@@ -40,7 +40,5 @@ YOU SPELLED XYZ WRONG!
 BUT WAIT - THERE IS MORE!
 
 - there are 2 additional scripts which only help me getting localization done and can be easily ignored. fyi:
-
-        - herostuff/localizeorcry.py:     wraps new strings for gettext recognition in the source files and updates translation template and existing po files
-        
-        - herostuff/po/update_mo.py:      updates all mo files, only needed when translated strings are added to po files
+  - herostuff/localizeorcry.py:     wraps new strings for gettext recognition in the source files and updates translation template and existing po files
+  - herostuff/po/update_mo.py:      updates all mo files, only needed when translated strings are added to po files
