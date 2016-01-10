@@ -10,7 +10,7 @@ TELL ME ABOUT FEATURES!
 
 - import your stuff from SD card
 - rename files in a more logical order than according to the GoPro naming convention
-- overview about your footage
+- overview of your footage
 - create timelapse videos from your stuff via FFmpeg
 - localization: English, German
 
