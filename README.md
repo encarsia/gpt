@@ -22,7 +22,7 @@ YOU MUST BE JOKING!
 WHAT ABOUT SYSTEM REQUIREMENTS?
 
 - Python 3
-- GTK+ 3 (optional, commandline version available)
+- Python 3 bindings for GObject (Gtk+ 3 (optional, commandline version available))
 - FFmpeg (optional)
 - GoPro camera
 
