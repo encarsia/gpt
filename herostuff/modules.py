@@ -23,6 +23,8 @@ except:
 class Handler:
     """Signal assignment for Glade"""
     
+    ##### main application window #####
+    
     def on_gpwindow_destroy(self,*args):
         Gtk.main_quit()
 
@@ -43,7 +45,11 @@ class Handler:
 
     #right toolbar (memory card)
     def on_import_sd_clicked(self,widget):
-        cli.copycard(cli.cardpath)
+        if cli.freespace(cli.cardpath,cli.stdir) is True:
+            app.get_targetfolderwindow_content()
+        else:
+            #TODO: Message in separatem Fenster
+            self.show_message(_("Failed to copy files. Not enough free space."))
         app.load_dircontent()
 
     def on_find_sd_clicked(self,widget):
@@ -82,24 +88,46 @@ class Handler:
     def on_tlimage_sub_button_clicked(self,widget):
         app.timelapse_img_subfolder(self.sel_folder)
 
+    ##### set multiplier window ##### 
+
     def on_mult_cancel_clicked(self,widget):
-        app.close_mult_sel()
-        
+        app.builder.get_object("multwindow").hide_on_delete()
+
     def on_mult_ok_clicked(self,widget):
         #FIXME: window does not close before ffmpeg has finished
-        app.close_mult_sel()
         mult = app.builder.get_object("mult_spinbutton").get_value()
+        app.builder.get_object("multwindow").hide_on_delete()
         app.timelapse_vid(self.sel_folder,mult)
+
+    ##### select destination folder window ####
+
+    def on_targetfolder_cancel_clicked(self,widget):
+        app.builder.get_object("targetfolderwindow").hide_on_delete()
+
+    def on_targetfolder_ok_clicked(self,widget):
+        app.builder.get_object("targetfolderwindow").hide_on_delete()
+        cli.copycard(cli.cardpath,os.path.join(cli.stdir,self.copyfolder))
+
+    def on_combobox1_changed(self,widget):
+        row = widget.get_active_iter()
+        if row != None:
+            model = widget.get_model()
+            self.copyfolder = model[row][0]
+            print("Selected: %s" % self.copyfolder)
+        else:
+            self.copyfolder = widget.get_child().get_text()
+            print("Entered: %s" % self.copyfolder)
+
 
 class FileChooserDialog(Gtk.Window):
     """File chooser dialog when changing working directory"""
     #coder was too stupid to create a functional fcd with Glade so she borrowed some code from the documentation site
     def on_folder_clicked(self):
-        Gtk.Window.__init__(self, title=_("Change working directory"))
-        dialog = Gtk.FileChooserDialog(_("Choose directory"), self,
+        Gtk.Window.__init__(self, title="Change working directory")
+        dialog = Gtk.FileChooserDialog("Choose directory", self,
             Gtk.FileChooserAction.SELECT_FOLDER,
             (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
-             _("Apply"), Gtk.ResponseType.OK))
+             "Apply", Gtk.ResponseType.OK))
         dialog.set_default_size(800, 400)
         response = dialog.run()
         if response == Gtk.ResponseType.OK:
@@ -119,7 +147,7 @@ class GoProGUI:
         self.builder.connect_signals(Handler())
 
     def get_window_content(self):
-
+        """Fill main window with content"""
         self.show_workdir()
         self.load_dircontent()
         self.find_sd()
@@ -185,9 +213,6 @@ class GoProGUI:
             self.builder.get_object("tlimage_sub_button").set_sensitive(True)
         else:
             self.builder.get_object("tlimage_sub_button").set_sensitive(False)
-
-    def close_mult_sel(self):
-        self.builder.get_object("multwindow").hide_on_delete()
 
     def timelapse_vid(self,p,m):
         """Create video timelapse"""
@@ -255,12 +280,31 @@ class GoProGUI:
 
     #borrowed from http://stackoverflow.com/questions/1094841/reusable-library-to-get-human-readable-version-of-file-size
     def sizeof_fmt(self,num, suffix='B'):
-        """Dateigrößenanzeige in normalmenschenverständlichen Einheiten"""
+        """File size shown in common units"""
         for unit in ['','Ki','Mi','Gi','Ti','Pi','Ei','Zi']:
             if abs(num) < 1024.0:
                 return "%3.1f %s%s" % (num, unit, suffix)
             num /= 1024.0
         return "%.1f %s%s" % (num, 'Yi', suffix)
+
+    def get_targetfolderwindow_content(self):
+        """Get list for dropdown selection and open window"""
+        copyfolder_list = self.builder.get_object("liststore1")
+        copyfolder_list.clear()
+        #first row = default folder (today's date)
+        today = time.strftime("%Y-%m-%d",time.localtime())
+        copyfolder_list.append([today])
+
+        for d in sorted(os.listdir(cli.stdir)):
+            if d != today:
+                copyfolder_list.append([d])
+        
+        self.builder.get_object("combobox1").set_entry_text_column(0)
+        #set first row as default editable entry
+        self.builder.get_object("combobox1").set_active(0)
+
+        window = self.builder.get_object("targetfolderwindow")
+        window.show_all() 
 
     def main(self):
         Gtk.main()
@@ -311,6 +355,7 @@ class GoProGo:
             else:
                 self.show_message(_("Invalid input"))
 
+    #function exclusively called by cli
     def handlecard(self):
         self.detectcard()
         if self.cardfound is True:
@@ -320,8 +365,12 @@ class GoProGo:
                     self.show_message(_("Move along. There is nothing to see here."))
                     break
                 elif befehl == "y":
-                    self.copycard(self.cardpath)
-                    break
+                    if self.freespace(self.cardpath,self.stdir) is True:
+                        self.copycard(self.cardpath,os.path.join(self.stdir,self.choosecopydir(self.stdir)))
+                        break
+                    else:
+                        self.show_message(_("Failed to copy files. Not enough free space."))
+                        break
                 else:
                     self.show_message(_("Invalid input"))
 
@@ -329,7 +378,8 @@ class GoProGo:
     def detectcard(self):
         """Find mounted memora card"""
         #works for me on Archlinux, where do other distros mount removable drives? (too lazy for research...)
-        userdrive = os.path.join("/run/media/",getpass.getuser())
+        #TODO try different paths
+        userdrive = os.path.join("/run","media",getpass.getuser())
         self.cardfound = False
         self.show_message(_("Search device in %s") % userdrive)
         try:
@@ -349,23 +399,19 @@ class GoProGo:
         except:
             self.show_message(_("No devices found."))
 
-    #gefundene Speicherkarte kopieren
-    def copycard(self,mountpoint):
-        """Copy media files to working directory"""
-    
-        if self.freespace(mountpoint,self.stdir) is True:
-            copydir = os.path.join(self.stdir,time.strftime("%Y-%m-%d",time.localtime()))
-            self.chkdir(copydir)
-            self.copymedia(os.path.join(mountpoint,"DCIM"),copydir)
-            self.show_message(_("Files successfully copied."))
-            os.chdir(copydir)
-            for path, dirs, files in os.walk(copydir):
-                os.chdir(path)
-                self.sortfiles()
-            os.chdir(mountpoint)
-        else:
-            self.show_message(_("Failed to copy files. Not enough free space."))
- 
+    #Dateien kopieren und umbenennen
+    def copycard(self,mountpoint,targetdir):
+        """Copy media files to target folder in working directory and rename them"""
+        self.chkdir(targetdir)
+        print("Copy files from %s to %s." % (mountpoint,targetdir))
+        self.copymedia(os.path.join(mountpoint,"DCIM"),targetdir)
+        self.show_message(_("Files successfully copied."))
+        os.chdir(targetdir)
+        for path, dirs, files in os.walk(targetdir):
+            os.chdir(path)
+            self.sortfiles()
+        os.chdir(mountpoint)
+
     #Speicherplatz analysieren
     def freespace(self,src,dest):
         """Check for free disc space"""
@@ -373,6 +419,44 @@ class GoProGo:
             return True
         else:
             return False
+
+    #Zielordner wählen, neuen oder bestehenden Ordner, Defaultwert yyyy-mm-dd
+    def choosecopydir(self,wdir):
+        os.chdir(wdir)
+        #default folder name is today's date
+        default = time.strftime("%Y-%m-%d",time.localtime())
+        self.copydirlist=[]
+        counter = 0
+        for d in os.listdir(wdir):
+            #get folders in directory without hidden
+            if os.path.isdir(d) and not d.startswith("."):
+                counter += 1
+                self.copydirlist.append([counter,d])
+        if counter > 0:
+            print("(project) folders in working directory")
+            print("**************************************")
+            print(_("--> {0:^6} | {1:25}").format(_("no"),_("name")))
+            for n in self.copydirlist:
+                print(_("--> {0:^6} | {1:25}").format(n[0],n[1]))
+        else:
+            print("There are no subfolders in the working directory yet")
+        return self.copydir_prompt(default,counter)
+
+    def copydir_prompt(self,default,c):
+        """Value returned is name of default or selected subfolder"""
+        if c == 0:
+            return default
+        while 1:
+            try:
+                prompt = input(_("Select directory to copy file to (return for default value: %s): ") % default)
+                if prompt == "":
+                    return default
+                elif int(prompt) > c or int(prompt) < 1:
+                    print(_("Invalid input, input must be integer between 1 and %d. Try again...") % c)
+                else:
+                    return self.copydirlist[int(prompt)-1][1]
+            except ValueError:
+                print(_("Invalid input (integer required). Try again..."))
 
     #Medien kopieren
     def copymedia(self,src,dest):
@@ -384,7 +468,7 @@ class GoProGo:
             if glob.glob('*.JPG'):
                 self.show_message(_("Found photos"))
                 #for easy handling keep pictures in subfolders analogue to source file structure
-                self.chkdir(os.path.join(dest,"Images_",d[0:3]))
+                self.chkdir(os.path.join(dest,"Images_"+d[0:3]))
                 self.workdir(os.path.join(src,d))
             #counter for progress bar
             counter = 0
@@ -398,11 +482,11 @@ class GoProGo:
                         self.show_message(_("Copy %s") % f)
                         shutil.copy(f,dest)
                 if f.endswith(".JPG"):
-                    if os.path.exists(os.path.join(dest,"Images_",d[0:3],f)):
+                    if os.path.exists(os.path.join(dest,"Images_"+d[0:3],f)):
                         self.show_message(_("%s already exists in target directory") % f)
                     else:
                         self.show_message(_("Copy %s") % f)
-                        shutil.copy(f,os.path.join(dest,"Images_",d[0:3]))
+                        shutil.copy(f,os.path.join(dest,"Images_"+d[0:3]))
                 counter += 1
                 app.refresh_progressbar(counter,abs_files)
             os.chdir('..')
@@ -575,7 +659,7 @@ class TimeLapse:
             print(_("""
 Video:
 ******"""))
-            print(_("--> {0:^6} | {1:40} | {2:>}").format(_("no."),_("directory"),_("quantity")))
+            print(_("--> {0:^6} | {1:40} | {2:>}".format("No.","Directory","Amount")))
             for n in self.wherevid:
                 print(_("--> {0:^6} | {1:40} | {2:>4}").format(n[0],n[1],n[2]))
             self.choosevid(counter)
@@ -655,7 +739,7 @@ Video:
             print(_("""
 Images:
 *******"""))
-            print(_("--> {0:^6} | {1:40} | {2:>}").format(_("no."),_("directory"),_("quantity")))
+            print(_("--> {0:^6} | {1:40} | {2:>}".format("No.","Directory","Amount")))
             for n in self.whereimg:
                 print(_("--> {0:^6} | {1:40} | {2:>4}").format(n[0],n[1],n[2]))
             self.chooseimg(counter)
