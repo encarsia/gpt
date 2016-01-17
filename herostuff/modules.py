@@ -45,11 +45,12 @@ class Handler:
 
     #right toolbar (memory card)
     def on_import_sd_clicked(self,widget):
-        if cli.freespace(cli.cardpath,cli.stdir) is True:
+        if cli.freespace(cli.cardpath,cli.stdir) is False:
             app.get_targetfolderwindow_content()
         else:
+            app.builder.get_object("nospacemessage").run()
             #TODO: Message in separatem Fenster
-            self.show_message(_("Failed to copy files. Not enough free space."))
+            cli.show_message(_("Failed to copy files. Not enough free space."))
         app.load_dircontent()
 
     def on_find_sd_clicked(self,widget):
@@ -94,7 +95,6 @@ class Handler:
         app.builder.get_object("multwindow").hide_on_delete()
 
     def on_mult_ok_clicked(self,widget):
-        #FIXME: window does not close before ffmpeg has finished
         mult = app.builder.get_object("mult_spinbutton").get_value()
         app.builder.get_object("multwindow").hide_on_delete()
         app.timelapse_vid(self.sel_folder,mult)
@@ -118,6 +118,10 @@ class Handler:
             self.copyfolder = widget.get_child().get_text()
             print("Entered: %s" % self.copyfolder)
 
+    ##### No space to copy files message dialog #####
+
+    def on_nospacemessage_response(self,widget,*args):
+        widget.hide_on_delete()
 
 class FileChooserDialog(Gtk.Window):
     """File chooser dialog when changing working directory"""
@@ -299,6 +303,7 @@ class GoProGUI:
             if d != today:
                 copyfolder_list.append([d])
         
+        #bug: no effects when set in glade
         self.builder.get_object("combobox1").set_entry_text_column(0)
         #set first row as default editable entry
         self.builder.get_object("combobox1").set_active(0)
