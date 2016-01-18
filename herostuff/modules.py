@@ -48,7 +48,7 @@ class Handler:
 
     #right toolbar (memory card)
     def on_import_sd_clicked(self,widget):
-        if cli.freespace(cli.cardpath,cli.stdir) is False:
+        if cli.freespace(cli.cardpath,cli.stdir) is True:
             app.get_targetfolderwindow_content()
         else:
             app.builder.get_object("nospacemessage").run()
