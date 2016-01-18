@@ -513,7 +513,7 @@ class GoProGo:
         if counter > 0:
             print(_("(project) folders in working directory"))
             print(_("**************************************"))
-            print("--> {0:^6} | {1:25}").format(_("no."),_("name")))
+            print("--> {0:^6} | {1:25}".format(_("no."),_("name")))
             for n in self.copydirlist:
                 print("--> {0:^6} | {1:25}".format(n[0],n[1]))
         else:
@@ -821,7 +821,7 @@ Video:
             print(_("""
 Images:
 *******"""))
-            print("--> {0:^6} | {1:40} | {2:>}".format(_("no."),_("directory"),_("quantity"))))
+            print("--> {0:^6} | {1:40} | {2:>}".format(_("no."),_("directory"),_("quantity")))
             for n in self.whereimg:
                 print("--> {0:^6} | {1:40} | {2:>4}".format(n[0],n[1],n[2]))
             self.chooseimg(counter)
