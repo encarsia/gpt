@@ -2,12 +2,14 @@
 # -*- coding: utf-8 -*-
 
 import os
+import sys
 import errno
 import glob
 import getpass
 import time
 import shutil
 import subprocess
+import fileinput
 import locale
 import gettext
 
@@ -36,6 +38,7 @@ class Handler:
         cli.stdir = os.getcwd()
         app.show_workdir()
         app.load_dircontent()
+        cli.replace_wdir_config(win.selectedfolder)
 
     def on_refresh_wdir_clicked(self,widget):
         app.load_dircontent()
@@ -49,7 +52,6 @@ class Handler:
             app.get_targetfolderwindow_content()
         else:
             app.builder.get_object("nospacemessage").run()
-            #TODO: Message in separatem Fenster
             cli.show_message(_("Failed to copy files. Not enough free space."))
         app.load_dircontent()
 
@@ -327,10 +329,69 @@ class GoProGo:
         locale.textdomain(self.locales_dir)      
         gettext.bindtextdomain(self.appname,self.locales_dir)
         gettext.textdomain(self.appname)
+    
+        #check for config file to set up working directory
+        #create file in case it does not exist
+        self.config = os.path.join(os.path.expanduser('~'),".config","gpt.conf")
+        self.defaultwdir = os.path.join(os.path.expanduser('~'),"GP")
+        
+        if os.path.isfile(self.config) is False:
+            self.stdir = self.defaultwdir
+            self.chkdir(self.stdir)      
+            self.createconfig(self.stdir)
+        else:
+            self.readconfig()
+        self.show_message("Working directory: %s" % self.stdir)
 
-        #setting up working directory
-        self.stdir = os.path.join(os.path.expanduser('~'),"GP")
-        self.chkdir(self.stdir)        
+    def createconfig(self,wdir):
+        """Creates new configuration file and writes current working directory"""
+
+        print("Creating config file...")
+        config = open(self.config,"w")
+        config.write("""##### CONFIG FILE FOR GOPRO TOOL #####
+##### EDIT IF YOU LIKE. YOU ARE AN ADULT. #####
+
+""")
+        config.close()
+        self.write_wdir_config(wdir)
+
+    def write_wdir_config(self,wdir):
+        """Write value for working directory to configuration file"""
+        
+        config = open(self.config,"a")
+        config.write("\n##### working directory #####\nwdir = %s\n" % wdir)
+        config.close()
+
+    def replace_wdir_config(self,wdir):
+        """Writes new working directory in config file when changed"""
+        
+        for line in fileinput.input(self.config,inplace=True):
+            if line.startswith("wdir"):
+                sys.stdout.write("wdir = %s" % wdir)
+            else:
+                sys.stdout.write(line)
+
+    def readconfig(self):
+        """Reads working directory (line begins with "wdir = ...") from configuration file and tries to apply given value. If this attempt fails (due to permission problems) or there is no matching line the default value (~/GP) will be set."""
+        
+        config = open(self.config,"r")
+        match = False
+        for line in config:
+            if line.startswith("wdir"):
+                match = True
+                self.stdir = os.path.abspath(line.split("=")[1].strip())
+                if self.chkdir(self.stdir) is False:
+                    self.stdir = self.defaultwdir
+                    self.replace_wdir_config(self.stdir)
+                continue
+        config.close()
+        #add wdir line when not found
+        if match is False:
+            self.show_message("No configuration for working directory in config file. Set default value (~/GP)...")
+            self.stdir = self.defaultwdir
+            self.chkdir(self.stdir) 
+            #write default wdir to config file
+            self.write_wdir_config(self.stdir)
 
     def show_message(self,message):
         """Show notifications in terminal window and status bar if possible"""
@@ -353,6 +414,7 @@ class GoProGo:
                 else:
                     self.chkdir(newdir)
                     self.stdir = os.getcwd()
+                    self.replace_wdir_config(newdir)
                     break
             elif befehl == "n" or befehl=="":
                 self.show_message(_("Everything stays as it is."))
@@ -512,9 +574,13 @@ class GoProGo:
                 else:
                     self.show_message(_("Error: no write permission"))
                     self.workdir(self.stdir)
+            elif exception.errno == errno.EACCES:
+                print("Permission denied.")
+                return False
             else:
                 self.show_message(_("Invalid path"))
                 self.workdir(self.stdir)
+            
 
     #Verzeichnis wechseln
     def workdir(self,path):
