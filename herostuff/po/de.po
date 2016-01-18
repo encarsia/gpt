@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: GoPro Tool 0.1\n"
+"Project-Id-Version: GoPro Tool v0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-01-10 14:52+0100\n"
-"PO-Revision-Date: 2016-01-10 14:54+0100\n"
+"POT-Creation-Date: 2016-01-18 22:29+0100\n"
+"PO-Revision-Date: 2016-01-18 22:31+0100\n"
 "Last-Translator: Anke K. <an.ke@bahnfreikartoffelbrei.de>\n"
 "Language-Team: German\n"
 "Language: de\n"
@@ -18,7 +18,8 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 1.8.6\n"
 
-#: modules_copy.py:513 modules.py_copy.py:515
+#: modules_copy.py:513 modules.py_copy.py:684 modules.py_copy.py:681
+#: modules_copy.py:681
 msgid ""
 "\n"
 "        (h)elp\n"
@@ -48,7 +49,8 @@ msgstr ""
 "\n"
 "        Beenden (q)"
 
-#: modules_copy.py:653 modules.py_copy.py:655
+#: modules_copy.py:653 modules.py_copy.py:824 modules.py_copy.py:821
+#: modules_copy.py:821
 msgid ""
 "\n"
 "Images:\n"
@@ -58,7 +60,8 @@ msgstr ""
 "Bilder:\n"
 "*******"
 
-#: modules_copy.py:573 modules.py_copy.py:575
+#: modules_copy.py:573 modules.py_copy.py:744 modules.py_copy.py:741
+#: modules_copy.py:741
 msgid ""
 "\n"
 "Video:\n"
@@ -68,131 +71,198 @@ msgstr ""
 "Videos:\n"
 "*******"
 
-#: modules_copy.py:394 modules_copy.py:400 modules.py_copy.py:396
-#: modules.py_copy.py:402
+#: modules.py_copy.py:365 modules.py_copy.py:362 modules_copy.py:362
+msgid ""
+"##### CONFIG FILE FOR GOPRO TOOL #####\n"
+"##### EDIT IF YOU LIKE. YOU ARE AN ADULT. #####\n"
+"\n"
+msgstr ""
+"##### CONFIG FILE FOR GOPRO TOOL #####\n"
+"##### EDIT IF YOU LIKE. YOU ARE AN ADULT. #####\n"
+"\n"
+
+#: modules.py_copy.py:625 modules_copy.py:625
 #, python-format
-msgid "%s already exists in target directory"
+msgid "%d image files will be renamed."
+msgstr "%d Bilddateien werden umbenannt."
+
+#: modules.py_copy.py:558 modules.py_copy.py:564 modules_copy.py:558
+#: modules_copy.py:564
+#, python-format
+msgid "%s already exists in target directory."
 msgstr "%s existiert bereits im Verzeichnis."
 
-#: modules_copy.py:578 modules_copy.py:658 modules.py_copy.py:580
-#: modules.py_copy.py:660
-#, python-brace-format
-msgid "--> {0:^6} | {1:40} | {2:>4}"
-msgstr "--> {0:^6} | {1:40} | {2:>4}"
+#: modules.py_copy.py:517 modules.py_copy.py:514 modules_copy.py:514
+msgid "(project) folders in working directory"
+msgstr "(Projekt-) Ordner im Arbeitsverzeichnis"
 
-#: modules.py_copy.py:102
-msgid "Apply"
-msgstr "Anwenden"
+#: modules.py_copy.py:518 modules.py_copy.py:515 modules_copy.py:515
+msgid "**************************************"
+msgstr "**************************************"
 
-#: modules_copy.py:109 modules.py_copy.py:110
+#: modules_copy.py:109 modules.py_copy.py:158 modules.py_copy.py:155
+#: modules_copy.py:155
 msgid "Cancel clicked"
 msgstr "Abbruch"
 
-#: gopro.glade:195
+#: gopro.glade:195 gopro.glade:342
 msgid "Change"
 msgstr "Ändern"
 
-#: modules_copy.py:431 modules.py_copy.py:433
+#: modules_copy.py:431 modules.py_copy.py:602 modules.py_copy.py:599
+#: modules_copy.py:599
 #, python-format
 msgid "Change directory to %s"
 msgstr "Wechsele ins Verzeichnis %s"
 
-#: modules.py_copy.py:98
+#: modules.py_copy.py:143 modules_copy.py:143
 msgid "Change working directory"
 msgstr "Arbeitsverzeichnis ändern"
 
-#: modules_copy.py:296 modules.py_copy.py:298
+#: modules_copy.py:296 modules.py_copy.py:422 modules.py_copy.py:419
+#: modules_copy.py:419
 msgid "Change working directory? (y/N) "
 msgstr "Arbeitsverzeichnis ändern? (y/N) "
 
-#: modules.py_copy.py:99
+#: gopro.glade:145
+msgid "Choose destination folder"
+msgstr "Zielordner wählen"
+
+#: modules_copy.py:529
+#, python-format
+msgid "Choose destination folder (return for default value: %s): "
+msgstr "Zielordner wählen ('Return' verwendet Standardwert: %s): "
+
+#: modules.py_copy.py:144 modules_copy.py:144
 msgid "Choose directory"
 msgstr "Verzeichnis wählen"
 
-#: modules_copy.py:396 modules_copy.py:402 modules.py_copy.py:398
-#: modules.py_copy.py:404
+#: modules_copy.py:396 modules_copy.py:402 modules.py_copy.py:563
+#: modules.py_copy.py:569 modules.py_copy.py:560 modules_copy.py:560
 #, python-format
 msgid "Copy %s"
 msgstr "Kopiere %s"
 
-#: modules_copy.py:20 modules.py_copy.py:21
+#: modules.py_copy.py:566 modules_copy.py:566
+#, python-format
+msgid "Copy %s..."
+msgstr "Kopiere %s"
+
+#: modules.py_copy.py:487 modules.py_copy.py:484 modules_copy.py:484
+#, python-format
+msgid "Copy files from %s to %s."
+msgstr "Kopiere Dateien von %s nach %s."
+
+#: modules_copy.py:20 modules.py_copy.py:23 modules_copy.py:23
 msgid "Could not load GTK+, only command-line version is available."
 msgstr "Konnte GTK+ nicht laden, nur Kommandozeilenversion möglich."
 
 #: modules_copy.py:219 modules_copy.py:625 modules_copy.py:695
-#: modules.py_copy.py:220 modules.py_copy.py:627 modules.py_copy.py:697
+#: modules.py_copy.py:265 modules.py_copy.py:796 modules.py_copy.py:866
+#: modules.py_copy.py:262 modules.py_copy.py:793 modules.py_copy.py:863
+#: modules_copy.py:262 modules_copy.py:793 modules_copy.py:863
 #, python-format
 msgid "Create %d of %d"
 msgstr "Erstelle %d von %d"
 
-#: gopro.glade:508
+#: gopro.glade:508 gopro.glade:666
 msgid "Create timelapse"
 msgstr "Erstelle Timelapse"
 
-#: modules_copy.py:674 modules.py_copy.py:676
+#: modules_copy.py:674 modules.py_copy.py:845 modules.py_copy.py:842
+#: modules.py_copy.py:761 modules_copy.py:761 modules_copy.py:842
 msgid "Create timelapse for directory "
 msgstr "Erstelle Timelapse für Verzeichnis "
 
-#: modules_copy.py:498 modules.py_copy.py:500
+#: modules.py_copy.py:363 modules.py_copy.py:360 modules_copy.py:360
+msgid "Creating config file..."
+msgstr "Erstelle Konfigurationsdatei..."
+
+#: modules_copy.py:498 modules.py_copy.py:669 modules.py_copy.py:666
+#: modules_copy.py:666
 msgid "Delete (y/n) "
 msgstr "Löschen (y/n) "
 
-#: modules_copy.py:502 modules.py_copy.py:504
+#: modules_copy.py:502 modules.py_copy.py:673 modules.py_copy.py:670
+#: modules_copy.py:670
 #, python-format
 msgid "Deleting %s."
 msgstr "Lösche %s."
 
-#: modules_copy.py:418 modules.py_copy.py:420
+#: gopro.glade:133
+msgid "Destination folder"
+msgstr "Zielordner"
+
+#: modules_copy.py:418 modules.py_copy.py:585 modules.py_copy.py:582
+#: modules_copy.py:582
 msgid "Directory already exists. OK."
 msgstr "Verzeichnis existiert bereits. OK."
 
-#: modules_copy.py:641 modules_copy.py:710 modules.py_copy.py:643
-#: modules.py_copy.py:712
+#: modules_copy.py:641 modules_copy.py:710 modules.py_copy.py:812
+#: modules.py_copy.py:881 modules.py_copy.py:809 modules.py_copy.py:878
+#: modules_copy.py:809 modules_copy.py:878
 msgid "Done."
 msgstr "Fertig."
 
-#: modules_copy.py:422 modules.py_copy.py:424
+#: modules.py_copy.py:121 modules_copy.py:121
+#, python-format
+msgid "Entered: %s"
+msgstr "Eingabe: %s"
+
+#: modules_copy.py:422 modules.py_copy.py:589 modules.py_copy.py:586
+#: modules_copy.py:586
 msgid "Error: no write permission"
 msgstr "Fehler: Keine Schreibberechtigung"
 
-#: modules_copy.py:307 modules.py_copy.py:309
+#: modules_copy.py:307 modules.py_copy.py:434 modules.py_copy.py:431
+#: modules_copy.py:431
 msgid "Everything stays as it is."
 msgstr "Alles bleibt so, wie es ist."
 
-#: modules_copy.py:365 modules.py_copy.py:367
+#: modules_copy.py:365 modules.py_copy.py:55 modules.py_copy.py:453
+#: modules.py_copy.py:450 modules_copy.py:55 modules_copy.py:450
 msgid "Failed to copy files. Not enough free space."
 msgstr "Kopieren gescheitert, Speicherplatz nicht ausreichend."
 
-#: modules_copy.py:358 modules.py_copy.py:360
+#: modules_copy.py:358 modules.py_copy.py:489 modules.py_copy.py:486
+#: modules_copy.py:486
 msgid "Files successfully copied."
 msgstr "Dateien erfolgreich kopiert."
 
-#: gopro.glade:417
+#: gopro.glade:417 gopro.glade:564
 msgid "Folder"
 msgstr "Ordner"
 
-#: modules_copy.py:560 modules.py_copy.py:562
+#: modules_copy.py:560 modules.py_copy.py:731 modules.py_copy.py:728
+#: modules_copy.py:728
 msgid "Folder already exists. OK."
 msgstr "Ordner existiert bereits. OK."
 
-#: modules_copy.py:414 modules_copy.py:558 modules.py_copy.py:416
-#: modules.py_copy.py:560
+#: modules_copy.py:414 modules_copy.py:558 modules.py_copy.py:581
+#: modules.py_copy.py:729 modules.py_copy.py:578 modules.py_copy.py:726
+#: modules_copy.py:578 modules_copy.py:726
 msgid "Folder created."
 msgstr "Ordner erstellt."
 
-#: modules_copy.py:106 modules.py_copy.py:107
+#: modules_copy.py:106 modules.py_copy.py:155 modules.py_copy.py:152
+#: modules_copy.py:152
 msgid "Folder selected: "
 msgstr "Ordner ausgewählt: "
 
-#: modules_copy.py:383 modules.py_copy.py:385
-msgid "Found photos"
+#: modules.py_copy.py:547 modules_copy.py:547
+msgid "Found photos..."
 msgstr "Fotos gefunden."
 
-#: gopro.glade:448
+#: gopro.glade:795
+msgid "Helps you to organize your GoPro adventures."
+msgstr "Hilft dir bei der Organisation deiner GoPro-Abenteuer."
+
+#: gopro.glade:448 gopro.glade:595
 msgid "Image"
 msgstr "Bild"
 
-#: modules_copy.py:481 modules.py_copy.py:483
+#: modules_copy.py:481 modules.py_copy.py:652 modules.py_copy.py:649
+#: modules_copy.py:649
 msgid ""
 "Image files do not match the GoPro naming convention. No need for renaming "
 "or renaming already done."
@@ -200,54 +270,74 @@ msgstr ""
 "Bilddateien entsprechen nicht dem GoPro-Benennungsschema. Umbenennen nicht "
 "erforderlich oder bereits erfolgt."
 
-#: gopro.glade:303
+#: gopro.glade:303 gopro.glade:450
 msgid "Import"
 msgstr "Importieren"
 
-#: modules_copy.py:298 modules.py_copy.py:300
+#: modules_copy.py:298 modules.py_copy.py:424 modules.py_copy.py:421
+#: modules_copy.py:421
 msgid "Input path: "
 msgstr "Pfad angeben: "
 
-#: modules_copy.py:310 modules_copy.py:324 modules.py_copy.py:312
-#: modules.py_copy.py:326
+#: modules_copy.py:310 modules_copy.py:324 modules.py_copy.py:437
+#: modules.py_copy.py:456 modules.py_copy.py:434 modules.py_copy.py:453
+#: modules_copy.py:434 modules_copy.py:453
 msgid "Invalid input"
 msgstr "Ungültige Eingabe"
 
-#: modules_copy.py:598 modules_copy.py:679 modules.py_copy.py:600
-#: modules.py_copy.py:681
+#: modules.py_copy.py:540 modules.py_copy.py:537 modules_copy.py:537
+msgid "Invalid input (integer required). Try again..."
+msgstr "Ungültige Eingabe (Ganzzahl erforderlich). Nächster Versuch..."
+
+#: modules_copy.py:598 modules_copy.py:679 modules.py_copy.py:769
+#: modules.py_copy.py:850 modules.py_copy.py:766 modules.py_copy.py:847
+#: modules_copy.py:766 modules_copy.py:847
 msgid "Invalid input (no integer). Try again..."
 msgstr "Ungültige Eingabe (keine Ganzzahl). Nächster Versuch..."
 
-#: modules_copy.py:615 modules.py_copy.py:617
+#: modules_copy.py:615 modules.py_copy.py:786 modules.py_copy.py:783
+#: modules_copy.py:783
 msgid "Invalid input (no number). Try again..."
 msgstr "Ungültige Eingabe (keine Zahl). Nächster Versuch..."
 
-#: modules_copy.py:591 modules_copy.py:672 modules.py_copy.py:593
-#: modules.py_copy.py:674
+#: modules_copy.py:591 modules_copy.py:672 modules.py_copy.py:762
+#: modules.py_copy.py:843 modules.py_copy.py:759 modules.py_copy.py:840
+#: modules_copy.py:759 modules_copy.py:840
 msgid "Invalid input, input must be integer between 1 and"
 msgstr "Ungültige Eingabe. Eingabe muss ganze Zahl zwischen 1 und"
 
-#: modules_copy.py:508 modules_copy.py:547 modules.py_copy.py:510
-#: modules.py_copy.py:549
+#: modules.py_copy.py:536 modules.py_copy.py:533 modules_copy.py:533
+#, python-format
+msgid "Invalid input, input must be integer between 1 and %d. Try again..."
+msgstr ""
+"Ungültige Eingabe. Eingabe muss ganze Zahl zwischen 1 und %d sein. Nächster "
+"Versuch..."
+
+#: modules_copy.py:508 modules_copy.py:547 modules.py_copy.py:679
+#: modules.py_copy.py:718 modules.py_copy.py:676 modules.py_copy.py:715
+#: modules_copy.py:676 modules_copy.py:715
 msgid "Invalid input. Try again..."
 msgstr "Ungültige Eingabe. Nächster Versuch..."
 
-#: modules_copy.py:425 modules.py_copy.py:427
+#: modules_copy.py:425 modules.py_copy.py:595 modules.py_copy.py:592
+#: modules_copy.py:592
 msgid "Invalid path"
 msgstr "Ungültiger Pfad"
 
-#: gopro.glade:280
+#: gopro.glade:280 gopro.glade:427
 msgid "Memory card"
 msgstr "Speicherkarte"
 
-#: modules_copy.py:316 modules.py_copy.py:318
+#: modules_copy.py:316 modules.py_copy.py:444 modules.py_copy.py:441
+#: modules_copy.py:441
 msgid ""
 "Memory card found. Copy and rename media files to working directory? (y/n) "
 msgstr ""
 "Speicherkarte gefunden. Dateien ins Arbeitsverzeichnis kopieren und "
 "umbenennen? (y/n) "
 
-#: modules_copy.py:318 modules.py_copy.py:320
+#: modules_copy.py:318 modules.py_copy.py:446 modules.py_copy.py:443
+#: modules_copy.py:443
 msgid "Move along. There is nothing to see here."
 msgstr "Weitergehen. Es gibt hier nichts zu sehen."
 
@@ -259,101 +349,151 @@ msgstr "Multiplikator"
 msgid "Multiplier for timelapse videos"
 msgstr "Multiplikator für Zeitraffer-Videos"
 
-#: modules_copy.py:610 modules.py_copy.py:612
+#: modules_copy.py:610 modules.py_copy.py:781 modules.py_copy.py:778
+#: modules_copy.py:778
 msgid "Multiplier must be larger than 1."
 msgstr "Multiplikator muss größer als 1 sein."
 
-#: modules_copy.py:606 modules.py_copy.py:608
+#: modules_copy.py:606 modules.py_copy.py:777 modules.py_copy.py:774
+#: modules_copy.py:774
 msgid "Multiplier: "
 msgstr "Multiplikator: "
 
-#: modules_copy.py:343 modules.py_copy.py:345
-msgid "No GoPro device"
-msgstr "Kein GoPro-Medium"
+#: modules.py_copy.py:473 modules_copy.py:473
+msgid "No GoPro device."
+msgstr "Kein GoPro-Medium."
 
-#: modules_copy.py:300 modules.py_copy.py:302
+#: modules_copy.py:300 modules.py_copy.py:426 modules.py_copy.py:423
+#: modules_copy.py:423
 msgid "No change."
 msgstr "Keine Änderung."
 
-#: modules_copy.py:348 modules.py_copy.py:350
+#: modules.py_copy.py:404 modules.py_copy.py:401 modules_copy.py:401
+msgid ""
+"No configuration for working directory in config file. Set default value (~/"
+"GP)..."
+msgstr ""
+"Keine Konfiguration für Arbeitsverzeichnis in der Konfigurationsdatei. "
+"Verwende Standardwert (~/GP)..."
+
+#: modules_copy.py:348 modules.py_copy.py:481 modules.py_copy.py:478
+#: modules_copy.py:478
 msgid "No devices found."
 msgstr "Keine Medien gefunden."
 
-#: modules_copy.py:484 modules.py_copy.py:486
+#: gopro.glade:839
+msgid "No free space"
+msgstr "Kein Speicherplatz"
+
+#: modules_copy.py:484 modules.py_copy.py:655 modules.py_copy.py:652
+#: modules_copy.py:652
 msgid "No matching image files."
 msgstr "Keine passenden Bilddateien."
 
-#: modules_copy.py:661 modules.py_copy.py:663
+#: modules_copy.py:661 modules.py_copy.py:832 modules.py_copy.py:829
+#: modules_copy.py:829
 msgid "No photos found."
 msgstr "Keine Fotos gefunden."
 
-#: modules_copy.py:581 modules.py_copy.py:583
+#: modules_copy.py:581 modules.py_copy.py:752 modules.py_copy.py:749
+#: modules_copy.py:749
 msgid "No video files found."
 msgstr "Keine Videodateien gefunden."
 
-#: modules_copy.py:452 modules.py_copy.py:454
+#: modules_copy.py:452 modules.py_copy.py:623 modules.py_copy.py:620
+#: modules_copy.py:620
 msgid "No video files."
 msgstr "Keine Videodateien."
 
-#: gopro.glade:223 gopro.glade:332
+#: gopro.glade:846
+msgid "Not enough disc space"
+msgstr "Nicht genug Speicherplatz"
+
+#: gopro.glade:223 gopro.glade:332 gopro.glade:370 gopro.glade:479
 msgid "Open"
 msgstr "Öffnen"
 
-#: gopro.glade:544
+#: modules.py_copy.py:592 modules.py_copy.py:589 modules_copy.py:589
+msgid "Permission denied."
+msgstr "Zugriff verweigert."
+
+#: gopro.glade:544 gopro.glade:702
 msgid "Photo"
 msgstr "Foto"
 
-#: gopro.glade:559
+#: gopro.glade:559 gopro.glade:717
 msgid "Photo (subdirectories)"
 msgstr "Foto (Unterordner)"
 
-#: gopro.glade:209
+#: gopro.glade:209 gopro.glade:356
 msgid "Refresh"
 msgstr "Aktualisieren"
 
 #: modules_copy.py:442 modules_copy.py:446 modules_copy.py:462
-#: modules_copy.py:476 modules.py_copy.py:444 modules.py_copy.py:448
-#: modules.py_copy.py:464 modules.py_copy.py:478
+#: modules_copy.py:476 modules.py_copy.py:613 modules.py_copy.py:617
+#: modules.py_copy.py:633 modules.py_copy.py:647 modules.py_copy.py:610
+#: modules.py_copy.py:614 modules.py_copy.py:630 modules.py_copy.py:644
+#: modules_copy.py:610 modules_copy.py:614 modules_copy.py:630
+#: modules_copy.py:644
 #, python-format
 msgid "Rename %s to %s."
 msgstr "%s wird in %s umbenannt."
 
-#: gopro.glade:318
+#: gopro.glade:318 gopro.glade:465
 msgid "Search"
 msgstr "Suche"
 
-#: modules_copy.py:332 modules.py_copy.py:334
+#: modules_copy.py:332 modules.py_copy.py:465 modules.py_copy.py:462
+#: modules_copy.py:462
 #, python-format
 msgid "Search device in %s"
 msgstr "Suche Medium in %s"
 
-#: modules_copy.py:337 modules.py_copy.py:339
+#: modules_copy.py:337 modules.py_copy.py:470 modules.py_copy.py:467
+#: modules_copy.py:467
 #, python-format
 msgid "Search in %s"
 msgstr "Suche in %s"
 
-#: modules_copy.py:105 modules.py_copy.py:106
+#: modules_copy.py:105 modules.py_copy.py:154 modules.py_copy.py:151
+#: modules_copy.py:151
 msgid "Select clicked"
 msgstr "Auswahl angeklickt"
 
-#: modules_copy.py:587 modules_copy.py:668 modules.py_copy.py:589
-#: modules.py_copy.py:670
+#: modules_copy.py:587 modules_copy.py:668 modules.py_copy.py:758
+#: modules.py_copy.py:839 modules.py_copy.py:755 modules.py_copy.py:836
+#: modules_copy.py:755 modules_copy.py:836
 msgid "Select directory to create timelapse video of (0 to cancel): "
 msgstr "Verzeichnis für Timelapse-Video auswählen (0 für Abbruch): "
 
-#: gopro.glade:464
+#: modules.py_copy.py:118 modules_copy.py:118
+#, python-format
+msgid "Selected: %s"
+msgstr "Ausgewählt: %s"
+
+#: gopro.glade:464 gopro.glade:611
 msgid "Size"
 msgstr "Größe"
 
-#: gopro.glade:145
-msgid "ThereGoesMyHero"
-msgstr "ThereGoesMyHero"
+#: modules.py_copy.py:523 modules.py_copy.py:520 modules_copy.py:520
+msgid "There are no subfolders in the working directory yet"
+msgstr "Noch keine Unterordner im Arbeitsverzeichnis"
 
-#: gopro.glade:432 gopro.glade:528
+#: gopro.glade:847
+msgid ""
+"There is not enough space to copy media files to the working directory. Try "
+"again later after problem is solved."
+msgstr ""
+"Es ist nicht ausreichend Speicherplatz verfügbar, um die Dateien ins "
+"Arbeitsverzeichnis zu kopieren. Erneut versuchen, wenn das Problem behoben "
+"ist."
+
+#: gopro.glade:432 gopro.glade:528 gopro.glade:579 gopro.glade:686
 msgid "Video"
 msgstr "Video"
 
-#: modules_copy.py:450 modules.py_copy.py:452
+#: modules_copy.py:450 modules.py_copy.py:621 modules.py_copy.py:618
+#: modules_copy.py:618
 msgid ""
 "Video files do not match the GoPro naming convention. No need for renaming "
 "or renaming already done."
@@ -361,30 +501,62 @@ msgstr ""
 "Videodatein entsprechen nicht dem GoPro-Benennungsschema. Umbenennen nicht "
 "erforderlich oder bereits erfolgt."
 
-#: gopro.glade:171
+#: gopro.glade:171 gopro.glade:318
 msgid "Working directory"
 msgstr "Arbeitsverzeichnis"
 
-#: modules.py_copy.py:578 modules.py_copy.py:658
+#: modules.py_copy.py:358 modules.py_copy.py:355 modules_copy.py:355
+#, python-format
+msgid "Working directory: %s"
+msgstr "Arbeitsverzeichnis: %s"
+
+#: gopro.glade:261
+msgid "_Help"
+msgstr "_Hilfe"
+
+#: modules.py_copy.py:744 modules.py_copy.py:824 modules_copy.py:744
+#: modules_copy.py:824
 msgid "directory"
 msgstr "Verzeichnis"
 
-#: modules.py_copy.py:578 modules.py_copy.py:658
+#: modules.py_copy.py:519 modules.py_copy.py:516 modules_copy.py:516
+msgid "name"
+msgstr "Name"
+
+#: modules.py_copy.py:516 modules.py_copy.py:744 modules.py_copy.py:824
+#: modules_copy.py:516 modules_copy.py:744 modules_copy.py:824
 msgid "no."
 msgstr "Nr."
 
-#: gopro.glade:355
+#: gopro.glade:355 gopro.glade:502
 msgid "path/to/memory/card"
 msgstr "Pfad/zur/Speicherkarte"
 
-#: gopro.glade:246
+#: gopro.glade:246 gopro.glade:393
 msgid "path/to/working/directory"
 msgstr "Pfad/zum/Arbeitsverzeichnis"
 
-#: modules_copy.py:489 modules.py_copy.py:491
+#: modules_copy.py:489 modules.py_copy.py:660 modules.py_copy.py:657
+#: modules_copy.py:657
 msgid "preview file(s) (LRV/THM) found."
 msgstr "Vorschaudatei(en) (LRV/THM) gefunden."
 
-#: modules.py_copy.py:578 modules.py_copy.py:658
+#: modules.py_copy.py:744 modules.py_copy.py:824 modules_copy.py:744
+#: modules_copy.py:824
 msgid "quantity"
 msgstr "Anzahl"
+
+#~ msgid "_Hilfe"
+#~ msgstr "_Hilfe"
+
+#~ msgid "%s already exists in target directory"
+#~ msgstr "%s existiert bereits im Verzeichnis."
+
+#~ msgid "ThereGoesMyHero"
+#~ msgstr "ThereGoesMyHero"
+
+#~ msgid "Found photos"
+#~ msgstr "Fotos gefunden."
+
+#~ msgid "No GoPro device"
+#~ msgstr "Kein GoPro-Medium"

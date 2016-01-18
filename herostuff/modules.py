@@ -115,22 +115,33 @@ class Handler:
         if row != None:
             model = widget.get_model()
             self.copyfolder = model[row][0]
-            print("Selected: %s" % self.copyfolder)
+            cli.show_message(_("Selected: %s") % self.copyfolder)
         else:
             self.copyfolder = widget.get_child().get_text()
-            print("Entered: %s" % self.copyfolder)
+            cli.show_message(_("Entered: %s") % self.copyfolder)
 
     ##### No space to copy files message dialog #####
 
     def on_nospacemessage_response(self,widget,*args):
         widget.hide_on_delete()
 
+    ##### About dialog #####
+    
+    def on_ok_about_clicked(self,widget):
+        app.builder.get_object("aboutdialog").hide_on_delete()
+
+    ##### Menu #####
+
+    def on_menu_about_activate(self,widget):
+        app.builder.get_object("aboutdialog").show()
+
+
 class FileChooserDialog(Gtk.Window):
     """File chooser dialog when changing working directory"""
     #coder was too stupid to create a functional fcd with Glade so she borrowed some code from the documentation site
     def on_folder_clicked(self):
-        Gtk.Window.__init__(self, title="Change working directory")
-        dialog = Gtk.FileChooserDialog("Choose directory", self,
+        Gtk.Window.__init__(self, title=_("Change working directory"))
+        dialog = Gtk.FileChooserDialog(_("Choose directory"), self,
             Gtk.FileChooserAction.SELECT_FOLDER,
             (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
              "Apply", Gtk.ResponseType.OK))
@@ -341,17 +352,17 @@ class GoProGo:
             self.createconfig(self.stdir)
         else:
             self.readconfig()
-        self.show_message("Working directory: %s" % self.stdir)
+        self.show_message(_("Working directory: %s") % self.stdir)
 
     def createconfig(self,wdir):
         """Creates new configuration file and writes current working directory"""
 
-        print("Creating config file...")
+        print(_("Creating config file..."))
         config = open(self.config,"w")
-        config.write("""##### CONFIG FILE FOR GOPRO TOOL #####
+        config.write(_("""##### CONFIG FILE FOR GOPRO TOOL #####
 ##### EDIT IF YOU LIKE. YOU ARE AN ADULT. #####
 
-""")
+"""))
         config.close()
         self.write_wdir_config(wdir)
 
@@ -387,7 +398,7 @@ class GoProGo:
         config.close()
         #add wdir line when not found
         if match is False:
-            self.show_message("No configuration for working directory in config file. Set default value (~/GP)...")
+            self.show_message(_("No configuration for working directory in config file. Set default value (~/GP)..."))
             self.stdir = self.defaultwdir
             self.chkdir(self.stdir) 
             #write default wdir to config file
@@ -459,7 +470,7 @@ class GoProGo:
                     self.cardpath = os.path.join(userdrive,d)
                     return
                 else:
-                    self.show_message(_("No GoPro device"))
+                    self.show_message(_("No GoPro device."))
                 os.chdir('..')
             #wieder ins ursprüngliche Arbeitsverzeichnis wechseln
             self.workdir(self.stdir)
@@ -470,7 +481,7 @@ class GoProGo:
     def copycard(self,mountpoint,targetdir):
         """Copy media files to target folder in working directory and rename them"""
         self.chkdir(targetdir)
-        print("Copy files from %s to %s." % (mountpoint,targetdir))
+        print(_("Copy files from %s to %s.") % (mountpoint,targetdir))
         self.copymedia(os.path.join(mountpoint,"DCIM"),targetdir)
         self.show_message(_("Files successfully copied."))
         os.chdir(targetdir)
@@ -500,13 +511,13 @@ class GoProGo:
                 counter += 1
                 self.copydirlist.append([counter,d])
         if counter > 0:
-            print("(project) folders in working directory")
-            print("**************************************")
-            print(_("--> {0:^6} | {1:25}").format(_("no"),_("name")))
+            print(_("(project) folders in working directory"))
+            print(_("**************************************"))
+            print("--> {0:^6} | {1:25}").format(_("no."),_("name")))
             for n in self.copydirlist:
-                print(_("--> {0:^6} | {1:25}").format(n[0],n[1]))
+                print("--> {0:^6} | {1:25}".format(n[0],n[1]))
         else:
-            print("There are no subfolders in the working directory yet")
+            print(_("There are no subfolders in the working directory yet"))
         return self.copydir_prompt(default,counter)
 
     def copydir_prompt(self,default,c):
@@ -515,7 +526,7 @@ class GoProGo:
             return default
         while 1:
             try:
-                prompt = input(_("Select directory to copy file to (return for default value: %s): ") % default)
+                prompt = input(_("Choose destination folder (return for default value: %s): ") % default)
                 if prompt == "":
                     return default
                 elif int(prompt) > c or int(prompt) < 1:
@@ -533,7 +544,7 @@ class GoProGo:
             os.chdir(d)
             self.show_message(d)
             if glob.glob('*.JPG'):
-                self.show_message(_("Found photos"))
+                self.show_message(_("Found photos..."))
                 #for easy handling keep pictures in subfolders analogue to source file structure
                 self.chkdir(os.path.join(dest,"Images_"+d[0:3]))
                 self.workdir(os.path.join(src,d))
@@ -544,15 +555,15 @@ class GoProGo:
             for f in os.listdir():
                 if f.endswith(".MP4"):
                     if os.path.exists(os.path.join(dest,f)):
-                        self.show_message(_("%s already exists in target directory") % f)
+                        self.show_message(_("%s already exists in target directory.") % f)
                     else:
                         self.show_message(_("Copy %s") % f)
                         shutil.copy(f,dest)
                 if f.endswith(".JPG"):
                     if os.path.exists(os.path.join(dest,"Images_"+d[0:3],f)):
-                        self.show_message(_("%s already exists in target directory") % f)
+                        self.show_message(_("%s already exists in target directory.") % f)
                     else:
-                        self.show_message(_("Copy %s") % f)
+                        self.show_message(_("Copy %s...") % f)
                         shutil.copy(f,os.path.join(dest,"Images_"+d[0:3]))
                 counter += 1
                 app.refresh_progressbar(counter,abs_files)
@@ -575,7 +586,7 @@ class GoProGo:
                     self.show_message(_("Error: no write permission"))
                     self.workdir(self.stdir)
             elif exception.errno == errno.EACCES:
-                print("Permission denied.")
+                print(_("Permission denied."))
                 return False
             else:
                 self.show_message(_("Invalid path"))
@@ -611,7 +622,7 @@ class GoProGo:
         #Sequenzen nummeriert nach Muster Seq_0n_00n.JPG, Einzelfotos Img_00n.JPG
         if glob.glob('G0*.JPG') or glob.glob('GOPR*.JPG'):
             #Einzelbilder
-            message = "%d image files will be renamed." % (len(glob.glob('G*.JPG'))+len(glob.glob('GOPR*.JPG')))
+            message = _("%d image files will be renamed.") % (len(glob.glob('G*.JPG'))+len(glob.glob('GOPR*.JPG')))
             self.show_message(message)
             counter=1
             for f in sorted(glob.glob('GOPR*.JPG')):
@@ -730,9 +741,9 @@ class TimeLapse:
             print(_("""
 Video:
 ******"""))
-            print(_("--> {0:^6} | {1:40} | {2:>}".format("No.","Directory","Amount")))
+            print("--> {0:^6} | {1:40} | {2:>}".format(_("no."),_("directory"),_("quantity")))
             for n in self.wherevid:
-                print(_("--> {0:^6} | {1:40} | {2:>4}").format(n[0],n[1],n[2]))
+                print("--> {0:^6} | {1:40} | {2:>4}".format(n[0],n[1],n[2]))
             self.choosevid(counter)
         else:
             print(_("No video files found."))
@@ -747,7 +758,7 @@ Video:
                 elif befehl > c or befehl < 0:
                     print(_("Invalid input, input must be integer between 1 and",c,". Try again..."))
                 else:
-                    message = "Create timelapse for directory "+self.wherevid[befehl-1][1]
+                    message = _("Create timelapse for directory ")+self.wherevid[befehl-1][1]
                     cli.show_message(message)
                     self.choosemult(self.wherevid[befehl-1][1])
                     break
@@ -810,9 +821,9 @@ Video:
             print(_("""
 Images:
 *******"""))
-            print(_("--> {0:^6} | {1:40} | {2:>}".format("No.","Directory","Amount")))
+            print("--> {0:^6} | {1:40} | {2:>}".format(_("no."),_("directory"),_("quantity"))))
             for n in self.whereimg:
-                print(_("--> {0:^6} | {1:40} | {2:>4}").format(n[0],n[1],n[2]))
+                print("--> {0:^6} | {1:40} | {2:>4}".format(n[0],n[1],n[2]))
             self.chooseimg(counter)
         else:
             print(_("No photos found."))

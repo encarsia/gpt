@@ -51,7 +51,6 @@ def get_ignorelist(f):
 def get_pot_code(f,out):
     command = ['xgettext',
                 '-L','Python',
-                '--keyword=_',
                 '-j',
                 '-o', os.path.join('po',out),
                 f]
@@ -80,10 +79,10 @@ def update_po_files(t):
 
 def replace_source(old,new):
     while 1:
-        yessir = input("The new source file is correct (you better test it, stupid!) and can safely replace the old one. (y/n) ")
+        yessir = input("The new source file is correct (you better check it, stupid!) and can safely replace the old one. (y/n) ")
         if yessir == "y":
             os.rename(new,old)
-            print("%s is %s now." % (old,new))
+            print("%s is %s now." % (new,old))
             break
         elif yessir == "n":
             print("No. That's okay, too.")
@@ -118,7 +117,7 @@ if __name__ == "__main__":
     source_file = 'modules.py'
     gladefile = 'gopro.glade'
    
-    source_copy = '%s_copy.py' % source_file
+    source_copy =  source_file[:-3] + '_copy.py'
     transl_templ = 'GPT.pot'
     ignorefile = os.path.join('po','ignoredstrings')
 
