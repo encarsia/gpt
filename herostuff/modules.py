@@ -51,8 +51,8 @@ class Handler:
         if cli.freespace(cli.cardpath,cli.stdir) is True:
             app.get_targetfolderwindow_content()
         else:
-            app.builder.get_object("nospacemessage").run()
             cli.show_message(_("Failed to copy files. Not enough free space."))
+            app.builder.get_object("nospacemessage").run()
         app.load_dircontent()
 
     def on_find_sd_clicked(self,widget):
@@ -108,7 +108,10 @@ class Handler:
 
     def on_targetfolder_ok_clicked(self,widget):
         app.builder.get_object("targetfolderwindow").hide_on_delete()
+        app.builder.get_object("importmessage").show_all()
         cli.copycard(cli.cardpath,os.path.join(cli.stdir,self.copyfolder))
+        app.builder.get_object("importmessage").hide_on_delete()
+        app.load_dircontent()
 
     def on_combobox1_changed(self,widget):
         row = widget.get_active_iter()
@@ -316,7 +319,7 @@ class GoProGUI:
             if d != today:
                 copyfolder_list.append([d])
         
-        #bug: no effects when set in glade
+        #glade bug: no effects when set in glade
         self.builder.get_object("combobox1").set_entry_text_column(0)
         #set first row as default editable entry
         self.builder.get_object("combobox1").set_active(0)
@@ -406,11 +409,11 @@ class GoProGo:
 
     def show_message(self,message):
         """Show notifications in terminal window and status bar if possible"""
-        print(message)
         try:
             app.builder.get_object("statusbar1").push(1,message)
         except:
             pass
+        print(message)
 
     #Arbeitsverzeichnis festlegen
     def chwdir(self):
@@ -435,6 +438,7 @@ class GoProGo:
 
     #function exclusively called by cli
     def handlecard(self):
+        #TODO: if detectcard is True...
         self.detectcard()
         if self.cardfound is True:
             while 1:
@@ -467,10 +471,18 @@ class GoProGo:
                 self.show_message(_("Search in %s") % d)
                 if "Get_started_with_GoPro.url" in os.listdir():
                     self.cardfound = True
+                    self.cardfound_path = "DCIM"
                     self.cardpath = os.path.join(userdrive,d)
+                    cli.show_message("Found GoPro device.")
+                    return
+                elif "SONYCARD.IND" in os.listdir(os.path.join(os.getcwd(),"PRIVATE","SONY")):
+                    self.cardfound = True
+                    self.cardfound_path = "MP_ROOT"
+                    self.cardpath = os.path.join(userdrive,d)
+                    cli.show_message("Found Sony device.")
                     return
                 else:
-                    self.show_message(_("No GoPro device."))
+                    self.show_message(_("No supported device found."))
                 os.chdir('..')
             #wieder ins ursprüngliche Arbeitsverzeichnis wechseln
             self.workdir(self.stdir)
@@ -481,13 +493,14 @@ class GoProGo:
     def copycard(self,mountpoint,targetdir):
         """Copy media files to target folder in working directory and rename them"""
         self.chkdir(targetdir)
-        print(_("Copy files from %s to %s.") % (mountpoint,targetdir))
-        self.copymedia(os.path.join(mountpoint,"DCIM"),targetdir)
+        self.show_message(_("Copy files from %s to %s.") % (mountpoint,targetdir))
+        self.copymedia(os.path.join(mountpoint,self.cardfound_path),targetdir)
         self.show_message(_("Files successfully copied."))
         os.chdir(targetdir)
         for path, dirs, files in os.walk(targetdir):
             os.chdir(path)
             self.sortfiles()
+        self.show_message(_("Done."))
         os.chdir(mountpoint)
 
     #Speicherplatz analysieren
@@ -542,22 +555,27 @@ class GoProGo:
         os.chdir(src)
         for d in os.listdir():
             os.chdir(d)
-            self.show_message(d)
+            self.show_message(_("Changed directory to %s") % d)
+            
+            #for easy handling keep pictures in subfolders analogue to source file structure
+            #create subfolder for image sequences
             if glob.glob('*.JPG'):
                 self.show_message(_("Found photos..."))
-                #for easy handling keep pictures in subfolders analogue to source file structure
                 self.chkdir(os.path.join(dest,"Images_"+d[0:3]))
                 self.workdir(os.path.join(src,d))
+            
             #counter for progress bar
             counter = 0
             abs_files = len(os.listdir())
             app.reset_progressbar()
+            
+            #copy files
             for f in os.listdir():
                 if f.endswith(".MP4"):
                     if os.path.exists(os.path.join(dest,f)):
                         self.show_message(_("%s already exists in target directory.") % f)
                     else:
-                        self.show_message(_("Copy %s") % f)
+                        self.show_message(_("Copy %s...") % f)
                         shutil.copy(f,dest)
                 if f.endswith(".JPG"):
                     if os.path.exists(os.path.join(dest,"Images_"+d[0:3],f)):
