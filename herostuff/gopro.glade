@@ -833,13 +833,18 @@
   <object class="GtkMessageDialog" id="importmessage">
     <property name="can_focus">False</property>
     <property name="type">popup</property>
+    <property name="title" translatable="yes">Import...wait</property>
+    <property name="resizable">False</property>
+    <property name="window_position">center-on-parent</property>
     <property name="type_hint">dialog</property>
+    <property name="deletable">False</property>
     <property name="transient_for">gpwindow</property>
     <property name="text" translatable="yes">Import in progress</property>
     <property name="secondary_text" translatable="yes">An import job is running. Please wait until finished.</property>
     <child internal-child="vbox">
       <object class="GtkBox" id="messagedialog-vbox3">
         <property name="can_focus">False</property>
+        <property name="halign">baseline</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
