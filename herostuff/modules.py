@@ -17,7 +17,7 @@ _ = gettext.gettext
 try:
     import gi
     gi.require_version('Gtk','3.0')
-    from gi.repository import Gtk
+    from gi.repository import Gtk,Gdk
 except:
     print(_("Could not load GTK+, only command-line version is available."))
 
@@ -56,6 +56,7 @@ class Handler:
 
     def on_find_sd_clicked(self,widget):
         app.find_sd()
+        app.discspace_info()
 
     def on_open_sd_clicked(self,widget):
         subprocess.run(['xdg-open',cli.cardpath])
@@ -170,6 +171,7 @@ class GoProGUI:
         self.show_workdir()
         self.load_dircontent()
         self.find_sd()
+        self.discspace_info()
 
         self.builder.get_object("treeview-selection").set_mode(Gtk.SelectionMode.SINGLE)
         
@@ -295,6 +297,73 @@ class GoProGUI:
             self.builder.get_object("act_sd").set_text("(none)")
             self.builder.get_object("import_sd").set_sensitive(False)
             self.builder.get_object("open_sd").set_sensitive(False)
+
+    def discspace_info(self):
+        """Save memory information about disc and card in list [total,used,free], use values to display levelbars and label element below"""
+        
+        self.disc_space = [shutil.disk_usage(cli.stdir).total,
+                            shutil.disk_usage(cli.stdir).used,
+                            shutil.disk_usage(cli.stdir).free]
+        if cli.detectcard() is True:
+            self.card_space = [shutil.disk_usage(cli.cardpath).total,
+                                shutil.disk_usage(cli.cardpath).used,
+                                shutil.disk_usage(cli.cardpath).free,True]
+        else:
+            self.card_space = [1,0,0,False]
+
+        self.disc_bar = self.builder.get_object("level_wdir")
+        self.card_bar = self.builder.get_object("level_sd")
+
+        css = b"""
+        
+GtkLevelBar.fill-block.empty-fill-block {
+    border-color: transparent;
+    background-color: transparent;
+    }
+
+GtkLevelBar.fill-block {
+    background-color: #FF4D00;
+}
+
+GtkLevelBar.fill-block.level-low {
+    background-color: #00D30F;
+}
+   
+GtkLevelBar.fill-block.level-high {
+    background-color: #004EFF;
+}
+
+GtkLevelBar.fill-block.level-alert {
+    background-color: #CA0002;
+}
+        """
+ 
+        #load css stylesheet
+        style_provider = Gtk.CssProvider()
+        style_provider.load_from_data(css)
+        
+        Gtk.StyleContext.add_provider_for_screen(
+            Gdk.Screen.get_default(),
+            style_provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+        )
+        
+        self.disc_bar.add_offset_value("low",0.4)
+        self.disc_bar.add_offset_value("high",0.8)
+        self.disc_bar.add_offset_value("alert",0.9)
+
+        self.card_bar.add_offset_value("low",0.4)
+        self.card_bar.add_offset_value("high",0.8)
+        self.card_bar.add_offset_value("alert",0.9)
+
+        self.disc_bar.set_value(self.disc_space[1]/self.disc_space[0])
+        self.card_bar.set_value(self.card_space[1]/self.card_space[0])
+
+        self.builder.get_object("free_wdir").set_text("free: {0} of {1}".format(self.sizeof_fmt(self.disc_space[2]),self.sizeof_fmt(self.disc_space[0])))
+        if self.card_space[3] is True:
+            self.builder.get_object("free_sd").set_text("free: {0} of {1}".format(self.sizeof_fmt(self.card_space[2]),self.sizeof_fmt(self.card_space[0])))
+        else:
+            self.builder.get_object("free_sd").set_text("")
 
     #borrowed from http://stackoverflow.com/questions/1094841/reusable-library-to-get-human-readable-version-of-file-size
     def sizeof_fmt(self,num, suffix='B'):
