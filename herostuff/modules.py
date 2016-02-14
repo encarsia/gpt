@@ -278,8 +278,7 @@ class GoProGUI:
             #see  http://faq.pygtk.org/index.py?req=show&file=faq23.020.htp or http://ubuntuforums.org/showthread.php?t=1056823...it, well, works
             #while Gtk.events_pending(): Gtk.main_iteration()
         except:
-            print("refresh progressbar error")
-            #pass
+            pass
 
     def find_sd(self):
         if cli.detectcard() is True:
@@ -353,9 +352,9 @@ GtkLevelBar.fill-block.level-alert {
         self.disc_bar.set_value(self.disc_space[1]/self.disc_space[0])
         self.card_bar.set_value(self.card_space[1]/self.card_space[0])
 
-        self.builder.get_object("free_wdir").set_text("free: {0} of {1}".format(self.sizeof_fmt(self.disc_space[2]),self.sizeof_fmt(self.disc_space[0])))
+        self.builder.get_object("free_wdir").set_text(_("free: {0} of {1}").format(self.sizeof_fmt(self.disc_space[2]),self.sizeof_fmt(self.disc_space[0])))
         if self.card_space[3] is True:
-            self.builder.get_object("free_sd").set_text("free: {0} of {1}".format(self.sizeof_fmt(self.card_space[2]),self.sizeof_fmt(self.card_space[0])))
+            self.builder.get_object("free_sd").set_text(_("free: {0} of {1}").format(self.sizeof_fmt(self.card_space[2]),self.sizeof_fmt(self.card_space[0])))
         else:
             self.builder.get_object("free_sd").set_text("")
 
@@ -474,7 +473,7 @@ class GoProGo:
             app.builder.get_object("statusbar1").push(1,message)
             while Gtk.events_pending(): Gtk.main_iteration()
         except:
-            print("statusbar update failed")
+            pass
         print(message)
 
     #Arbeitsverzeichnis festlegen
@@ -531,12 +530,12 @@ class GoProGo:
                 if "Get_started_with_GoPro.url" in os.listdir():
                     self.subpath_card = "DCIM"
                     self.cardpath = os.path.join(userdrive,d)
-                    cli.show_message("Found GoPro device.")
+                    cli.show_message(_("Found GoPro device."))
                     return True
                 elif "SONYCARD.IND" in os.listdir(os.path.join(os.getcwd(),"PRIVATE","SONY")):
                     self.subpath_card = "MP_ROOT"
                     self.cardpath = os.path.join(userdrive,d)
-                    cli.show_message("Found Sony device.")
+                    cli.show_message(_("Found Sony device."))
                     return True
                 else:
                     self.show_message(_("No supported device found."))
