@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-import sys
 import errno
 import glob
 import getpass
@@ -18,7 +17,7 @@ _ = gettext.gettext
 try:
     import gi
     gi.require_version('Gtk','3.0')
-    from gi.repository import Gtk
+    from gi.repository import Gtk,Gdk
 except:
     print(_("Could not load GTK+, only command-line version is available."))
 
@@ -42,6 +41,7 @@ class Handler:
 
     def on_refresh_wdir_clicked(self,widget):
         app.load_dircontent()
+        app.discspace_info()
 
     def on_open_wdir_clicked(self,widget):
         subprocess.run(['xdg-open',cli.stdir])
@@ -51,12 +51,13 @@ class Handler:
         if cli.freespace(cli.cardpath,cli.stdir) is True:
             app.get_targetfolderwindow_content()
         else:
-            app.builder.get_object("nospacemessage").run()
             cli.show_message(_("Failed to copy files. Not enough free space."))
+            app.builder.get_object("nospacemessage").run()
         app.load_dircontent()
 
     def on_find_sd_clicked(self,widget):
         app.find_sd()
+        app.discspace_info()
 
     def on_open_sd_clicked(self,widget):
         subprocess.run(['xdg-open',cli.cardpath])
@@ -108,7 +109,10 @@ class Handler:
 
     def on_targetfolder_ok_clicked(self,widget):
         app.builder.get_object("targetfolderwindow").hide_on_delete()
+        app.builder.get_object("importmessage").show_all()
         cli.copycard(cli.cardpath,os.path.join(cli.stdir,self.copyfolder))
+        app.builder.get_object("importmessage").hide_on_delete()
+        app.load_dircontent()
 
     def on_combobox1_changed(self,widget):
         row = widget.get_active_iter()
@@ -168,6 +172,7 @@ class GoProGUI:
         self.show_workdir()
         self.load_dircontent()
         self.find_sd()
+        self.discspace_info()
 
         self.builder.get_object("treeview-selection").set_mode(Gtk.SelectionMode.SINGLE)
         
@@ -233,8 +238,8 @@ class GoProGUI:
 
     def timelapse_vid(self,p,m):
         """Create video timelapse"""
-        #p=path, m=multiplier    
-        self.reset_progressbar()
+        #p=path, m=multiplier
+        self.refresh_progressbar(0,1)
         os.chdir(p)
         ctl.makeldir()
         ctl.ffmpeg_vid(p,m)
@@ -243,7 +248,7 @@ class GoProGUI:
     def timelapse_img(self,p):
         """Create timelapse from images"""
         #p=path
-        self.reset_progressbar()
+        self.refresh_progressbar(0,1)
         os.chdir(p)
         ctl.ldir_img(p)
         ctl.ffmpeg_img(p)
@@ -251,7 +256,7 @@ class GoProGUI:
         
     def timelapse_img_subfolder(self,p):
         """Create timelapse from images in subfolders"""
-        self.reset_progressbar()
+        self.refresh_progressbar(0,1)
         os.chdir(p)
         ctl.makeldir()
         abs_subf = len(glob.glob("Images_1*"))
@@ -266,26 +271,17 @@ class GoProGUI:
         self.load_dircontent()
 
     def refresh_progressbar(self,c,a):
-        """Progress bar"""
+        """Refresh progress bar with current status"""
         fraction = c/a
         try:
             self.builder.get_object("progressbar").set_fraction(fraction)
             #see  http://faq.pygtk.org/index.py?req=show&file=faq23.020.htp or http://ubuntuforums.org/showthread.php?t=1056823...it, well, works
-            while Gtk.events_pending(): Gtk.main_iteration()
-        except:
-            pass
-
-    def reset_progressbar(self):
-        """Reset progress bar"""
-        try:
-            self.builder.get_object("progressbar").set_fraction(0.0)
-            while Gtk.events_pending(): Gtk.main_iteration()
+            #while Gtk.events_pending(): Gtk.main_iteration()
         except:
             pass
 
     def find_sd(self):
-        cli.detectcard()
-        if cli.cardfound is True:
+        if cli.detectcard() is True:
             #activate buttons if card is mounted
             self.builder.get_object("act_sd").set_text(cli.cardpath)
             self.builder.get_object("import_sd").set_sensitive(True)
@@ -294,6 +290,73 @@ class GoProGUI:
             self.builder.get_object("act_sd").set_text("(none)")
             self.builder.get_object("import_sd").set_sensitive(False)
             self.builder.get_object("open_sd").set_sensitive(False)
+
+    def discspace_info(self):
+        """Save memory information about disc and card in list [total,used,free], use values to display levelbars and label element below"""
+        
+        self.disc_space = [shutil.disk_usage(cli.stdir).total,
+                            shutil.disk_usage(cli.stdir).used,
+                            shutil.disk_usage(cli.stdir).free]
+        if cli.detectcard() is True:
+            self.card_space = [shutil.disk_usage(cli.cardpath).total,
+                                shutil.disk_usage(cli.cardpath).used,
+                                shutil.disk_usage(cli.cardpath).free,True]
+        else:
+            self.card_space = [1,0,0,False]
+
+        self.disc_bar = self.builder.get_object("level_wdir")
+        self.card_bar = self.builder.get_object("level_sd")
+
+        css = b"""
+        
+GtkLevelBar.fill-block.empty-fill-block {
+    border-color: transparent;
+    background-color: transparent;
+    }
+
+GtkLevelBar.fill-block {
+    background-color: #FF4D00;
+}
+
+GtkLevelBar.fill-block.level-low {
+    background-color: #00D30F;
+}
+   
+GtkLevelBar.fill-block.level-high {
+    background-color: #004EFF;
+}
+
+GtkLevelBar.fill-block.level-alert {
+    background-color: #CA0002;
+}
+        """
+ 
+        #load css stylesheet
+        style_provider = Gtk.CssProvider()
+        style_provider.load_from_data(css)
+        
+        Gtk.StyleContext.add_provider_for_screen(
+            Gdk.Screen.get_default(),
+            style_provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+        )
+        
+        self.disc_bar.add_offset_value("low",0.4)
+        self.disc_bar.add_offset_value("high",0.8)
+        self.disc_bar.add_offset_value("alert",0.9)
+
+        self.card_bar.add_offset_value("low",0.4)
+        self.card_bar.add_offset_value("high",0.8)
+        self.card_bar.add_offset_value("alert",0.9)
+
+        self.disc_bar.set_value(self.disc_space[1]/self.disc_space[0])
+        self.card_bar.set_value(self.card_space[1]/self.card_space[0])
+
+        self.builder.get_object("free_wdir").set_text(_("free: {0} of {1}").format(self.sizeof_fmt(self.disc_space[2]),self.sizeof_fmt(self.disc_space[0])))
+        if self.card_space[3] is True:
+            self.builder.get_object("free_sd").set_text(_("free: {0} of {1}").format(self.sizeof_fmt(self.card_space[2]),self.sizeof_fmt(self.card_space[0])))
+        else:
+            self.builder.get_object("free_sd").set_text("")
 
     #borrowed from http://stackoverflow.com/questions/1094841/reusable-library-to-get-human-readable-version-of-file-size
     def sizeof_fmt(self,num, suffix='B'):
@@ -316,7 +379,7 @@ class GoProGUI:
             if d != today:
                 copyfolder_list.append([d])
         
-        #bug: no effects when set in glade
+        #glade bug: no effects when set in glade
         self.builder.get_object("combobox1").set_entry_text_column(0)
         #set first row as default editable entry
         self.builder.get_object("combobox1").set_active(0)
@@ -406,11 +469,12 @@ class GoProGo:
 
     def show_message(self,message):
         """Show notifications in terminal window and status bar if possible"""
-        print(message)
         try:
             app.builder.get_object("statusbar1").push(1,message)
+            while Gtk.events_pending(): Gtk.main_iteration()
         except:
             pass
+        print(message)
 
     #Arbeitsverzeichnis festlegen
     def chwdir(self):
@@ -435,8 +499,7 @@ class GoProGo:
 
     #function exclusively called by cli
     def handlecard(self):
-        self.detectcard()
-        if self.cardfound is True:
+        if self.detectcard() is True:
             while 1:
                 befehl = input(_("Memory card found. Copy and rename media files to working directory? (y/n) "))
                 if befehl == "n":
@@ -458,7 +521,6 @@ class GoProGo:
         #works for me on Archlinux, where do other distros mount removable drives? (too lazy for research...)
         #TODO try different paths
         userdrive = os.path.join("/run","media",getpass.getuser())
-        self.cardfound = False
         self.show_message(_("Search device in %s") % userdrive)
         try:
             os.chdir(userdrive)
@@ -466,28 +528,36 @@ class GoProGo:
                 os.chdir(d)
                 self.show_message(_("Search in %s") % d)
                 if "Get_started_with_GoPro.url" in os.listdir():
-                    self.cardfound = True
+                    self.subpath_card = "DCIM"
                     self.cardpath = os.path.join(userdrive,d)
-                    return
+                    cli.show_message(_("Found GoPro device."))
+                    return True
+                elif "SONYCARD.IND" in os.listdir(os.path.join(os.getcwd(),"PRIVATE","SONY")):
+                    self.subpath_card = "MP_ROOT"
+                    self.cardpath = os.path.join(userdrive,d)
+                    cli.show_message(_("Found Sony device."))
+                    return True
                 else:
-                    self.show_message(_("No GoPro device."))
+                    self.show_message(_("No supported device found."))
                 os.chdir('..')
             #wieder ins ursprüngliche Arbeitsverzeichnis wechseln
             self.workdir(self.stdir)
         except:
             self.show_message(_("No devices found."))
+            return False
 
     #Dateien kopieren und umbenennen
     def copycard(self,mountpoint,targetdir):
         """Copy media files to target folder in working directory and rename them"""
         self.chkdir(targetdir)
-        print(_("Copy files from %s to %s.") % (mountpoint,targetdir))
-        self.copymedia(os.path.join(mountpoint,"DCIM"),targetdir)
+        self.show_message(_("Copy files from %s to %s.") % (mountpoint,targetdir))
+        self.copymedia(os.path.join(mountpoint,self.subpath_card),targetdir)
         self.show_message(_("Files successfully copied."))
         os.chdir(targetdir)
         for path, dirs, files in os.walk(targetdir):
             os.chdir(path)
             self.sortfiles()
+        self.show_message(_("Done."))
         os.chdir(mountpoint)
 
     #Speicherplatz analysieren
@@ -540,24 +610,33 @@ class GoProGo:
     def copymedia(self,src,dest):
         """Copy files from card to working directory (preview files excluded)"""
         os.chdir(src)
+
         for d in os.listdir():
             os.chdir(d)
-            self.show_message(d)
+            self.show_message(_("Changed directory to %s") % d)
+
+            #for easy handling keep pictures in subfolders analogue to source file structure
+            #create subfolder for image sequences
             if glob.glob('*.JPG'):
                 self.show_message(_("Found photos..."))
-                #for easy handling keep pictures in subfolders analogue to source file structure
                 self.chkdir(os.path.join(dest,"Images_"+d[0:3]))
                 self.workdir(os.path.join(src,d))
+            
             #counter for progress bar
             counter = 0
             abs_files = len(os.listdir())
-            app.reset_progressbar()
+            #reset progressbar
+            app.refresh_progressbar(0,1)
+            
+            #copy files
             for f in os.listdir():
                 if f.endswith(".MP4"):
                     if os.path.exists(os.path.join(dest,f)):
                         self.show_message(_("%s already exists in target directory.") % f)
+                        #give the app time to update status and progressbar to avoid delay
+                        time.sleep(1)
                     else:
-                        self.show_message(_("Copy %s") % f)
+                        self.show_message(_("Copy %s...") % f)
                         shutil.copy(f,dest)
                 if f.endswith(".JPG"):
                     if os.path.exists(os.path.join(dest,"Images_"+d[0:3],f)):
@@ -601,25 +680,38 @@ class GoProGo:
 
     def sortfiles(self):
         """Save video files in (chrono)logical order. Photos are seperated by single shots and sequences. FFmpeg explicitly requires file numbering in "%d" format for timelapse creation. GoPro saves a maximum of 999 files per subfolder so 001.JPG..00n.JPG is sufficient"""
+
         #Video
         if glob.glob('GP*.MP4') or glob.glob('GOPR*.MP4'):
             message = "%d video file(s) will be renamed." % (len(glob.glob('GP*.MP4'))+len(glob.glob('GOPR*.MP4')))
             self.show_message(message)
             for f in glob.glob('GP*.MP4'):
-                newfile=f[4:8]+f[2:4]+".MP4"
-                self.show_message(_("Rename %s to %s.") % (f,newfile))
+                newfile="gp"+f[4:8]+f[2:4]+".MP4"
                 os.rename(f,newfile)
             for f in glob.glob('GOPR*.MP4'):
-                newfile=f[4:8]+"00.MP4"
-                self.show_message(_("Rename %s to %s.") % (f,newfile))
+                newfile="gp"+f[4:8]+"00.MP4"
                 os.rename(f,newfile)
         else:
             if glob.glob('*.MP4') or glob.glob('*.mp4'):
                 self.show_message(_("Video files do not match the GoPro naming convention. No need for renaming or renaming already done."))
             else:
                 self.show_message(_("No video files."))
+
+        #detect existing sequences
+        if glob.glob('Seq_*.MP4') == []:
+            seq = 0
+        else:
+            seq = int(glob.glob('Seq_*.MP4')[-1][4:6])
+
+        #save in sequences (see image section below), pattern: Seq_0n_0n.MP4
+        for f in sorted(glob.glob('gp*.MP4')):
+            if f.endswith('00.MP4'):
+                seq += 1
+            newfile = "Seq_{0:02d}_{1}.MP4".format(seq,f[6:8])
+            os.rename(f,newfile)
+
         #Foto
-        #Sequenzen nummeriert nach Muster Seq_0n_00n.JPG, Einzelfotos Img_00n.JPG
+        #pattern for sequences: Seq_0n_00n.JPG, single shots: Img_00n.JPG
         if glob.glob('G0*.JPG') or glob.glob('GOPR*.JPG'):
             #Einzelbilder
             message = _("%d image files will be renamed.") % (len(glob.glob('G*.JPG'))+len(glob.glob('GOPR*.JPG')))
@@ -627,7 +719,6 @@ class GoProGo:
             counter=1
             for f in sorted(glob.glob('GOPR*.JPG')):
                 newfile="Img_%03d.JPG" % (counter)
-                self.show_message(_("Rename %s to %s.") % (f,newfile))
                 os.rename(f,newfile)
                 counter+=1
             #counter for files
@@ -641,7 +732,6 @@ class GoProGo:
                     counter=1
                     seq=f[2:4]
                     newfile="Seq_"+seq+"_%03d.JPG" % (counter)
-                self.show_message(_("Rename %s to %s.") % (f,newfile))
                 os.rename(f,newfile)
                 counter+=1
         else:
@@ -650,13 +740,12 @@ class GoProGo:
             else:
                 #andere Formate etc.
                 self.show_message(_("No matching image files."))
+                
         #Vorschaudateien
         #FIXME: obsolet, da nur relevante Dateien kopiert werden, trotzdem erstmal lassen
-        #Featureidee: Vorschaufenster mit Info zu Medien (Auflösung, FPS...)
         if glob.glob('*.LRV') or glob.glob('*.THM'):
-            print(len(glob.glob('*.LRV'))+len(glob.glob('*.THM')),_("preview file(s) (LRV/THM) found."))
+            print(len(glob.glob('*.LRV'))+len(glob.glob('*.THM')),_("Preview file(s) (LRV/THM) found."))
             self.delfiles(".LRV",".THM")
-        app.reset_progressbar()
 
     #Dateien löschen, obsolet, siehe Vorschaudateien
     def delfiles(self,ftype):
