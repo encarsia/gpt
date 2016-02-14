@@ -41,6 +41,7 @@ class Handler:
 
     def on_refresh_wdir_clicked(self,widget):
         app.load_dircontent()
+        app.discspace_info()
 
     def on_open_wdir_clicked(self,widget):
         subprocess.run(['xdg-open',cli.stdir])
@@ -237,8 +238,8 @@ class GoProGUI:
 
     def timelapse_vid(self,p,m):
         """Create video timelapse"""
-        #p=path, m=multiplier    
-        self.reset_progressbar()
+        #p=path, m=multiplier
+        self.refresh_progressbar(0,1)
         os.chdir(p)
         ctl.makeldir()
         ctl.ffmpeg_vid(p,m)
@@ -247,7 +248,7 @@ class GoProGUI:
     def timelapse_img(self,p):
         """Create timelapse from images"""
         #p=path
-        self.reset_progressbar()
+        self.refresh_progressbar(0,1)
         os.chdir(p)
         ctl.ldir_img(p)
         ctl.ffmpeg_img(p)
@@ -255,7 +256,7 @@ class GoProGUI:
         
     def timelapse_img_subfolder(self,p):
         """Create timelapse from images in subfolders"""
-        self.reset_progressbar()
+        self.refresh_progressbar(0,1)
         os.chdir(p)
         ctl.makeldir()
         abs_subf = len(glob.glob("Images_1*"))
@@ -270,22 +271,15 @@ class GoProGUI:
         self.load_dircontent()
 
     def refresh_progressbar(self,c,a):
-        """Progress bar"""
+        """Refresh progress bar with current status"""
         fraction = c/a
         try:
             self.builder.get_object("progressbar").set_fraction(fraction)
             #see  http://faq.pygtk.org/index.py?req=show&file=faq23.020.htp or http://ubuntuforums.org/showthread.php?t=1056823...it, well, works
-            while Gtk.events_pending(): Gtk.main_iteration()
+            #while Gtk.events_pending(): Gtk.main_iteration()
         except:
-            pass
-
-    def reset_progressbar(self):
-        """Reset progress bar"""
-        try:
-            self.builder.get_object("progressbar").set_fraction(0.0)
-            while Gtk.events_pending(): Gtk.main_iteration()
-        except:
-            pass
+            print("refresh progressbar error")
+            #pass
 
     def find_sd(self):
         if cli.detectcard() is True:
@@ -478,8 +472,9 @@ class GoProGo:
         """Show notifications in terminal window and status bar if possible"""
         try:
             app.builder.get_object("statusbar1").push(1,message)
+            while Gtk.events_pending(): Gtk.main_iteration()
         except:
-            pass
+            print("statusbar update failed")
         print(message)
 
     #Arbeitsverzeichnis festlegen
@@ -616,10 +611,11 @@ class GoProGo:
     def copymedia(self,src,dest):
         """Copy files from card to working directory (preview files excluded)"""
         os.chdir(src)
+
         for d in os.listdir():
             os.chdir(d)
             self.show_message(_("Changed directory to %s") % d)
-            
+
             #for easy handling keep pictures in subfolders analogue to source file structure
             #create subfolder for image sequences
             if glob.glob('*.JPG'):
@@ -630,13 +626,16 @@ class GoProGo:
             #counter for progress bar
             counter = 0
             abs_files = len(os.listdir())
-            app.reset_progressbar()
+            #reset progressbar
+            app.refresh_progressbar(0,1)
             
             #copy files
             for f in os.listdir():
                 if f.endswith(".MP4"):
                     if os.path.exists(os.path.join(dest,f)):
                         self.show_message(_("%s already exists in target directory.") % f)
+                        #give the app time to update status and progressbar to avoid delay
+                        time.sleep(1)
                     else:
                         self.show_message(_("Copy %s...") % f)
                         shutil.copy(f,dest)
@@ -709,7 +708,7 @@ class GoProGo:
         for f in sorted(glob.glob('gp*.MP4')):
             if f.endswith('00.MP4'):
                 seq += 1
-            newfile = "Seq_{0:2d}_{1}.MP4".format(seq,f[6:8])
+            newfile = "Seq_{0:02d}_{1}.MP4".format(seq,f[6:8])
             os.rename(f,newfile)
 
         #Foto
@@ -748,7 +747,6 @@ class GoProGo:
         if glob.glob('*.LRV') or glob.glob('*.THM'):
             print(len(glob.glob('*.LRV'))+len(glob.glob('*.THM')),_("Preview file(s) (LRV/THM) found."))
             self.delfiles(".LRV",".THM")
-        app.reset_progressbar()
 
     #Dateien löschen, obsolet, siehe Vorschaudateien
     def delfiles(self,ftype):
