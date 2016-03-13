@@ -26,7 +26,18 @@ except:
 
 class Handler:
     """Signal assignment for Glade"""
+
+    ##### close button for all except main application window #####
     
+    def on_window_delete_event(self,widget,event):
+
+        #hide_on_delete prevents window from being destroyed, can be retrieved
+        widget.hide_on_delete()
+
+        #The 'return True' part indicates that the default handler is _not_ to be called, and therefore the window will not be destroyed.
+        #see http://faq.pygtk.org/index.py?req=edit&file=faq10.006.htp
+        return True
+
     ##### main application window #####
     
     def on_gpwindow_destroy(self,*args):
@@ -143,6 +154,30 @@ class Handler:
     def on_menu_about_activate(self,widget):
         app.builder.get_object("aboutdialog").show()
 
+    def on_tl_calc_activate(self,widget):
+        app.builder.get_object("tl_calc_win").show()
+    
+    ##### Timelapse calculator window #####
+
+    def on_spin_hours_value_changed(self,widget):
+        tlc.dur_hours = tlc.get_spinbutton_data(widget)
+        tlc.set_fileinfo()
+
+    def on_spin_minutes_value_changed(self,widget):
+        tlc.dur_min = tlc.get_spinbutton_data(widget)
+        tlc.set_fileinfo()
+
+    def on_spin_fps_value_changed(self,widget):
+        tlc.fps = tlc.get_spinbutton_data(widget)
+        tlc.set_fileinfo()
+
+    def on_combobox_res_changed(self,widget):
+        tlc.fsize = tlc.get_combobox_data(widget,2)
+        tlc.set_fileinfo()      
+
+    def on_combobox_intvl_changed(self,widget):
+        tlc.intvl = tlc.get_combobox_data(widget,1)
+        tlc.set_fileinfo()
 
 class FileChooserDialog(Gtk.Window):
     """File chooser dialog when changing working directory"""
@@ -168,8 +203,12 @@ class GoProGUI:
     def __init__(self):
         self.builder = Gtk.Builder()
         self.builder.set_translation_domain(cli.appname)
-        self.builder.add_from_file(cli.gladefile)
-        self.builder.connect_signals(Handler())
+        
+        for f in cli.gladefile:
+            self.builder.add_from_file(f)
+
+        #self.builder.add_from_file(cli.gladefile)
+        #self.builder.connect_signals(Handler())
 
     def get_window_content(self):
         """Fill main window with content"""
@@ -399,7 +438,13 @@ class GoProGo:
 
     def __init__(self):
         
-        self.gladefile = os.path.join(os.getcwd(),"herostuff","gopro.glade")
+        gladefile_list = ["gopro.glade","tlcalculator.glade"]
+        self.gladefile = []
+        
+        for f in gladefile_list:
+            self.gladefile.append(os.path.join(os.getcwd(),"herostuff",f))
+        
+        #self.gladefile = os.path.join(os.getcwd(),"herostuff","gopro.glade")
         self.locales_dir = os.path.join(os.getcwd(),'herostuff','po','locale')
         self.appname = 'GPT'
 
@@ -1061,6 +1106,73 @@ Images:
             subprocess.run(command)
         cli.show_message(_("Done."))
 
+
+class TimelapseCalculator:
+    
+    def __init__(self):
+
+        #self.window = app.builder.get_object("tl_calc_win")
+
+        #data for liststores
+        resolution_data = [("5MPsilv","5 MP (2624x1968) - 3+Silver",1800000),
+                            ("7MPsilv","7 MP (3072x2304) - 3+Silver",2300000),
+                            ("10MPsilv","10 MP (3680x2760) - 3+Silver",3000000),
+                            ("5MPsess","5 MP (2720x2040) - Session",2200000),
+                            ("8MPsess","8 MP (3264x2448) - Session",2800000)
+                            ]
+        interval_data = [("2 photos per second",120),
+                            ("1 photo per second",60),
+                            ("2 seconds interval",30),
+                            ("5 seconds interval",12),
+                            ("10 seconds interval",6),
+                            ("30 seconds interval",2),
+                            ("60 seconds interval",1),
+                            ]
+        
+        #create liststore rows
+        for d in resolution_data:
+            app.builder.get_object("list_res").append([d[0],d[1],d[2]])
+
+        for d in interval_data:
+            app.builder.get_object("list_intvl").append([d[0],d[1]])
+
+        #set first entry as value
+        app.builder.get_object("combobox_res").set_active(0)
+        app.builder.get_object("combobox_intvl").set_active(0)
+
+        self.filenum_label = app.builder.get_object("filenum_label")
+        self.memory_label = app.builder.get_object("memory_label")
+        self.tl_dur_label = app.builder.get_object("tl_dur_label")
+
+        self.fsize = self.get_combobox_data(app.builder.get_object("combobox_res"),2)
+        self.intvl = self.get_combobox_data(app.builder.get_object("combobox_intvl"),1)
+        
+        self.dur_hours = self.get_spinbutton_data(app.builder.get_object("spin_hours"))
+        self.dur_min = self.get_spinbutton_data(app.builder.get_object("spin_minutes"))
+        self.fps = self.get_spinbutton_data(app.builder.get_object("spin_fps"))
+
+        self.set_fileinfo()
+
+        app.builder.connect_signals(Handler())
+
+    def get_combobox_data(self,widget,list_col):
+        row = widget.get_active_iter()
+        model = widget.get_model()
+        return int(model[row][list_col])
+
+    def get_spinbutton_data(self,widget):
+        return int(widget.get_value())
+
+    def set_fileinfo(self):
+        files = (self.dur_hours * 60 + self.dur_min) * self.intvl
+        size = files * self.fsize
+        tl_dur = files // self.fps
+        
+        self.filenum_label.set_text(str(files))
+        self.memory_label.set_text(app.sizeof_fmt(size))
+        self.tl_dur_label.set_text("%d min %d s" % (tl_dur // 60,tl_dur % 60))
+
 cli = GoProGo()
 ctl = TimeLapse()
 app = GoProGUI()
+tlc = TimelapseCalculator()
