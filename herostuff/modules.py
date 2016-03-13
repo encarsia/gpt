@@ -11,6 +11,8 @@ import subprocess
 import fileinput
 import locale
 import gettext
+import threading
+import random
 
 _ = gettext.gettext
 
@@ -20,6 +22,7 @@ try:
     from gi.repository import Gtk,Gdk
 except:
     print(_("Could not load GTK+, only command-line version is available."))
+    raise
 
 class Handler:
     """Signal assignment for Glade"""
@@ -110,6 +113,7 @@ class Handler:
     def on_targetfolder_ok_clicked(self,widget):
         app.builder.get_object("targetfolderwindow").hide_on_delete()
         app.builder.get_object("importmessage").show_all()
+        time.sleep(.1)
         cli.copycard(cli.cardpath,os.path.join(cli.stdir,self.copyfolder))
         app.builder.get_object("importmessage").hide_on_delete()
         app.load_dircontent()
@@ -275,8 +279,9 @@ class GoProGUI:
         fraction = c/a
         try:
             self.builder.get_object("progressbar").set_fraction(fraction)
+            time.sleep(.1)
             #see  http://faq.pygtk.org/index.py?req=show&file=faq23.020.htp or http://ubuntuforums.org/showthread.php?t=1056823...it, well, works
-            #while Gtk.events_pending(): Gtk.main_iteration()
+            while Gtk.events_pending(): Gtk.main_iteration()
         except:
             pass
 
@@ -471,8 +476,9 @@ class GoProGo:
         """Show notifications in terminal window and status bar if possible"""
         try:
             app.builder.get_object("statusbar1").push(1,message)
+            time.sleep(.1)
             while Gtk.events_pending(): Gtk.main_iteration()
-        except:
+        except NameError:
             pass
         print(message)
 
@@ -614,6 +620,7 @@ class GoProGo:
         for d in os.listdir():
             os.chdir(d)
             self.show_message(_("Changed directory to %s") % d)
+            time.sleep(.1)
 
             #for easy handling keep pictures in subfolders analogue to source file structure
             #create subfolder for image sequences
@@ -621,15 +628,26 @@ class GoProGo:
                 self.show_message(_("Found photos..."))
                 self.chkdir(os.path.join(dest,"Images_"+d[0:3]))
                 self.workdir(os.path.join(src,d))
-            
+
             #counter for progress bar
             counter = 0
+            thread_list = []
             abs_files = len(os.listdir())
+
             #reset progressbar
             app.refresh_progressbar(0,1)
             
             #copy files
-            for f in os.listdir():
+            for f in sorted(os.listdir()):
+                #image files
+                if f.endswith(".JPG"):
+                    if os.path.exists(os.path.join(dest,"Images_"+d[0:3],f)):
+                        self.show_message(_("%s already exists in target directory.") % f)
+                    else:
+                        self.show_message(_("Copy %s...") % f)
+                        shutil.copy(f,os.path.join(dest,"Images_"+d[0:3]))
+
+                #video files
                 if f.endswith(".MP4"):
                     if os.path.exists(os.path.join(dest,f)):
                         self.show_message(_("%s already exists in target directory.") % f)
@@ -637,16 +655,93 @@ class GoProGo:
                         time.sleep(1)
                     else:
                         self.show_message(_("Copy %s...") % f)
-                        shutil.copy(f,dest)
+                        t = threading.Thread(target=self.copyvid_thread,args=(f,dest,abs_files,))
+                        thread_list.append(t)
+                        thread_list[-1].start()
+                        time.sleep(10)
+                        
+                counter += 1
+                app.refresh_progressbar(counter,abs_files)
+                
+            if thread_list != []:
+                #wait until all threads are finished
+                for thread in thread_list:
+                    thread.join()
+                
+            self.show_message("Copying files finished.")
+            os.chdir('..')
+
+######## copy #######
+            """
+            #counter for progress bar
+            counter = 0
+            thread_list = []
+            self.thread_counter = []
+
+            abs_files = len(os.listdir())
+            #abs_vid = len(glob.glob("*.MP4"))
+            #reset progressbar
+            app.refresh_progressbar(0,1)
+            
+            #copy files
+            for f in sorted(os.listdir()):
+                #image files
                 if f.endswith(".JPG"):
                     if os.path.exists(os.path.join(dest,"Images_"+d[0:3],f)):
                         self.show_message(_("%s already exists in target directory.") % f)
                     else:
                         self.show_message(_("Copy %s...") % f)
                         shutil.copy(f,os.path.join(dest,"Images_"+d[0:3]))
+                    #counter += 1
+                    #app.refresh_progressbar(counter,abs_files)
+
+                #video files
+                if f.endswith(".MP4"):
+                    if os.path.exists(os.path.join(dest,f)):
+                        self.show_message(_("%s already exists in target directory.") % f)
+                        #give the app time to update status and progressbar to avoid delay
+                        #counter += 1
+                        #app.refresh_progressbar(counter,abs_files)
+                        #time.sleep(1)
+                    else:
+                        #self.show_message(_("Copy %s...") % f)
+                        t = threading.Thread(target=self.copyvid_thread,args=(f,dest,abs_files,))
+                        self.thread_counter.append("x")
+                        thread_list.append(t)
+                        #t.start()
+                        
                 counter += 1
                 app.refresh_progressbar(counter,abs_files)
-            os.chdir('..')
+                time.sleep(1)
+                
+            if thread_list != []:
+                self.show_message("Copy video files...")
+                #app.refresh_progressbar(0.5,1)
+                for thread in thread_list:
+                    thread.start()
+                    #thread.join()
+                    #self.show_message(thread)
+                    time.sleep(1)
+
+                #wait until all threads are finished
+                for thread in thread_list:
+                    thread.join()
+                
+                self.show_message("Copying files finished.")
+            """
+
+    def copyvid_thread(self,f,dest,abs_files):
+        shutil.copy(f,dest)
+        #wait = random.randrange(2,7)
+        #print("%s will be delayed for %d seconds" % (f,wait))
+        #time.sleep(wait)
+        #self.thread_counter.pop()
+
+        #self.show_message("%s copied after %d seconds. %d files left." % (f,wait,len(self.thread_counter)))
+        #app.refresh_progressbar(abs_files - len(self.thread_counter),abs_files)
+        #time.sleep(.2)
+        #print("%s copied" % f)
+        print("%s kopiert" % f)
 
     #Verzeichnisse anlegen, wenn möglich, falls nicht, Fallback in vorheriges Arbeitsverzeichnis
     #Gebrauch: Initialisierung/Änderung des Arbeitsverzeichnisses, Erstellung von Unterordnern vor Kopieren der Speicherkarte (Abfrage, um eventuelle Fehlermeldung wegen bereits vorhandenen Ordners zu vermeiden)
