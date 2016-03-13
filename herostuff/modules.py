@@ -12,7 +12,6 @@ import fileinput
 import locale
 import gettext
 import threading
-import random
 
 _ = gettext.gettext
 
@@ -163,7 +162,7 @@ class Handler:
         tlc.dur_hours = tlc.get_spinbutton_data(widget)
         tlc.set_fileinfo()
 
-    def on_spin_minutes_value_changed(self,widget):
+r    def on_spin_minutes_value_changed(self,widget):
         tlc.dur_min = tlc.get_spinbutton_data(widget)
         tlc.set_fileinfo()
 
@@ -777,15 +776,6 @@ class GoProGo:
 
     def copyvid_thread(self,f,dest,abs_files):
         shutil.copy(f,dest)
-        #wait = random.randrange(2,7)
-        #print("%s will be delayed for %d seconds" % (f,wait))
-        #time.sleep(wait)
-        #self.thread_counter.pop()
-
-        #self.show_message("%s copied after %d seconds. %d files left." % (f,wait,len(self.thread_counter)))
-        #app.refresh_progressbar(abs_files - len(self.thread_counter),abs_files)
-        #time.sleep(.2)
-        #print("%s copied" % f)
         print("%s kopiert" % f)
 
     #Verzeichnisse anlegen, wenn möglich, falls nicht, Fallback in vorheriges Arbeitsverzeichnis
