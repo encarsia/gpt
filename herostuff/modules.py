@@ -162,7 +162,7 @@ class Handler:
         tlc.dur_hours = tlc.get_spinbutton_data(widget)
         tlc.set_fileinfo()
 
-r    def on_spin_minutes_value_changed(self,widget):
+    def on_spin_minutes_value_changed(self,widget):
         tlc.dur_min = tlc.get_spinbutton_data(widget)
         tlc.set_fileinfo()
 
