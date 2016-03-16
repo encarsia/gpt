@@ -30,6 +30,7 @@ HOW DO I USE IT?
 
 - for commandline version execute ./run-cli.py in a terminal window, you will find out the rest
 - for GTK+ version execute ./run-gtk.py
+- for standalone timelapse calculator run ./run-tlcalc.py
 
 I HAVE SOME IDEAS.
 YOUR CODE NEEDS SOME IMPROVEMENTS.
