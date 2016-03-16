@@ -16,6 +16,7 @@
     <property name="title" translatable="yes">Multiplier</property>
     <property name="resizable">False</property>
     <property name="destroy_with_parent">True</property>
+    <signal name="delete-event" handler="on_window_delete_event" swapped="no"/>
     <child>
       <object class="GtkBox" id="box5">
         <property name="visible">True</property>
@@ -131,6 +132,7 @@
     <property name="height_request">170</property>
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Destination folder</property>
+    <signal name="delete-event" handler="on_window_delete_event" swapped="no"/>
     <child>
       <object class="GtkBox" id="box2">
         <property name="visible">True</property>
@@ -273,6 +275,14 @@
                         <property name="use_stock">True</property>
                         <property name="always_show_image">True</property>
                         <signal name="activate" handler="on_menu_about_activate" swapped="no"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkMenuItem" id="tl_calc">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Timelapse calculator</property>
+                        <signal name="activate" handler="on_tl_calc_activate" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -480,6 +490,20 @@
                         <property name="use_underline">True</property>
                         <property name="stock_id">gtk-open</property>
                         <signal name="clicked" handler="on_open_sd_clicked" swapped="no"/>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToolButton" id="format_sd">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Format</property>
+                        <property name="use_underline">True</property>
+                        <property name="stock_id">gtk-clear</property>
+                        <signal name="clicked" handler="on_format_sd_clicked" swapped="no"/>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -887,6 +911,7 @@
     <property name="website">https://github.com/encarsia/gpt</property>
     <property name="logo_icon_name">help-about</property>
     <property name="license_type">gpl-3-0-only</property>
+    <signal name="delete-event" handler="on_window_delete_event" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkBox" id="aboutdialog-vbox1">
         <property name="can_focus">False</property>
@@ -921,15 +946,49 @@
       </object>
     </child>
   </object>
+  <object class="GtkMessageDialog" id="confirm_format_dialog">
+    <property name="can_focus">False</property>
+    <property name="has_focus">True</property>
+    <property name="title" translatable="yes">Delete files on external card?</property>
+    <property name="resizable">False</property>
+    <property name="type_hint">dialog</property>
+    <property name="transient_for">gpwindow</property>
+    <property name="attached_to">gpwindow</property>
+    <property name="message_type">question</property>
+    <property name="buttons">ok-cancel</property>
+    <property name="text" translatable="yes">Delete data on memory card?</property>
+    <property name="secondary_text" translatable="yes">You are about to delete all files on your memory card.
+
+Are you really sure to proceed?</property>
+    <signal name="delete-event" handler="on_window_delete_event" swapped="no"/>
+    <signal name="response" handler="on_confirm_format_dialog_response" swapped="no"/>
+    <child internal-child="vbox">
+      <object class="GtkBox" id="messagedialog-vbox6">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox" id="messagedialog-action_area6">
+            <property name="can_focus">False</property>
+            <property name="homogeneous">True</property>
+            <property name="layout_style">end</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
   <object class="GtkMessageDialog" id="importmessage">
     <property name="can_focus">False</property>
-    <property name="type">popup</property>
     <property name="title" translatable="yes">Import...wait</property>
-    <property name="resizable">False</property>
     <property name="window_position">center-on-parent</property>
     <property name="type_hint">dialog</property>
-    <property name="deletable">False</property>
     <property name="transient_for">gpwindow</property>
+    <property name="attached_to">gpwindow</property>
     <property name="text" translatable="yes">Import in progress</property>
     <property name="secondary_text" translatable="yes">An import job is running. Please wait until finished.</property>
     <child internal-child="vbox">

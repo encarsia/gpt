@@ -61,6 +61,7 @@ def get_pot_glade(f,out):
     command = ['xgettext',
                 '--sort-output',
                 '--keyword=translatable',
+                '--language=Glade',
                 '-j',
                 '-o', os.path.join('po',out),
                 f]
@@ -115,7 +116,6 @@ def replace_new_po():
 if __name__ == "__main__":
     #files containing translatable strings
     source_file = 'modules.py'
-    gladefile = 'gopro.glade'
    
     source_copy =  source_file[:-3] + '_copy.py'
     transl_templ = 'GPT.pot'
@@ -126,7 +126,8 @@ if __name__ == "__main__":
 
     #find new strings and save these in template (.pot)
     get_pot_code(source_copy,transl_templ)
-    get_pot_glade(gladefile,transl_templ)
+    get_pot_glade('gopro.glade',transl_templ)
+    get_pot_glade('tlcalculator.glade',transl_templ)
 
     #update existing .po files with new strings
     update_po_files(transl_templ)

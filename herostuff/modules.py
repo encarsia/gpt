@@ -11,6 +11,7 @@ import subprocess
 import fileinput
 import locale
 import gettext
+import threading
 
 _ = gettext.gettext
 
@@ -20,10 +21,22 @@ try:
     from gi.repository import Gtk,Gdk
 except:
     print(_("Could not load GTK+, only command-line version is available."))
+    raise
 
 class Handler:
     """Signal assignment for Glade"""
+
+    ##### close button for all except main application window #####
     
+    def on_window_delete_event(self,widget,event):
+
+        #hide_on_delete prevents window from being destroyed so it can be retrieved
+        widget.hide_on_delete()
+
+        #The 'return True' part indicates that the default handler is _not_ to be called, and therefore the window will not be destroyed.
+        #see http://faq.pygtk.org/index.py?req=edit&file=faq10.006.htp
+        return True
+
     ##### main application window #####
     
     def on_gpwindow_destroy(self,*args):
@@ -61,6 +74,9 @@ class Handler:
 
     def on_open_sd_clicked(self,widget):
         subprocess.run(['xdg-open',cli.cardpath])
+
+    def on_format_sd_clicked(self,widget):
+        app.builder.get_object("confirm_format_dialog").show_all()
 
     #sort columns in TreeView
     def on_col_dir_clicked(self,widget):
@@ -110,6 +126,7 @@ class Handler:
     def on_targetfolder_ok_clicked(self,widget):
         app.builder.get_object("targetfolderwindow").hide_on_delete()
         app.builder.get_object("importmessage").show_all()
+        time.sleep(.1)
         cli.copycard(cli.cardpath,os.path.join(cli.stdir,self.copyfolder))
         app.builder.get_object("importmessage").hide_on_delete()
         app.load_dircontent()
@@ -139,7 +156,40 @@ class Handler:
     def on_menu_about_activate(self,widget):
         app.builder.get_object("aboutdialog").show()
 
+    def on_tl_calc_activate(self,widget):
+        app.builder.get_object("tl_calc_win").show()
+    
+    ##### Timelapse calculator window #####
 
+    def on_spin_hours_value_changed(self,widget):
+        tlc.dur_hours = tlc.get_spinbutton_data(widget)
+        tlc.set_fileinfo()
+
+    def on_spin_minutes_value_changed(self,widget):
+        tlc.dur_min = tlc.get_spinbutton_data(widget)
+        tlc.set_fileinfo()
+
+    def on_spin_fps_value_changed(self,widget):
+        tlc.fps = tlc.get_spinbutton_data(widget)
+        tlc.set_fileinfo()
+
+    def on_combobox_res_changed(self,widget):
+        tlc.fsize = tlc.get_combobox_data(widget,2)
+        tlc.set_fileinfo()      
+
+    def on_combobox_intvl_changed(self,widget):
+        tlc.intvl = tlc.get_combobox_data(widget,1)
+        tlc.set_fileinfo()
+
+    ##### Confirm formating SD card #####
+    
+    def on_confirm_format_dialog_response(self,widget,event):
+        widget.hide_on_delete()
+        if event == -5:
+            cli.format_sd()
+            app.find_sd()
+            app.discspace_info()
+            
 class FileChooserDialog(Gtk.Window):
     """File chooser dialog when changing working directory"""
     #coder was too stupid to create a functional fcd with Glade so she borrowed some code from the documentation site
@@ -164,8 +214,10 @@ class GoProGUI:
     def __init__(self):
         self.builder = Gtk.Builder()
         self.builder.set_translation_domain(cli.appname)
-        self.builder.add_from_file(cli.gladefile)
-        self.builder.connect_signals(Handler())
+        
+        #load glade files
+        for f in cli.gladefile:
+            self.builder.add_from_file(f)
 
     def get_window_content(self):
         """Fill main window with content"""
@@ -275,8 +327,9 @@ class GoProGUI:
         fraction = c/a
         try:
             self.builder.get_object("progressbar").set_fraction(fraction)
+            time.sleep(.1)
             #see  http://faq.pygtk.org/index.py?req=show&file=faq23.020.htp or http://ubuntuforums.org/showthread.php?t=1056823...it, well, works
-            #while Gtk.events_pending(): Gtk.main_iteration()
+            while Gtk.events_pending(): Gtk.main_iteration()
         except:
             pass
 
@@ -286,10 +339,12 @@ class GoProGUI:
             self.builder.get_object("act_sd").set_text(cli.cardpath)
             self.builder.get_object("import_sd").set_sensitive(True)
             self.builder.get_object("open_sd").set_sensitive(True)
+            self.builder.get_object("format_sd").set_sensitive(True)
         else:
-            self.builder.get_object("act_sd").set_text("(none)")
+            self.builder.get_object("act_sd").set_text(_("(none)"))
             self.builder.get_object("import_sd").set_sensitive(False)
             self.builder.get_object("open_sd").set_sensitive(False)
+            self.builder.get_object("format_sd").set_sensitive(False)
 
     def discspace_info(self):
         """Save memory information about disc and card in list [total,used,free], use values to display levelbars and label element below"""
@@ -393,8 +448,14 @@ GtkLevelBar.fill-block.level-alert {
 class GoProGo:
 
     def __init__(self):
+
+        #Glade files/window configuration
+        gladefile_list = ["gopro.glade","tlcalculator.glade"]
+        self.gladefile = []
         
-        self.gladefile = os.path.join(os.getcwd(),"herostuff","gopro.glade")
+        for f in gladefile_list:
+            self.gladefile.append(os.path.join(os.getcwd(),"herostuff",f))
+        
         self.locales_dir = os.path.join(os.getcwd(),'herostuff','po','locale')
         self.appname = 'GPT'
 
@@ -471,8 +532,9 @@ class GoProGo:
         """Show notifications in terminal window and status bar if possible"""
         try:
             app.builder.get_object("statusbar1").push(1,message)
+            time.sleep(.1)
             while Gtk.events_pending(): Gtk.main_iteration()
-        except:
+        except NameError:
             pass
         print(message)
 
@@ -503,17 +565,17 @@ class GoProGo:
             while 1:
                 befehl = input(_("Memory card found. Copy and rename media files to working directory? (y/n) "))
                 if befehl == "n":
-                    self.show_message(_("Move along. There is nothing to see here."))
+                    print(_("Move along. There is nothing to see here."))
                     break
                 elif befehl == "y":
                     if self.freespace(self.cardpath,self.stdir) is True:
                         self.copycard(self.cardpath,os.path.join(self.stdir,self.choosecopydir(self.stdir)))
                         break
                     else:
-                        self.show_message(_("Failed to copy files. Not enough free space."))
+                        print(_("Failed to copy files. Not enough free space."))
                         break
                 else:
-                    self.show_message(_("Invalid input"))
+                    print(_("Invalid input"))
 
     #Speicherkarte suchen
     def detectcard(self):
@@ -614,6 +676,7 @@ class GoProGo:
         for d in os.listdir():
             os.chdir(d)
             self.show_message(_("Changed directory to %s") % d)
+            time.sleep(.1)
 
             #for easy handling keep pictures in subfolders analogue to source file structure
             #create subfolder for image sequences
@@ -621,15 +684,26 @@ class GoProGo:
                 self.show_message(_("Found photos..."))
                 self.chkdir(os.path.join(dest,"Images_"+d[0:3]))
                 self.workdir(os.path.join(src,d))
-            
+
             #counter for progress bar
             counter = 0
+            thread_list = []
             abs_files = len(os.listdir())
+
             #reset progressbar
             app.refresh_progressbar(0,1)
             
             #copy files
-            for f in os.listdir():
+            for f in sorted(os.listdir()):
+                #image files
+                if f.endswith(".JPG"):
+                    if os.path.exists(os.path.join(dest,"Images_"+d[0:3],f)):
+                        self.show_message(_("%s already exists in target directory.") % f)
+                    else:
+                        self.show_message(_("Copy %s...") % f)
+                        shutil.copy(f,os.path.join(dest,"Images_"+d[0:3]))
+
+                #video files
                 if f.endswith(".MP4"):
                     if os.path.exists(os.path.join(dest,f)):
                         self.show_message(_("%s already exists in target directory.") % f)
@@ -637,16 +711,84 @@ class GoProGo:
                         time.sleep(1)
                     else:
                         self.show_message(_("Copy %s...") % f)
-                        shutil.copy(f,dest)
+                        t = threading.Thread(target=self.copyvid_thread,args=(f,dest,abs_files,))
+                        thread_list.append(t)
+                        thread_list[-1].start()
+                        time.sleep(10)
+                        
+                counter += 1
+                app.refresh_progressbar(counter,abs_files)
+                
+            if thread_list != []:
+                #wait until all threads are finished
+                for thread in thread_list:
+                    thread.join()
+                
+            self.show_message(_("Copying files finished."))
+            os.chdir('..')
+
+######## copy #######
+            """
+            #counter for progress bar
+            counter = 0
+            thread_list = []
+            self.thread_counter = []
+
+            abs_files = len(os.listdir())
+            #abs_vid = len(glob.glob("*.MP4"))
+            #reset progressbar
+            app.refresh_progressbar(0,1)
+            
+            #copy files
+            for f in sorted(os.listdir()):
+                #image files
                 if f.endswith(".JPG"):
                     if os.path.exists(os.path.join(dest,"Images_"+d[0:3],f)):
                         self.show_message(_("%s already exists in target directory.") % f)
                     else:
                         self.show_message(_("Copy %s...") % f)
                         shutil.copy(f,os.path.join(dest,"Images_"+d[0:3]))
+                    #counter += 1
+                    #app.refresh_progressbar(counter,abs_files)
+
+                #video files
+                if f.endswith(".MP4"):
+                    if os.path.exists(os.path.join(dest,f)):
+                        self.show_message(_("%s already exists in target directory.") % f)
+                        #give the app time to update status and progressbar to avoid delay
+                        #counter += 1
+                        #app.refresh_progressbar(counter,abs_files)
+                        #time.sleep(1)
+                    else:
+                        #self.show_message(_("Copy %s...") % f)
+                        t = threading.Thread(target=self.copyvid_thread,args=(f,dest,abs_files,))
+                        self.thread_counter.append("x")
+                        thread_list.append(t)
+                        #t.start()
+                        
                 counter += 1
                 app.refresh_progressbar(counter,abs_files)
-            os.chdir('..')
+                time.sleep(1)
+                
+            if thread_list != []:
+                self.show_message(_("Copy video files..."))
+                #app.refresh_progressbar(0.5,1)
+                for thread in thread_list:
+                    thread.start()
+                    #thread.join()
+                    #self.show_message(thread)
+                    time.sleep(1)
+
+                #wait until all threads are finished
+                for thread in thread_list:
+                    thread.join()
+                
+                self.show_message(_("Copying files finished."))
+            """
+
+    def copyvid_thread(self,f,dest,abs_files):
+        shutil.copy(f,dest)
+        print(_("%s kopiert") % f)
 
     #Verzeichnisse anlegen, wenn möglich, falls nicht, Fallback in vorheriges Arbeitsverzeichnis
     #Gebrauch: Initialisierung/Änderung des Arbeitsverzeichnisses, Erstellung von Unterordnern vor Kopieren der Speicherkarte (Abfrage, um eventuelle Fehlermeldung wegen bereits vorhandenen Ordners zu vermeiden)
@@ -747,6 +889,38 @@ class GoProGo:
             print(len(glob.glob('*.LRV'))+len(glob.glob('*.THM')),_("Preview file(s) (LRV/THM) found."))
             self.delfiles(".LRV",".THM")
 
+    def confirm_format(self):
+        if self.detectcard() is True:
+            while 1:
+                befehl=input(_("Are you sure to remove all files from media card? (y/n) "))
+                if befehl == "y":
+                    self.format_sd()
+                    break
+                elif befehl == "n":
+                    break
+                else:
+                    print(_("Invalid input. Try again..."))
+
+    def format_sd(self):
+        print(_("Delete files in %s...") % self.cardpath)
+        os.chdir(self.cardpath)
+        for f in os.listdir():
+            if os.path.isfile(f) is True:
+                try:
+                    os.remove(f)
+                    self.show_message(_("%s deleted.") % f)
+                except:
+                    self.show_message(_("Failed to delete file. Check permissions."))
+                    raise
+            elif os.path.isdir(f) is True:
+                try:
+                    shutil.rmtree(f)
+                    self.show_message(_("%s deleted.") % f)
+                except:
+                    self.show_message(_("Failed to delete directory. Check permissions."))
+                    raise
+        self.workdir(self.stdir)
+
     #Dateien löschen, obsolet, siehe Vorschaudateien
     def delfiles(self,ftype):
         """Dateien bestimmten Typs löschen"""
@@ -774,6 +948,7 @@ class GoProGo:
         change (w)orking directory
         detect (c)ard
         (r)ead directory and rename GoPro files
+        (d)elete all files on external memory card
 
         ------- create ------
         timelapse from (v)ideo
@@ -794,6 +969,8 @@ class GoProGo:
                 self.handlecard()
             elif befehl == 'w':
                 self.chwdir()
+            elif befehl == 'd':
+                self.confirm_format()
             elif befehl == 'v':
                 ctl.countvid()
             elif befehl == 'i':
@@ -966,6 +1143,75 @@ Images:
             subprocess.run(command)
         cli.show_message(_("Done."))
 
+
+class TimelapseCalculator:
+    
+    def __init__(self):
+
+        #data for dropdown menus saved in liststores
+        resolution_data = [("5MPsilv","5 MP (2624x1968) - 3+Silver",1800000),
+                            ("7MPsilv","7 MP (3072x2304) - 3+Silver",2300000),
+                            ("10MPsilv","10 MP (3680x2760) - 3+Silver",3000000),
+                            ("5MPsess","5 MP (2720x2040) - Session",2200000),
+                            ("8MPsess","8 MP (3264x2448) - Session",2800000)
+                            ]
+        interval_data = [("2 photos per second",120),
+                            ("1 photo per second",60),
+                            ("2 seconds interval",30),
+                            ("5 seconds interval",12),
+                            ("10 seconds interval",6),
+                            ("30 seconds interval",2),
+                            ("60 seconds interval",1),
+                            ]
+        
+        #create liststore rows
+        for d in resolution_data:
+            app.builder.get_object("list_res").append([d[0],d[1],d[2]])
+
+        for d in interval_data:
+            app.builder.get_object("list_intvl").append([d[0],d[1]])
+
+        #set first entry as value
+        app.builder.get_object("combobox_res").set_active(0)
+        app.builder.get_object("combobox_intvl").set_active(0)
+
+        self.filenum_label = app.builder.get_object("filenum_label")
+        self.memory_label = app.builder.get_object("memory_label")
+        self.tl_dur_label = app.builder.get_object("tl_dur_label")
+
+        self.fsize = self.get_combobox_data(app.builder.get_object("combobox_res"),2)
+        self.intvl = self.get_combobox_data(app.builder.get_object("combobox_intvl"),1)
+        
+        self.dur_hours = self.get_spinbutton_data(app.builder.get_object("spin_hours"))
+        self.dur_min = self.get_spinbutton_data(app.builder.get_object("spin_minutes"))
+        self.fps = self.get_spinbutton_data(app.builder.get_object("spin_fps"))
+
+        self.set_fileinfo()
+
+        #connect signals
+        app.builder.connect_signals(Handler())
+
+    def get_combobox_data(self,widget,list_col):
+        row = widget.get_active_iter()
+        model = widget.get_model()
+        return int(model[row][list_col])
+
+    def get_spinbutton_data(self,widget):
+        return int(widget.get_value())
+
+    def set_fileinfo(self):
+        files = (self.dur_hours * 60 + self.dur_min) * self.intvl
+        size = files * self.fsize
+        tl_dur = files // self.fps
+        
+        self.filenum_label.set_text(str(files))
+        self.memory_label.set_text(app.sizeof_fmt(size))
+        self.tl_dur_label.set_text("%d min %d s" % (tl_dur // 60,tl_dur % 60))
+
+    def standalone(self):
+        app.builder.get_object("tl_calc_win").show_all()
+
 cli = GoProGo()
 ctl = TimeLapse()
 app = GoProGUI()
+tlc = TimelapseCalculator()

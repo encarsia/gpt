@@ -7,6 +7,5 @@ try:
     herostuff.modules.cli.help()
     herostuff.modules.cli.shell()
 except EOFError:
-    pass
+    raise
 print("The End Is Nigh!")
-
