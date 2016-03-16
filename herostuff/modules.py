@@ -30,7 +30,7 @@ class Handler:
     
     def on_window_delete_event(self,widget,event):
 
-        #hide_on_delete prevents window from being destroyed, can be retrieved
+        #hide_on_delete prevents window from being destroyed so it can be retrieved
         widget.hide_on_delete()
 
         #The 'return True' part indicates that the default handler is _not_ to be called, and therefore the window will not be destroyed.
@@ -74,6 +74,9 @@ class Handler:
 
     def on_open_sd_clicked(self,widget):
         subprocess.run(['xdg-open',cli.cardpath])
+
+    def on_format_sd_clicked(self,widget):
+        app.builder.get_object("confirm_format_dialog").show_all()
 
     #sort columns in TreeView
     def on_col_dir_clicked(self,widget):
@@ -178,6 +181,16 @@ class Handler:
         tlc.intvl = tlc.get_combobox_data(widget,1)
         tlc.set_fileinfo()
 
+    ##### Confirm formating SD card #####
+    
+    def on_confirm_format_dialog_response(self,widget,event):
+        if event == -6:
+            widget.hide_on_delete()
+        else:
+            #TODO delete files
+            print("ok button")
+
+
 class FileChooserDialog(Gtk.Window):
     """File chooser dialog when changing working directory"""
     #coder was too stupid to create a functional fcd with Glade so she borrowed some code from the documentation site
@@ -203,11 +216,9 @@ class GoProGUI:
         self.builder = Gtk.Builder()
         self.builder.set_translation_domain(cli.appname)
         
+        #load glade files
         for f in cli.gladefile:
             self.builder.add_from_file(f)
-
-        #self.builder.add_from_file(cli.gladefile)
-        #self.builder.connect_signals(Handler())
 
     def get_window_content(self):
         """Fill main window with content"""
@@ -329,10 +340,12 @@ class GoProGUI:
             self.builder.get_object("act_sd").set_text(cli.cardpath)
             self.builder.get_object("import_sd").set_sensitive(True)
             self.builder.get_object("open_sd").set_sensitive(True)
+            self.builder.get_object("format_sd").set_sensitive(True)
         else:
-            self.builder.get_object("act_sd").set_text("(none)")
+            self.builder.get_object("act_sd").set_text(_("(none)"))
             self.builder.get_object("import_sd").set_sensitive(False)
             self.builder.get_object("open_sd").set_sensitive(False)
+            self.builder.get_object("format_sd").set_sensitive(False)
 
     def discspace_info(self):
         """Save memory information about disc and card in list [total,used,free], use values to display levelbars and label element below"""
@@ -436,14 +449,14 @@ GtkLevelBar.fill-block.level-alert {
 class GoProGo:
 
     def __init__(self):
-        
+
+        #Glade files/window configuration
         gladefile_list = ["gopro.glade","tlcalculator.glade"]
         self.gladefile = []
         
         for f in gladefile_list:
             self.gladefile.append(os.path.join(os.getcwd(),"herostuff",f))
         
-        #self.gladefile = os.path.join(os.getcwd(),"herostuff","gopro.glade")
         self.locales_dir = os.path.join(os.getcwd(),'herostuff','po','locale')
         self.appname = 'GPT'
 
@@ -1101,9 +1114,7 @@ class TimelapseCalculator:
     
     def __init__(self):
 
-        #self.window = app.builder.get_object("tl_calc_win")
-
-        #data for liststores
+        #data for dropdown menus saved in liststores
         resolution_data = [("5MPsilv","5 MP (2624x1968) - 3+Silver",1800000),
                             ("7MPsilv","7 MP (3072x2304) - 3+Silver",2300000),
                             ("10MPsilv","10 MP (3680x2760) - 3+Silver",3000000),
@@ -1143,6 +1154,7 @@ class TimelapseCalculator:
 
         self.set_fileinfo()
 
+        #connect signals
         app.builder.connect_signals(Handler())
 
     def get_combobox_data(self,widget,list_col):
@@ -1161,6 +1173,9 @@ class TimelapseCalculator:
         self.filenum_label.set_text(str(files))
         self.memory_label.set_text(app.sizeof_fmt(size))
         self.tl_dur_label.set_text("%d min %d s" % (tl_dur // 60,tl_dur % 60))
+
+    def standalone(self):
+        app.builder.get_object("tl_calc_win").show_all()
 
 cli = GoProGo()
 ctl = TimeLapse()

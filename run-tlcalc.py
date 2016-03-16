@@ -4,7 +4,7 @@
 import herostuff.modules
 
 try:
-    herostuff.modules.app.get_window_content()
+    herostuff.modules.tlc.standalone()
     herostuff.modules.app.main()
 except EOFError:
     raise
