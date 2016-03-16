@@ -184,13 +184,12 @@ class Handler:
     ##### Confirm formating SD card #####
     
     def on_confirm_format_dialog_response(self,widget,event):
-        if event == -6:
-            widget.hide_on_delete()
-        else:
-            #TODO delete files
-            print("ok button")
-
-
+        widget.hide_on_delete()
+        if event == -5:
+            cli.format_sd()
+            app.find_sd()
+            app.discspace_info()
+            
 class FileChooserDialog(Gtk.Window):
     """File chooser dialog when changing working directory"""
     #coder was too stupid to create a functional fcd with Glade so she borrowed some code from the documentation site
@@ -566,17 +565,17 @@ class GoProGo:
             while 1:
                 befehl = input(_("Memory card found. Copy and rename media files to working directory? (y/n) "))
                 if befehl == "n":
-                    self.show_message(_("Move along. There is nothing to see here."))
+                    print(_("Move along. There is nothing to see here."))
                     break
                 elif befehl == "y":
                     if self.freespace(self.cardpath,self.stdir) is True:
                         self.copycard(self.cardpath,os.path.join(self.stdir,self.choosecopydir(self.stdir)))
                         break
                     else:
-                        self.show_message(_("Failed to copy files. Not enough free space."))
+                        print(_("Failed to copy files. Not enough free space."))
                         break
                 else:
-                    self.show_message(_("Invalid input"))
+                    print(_("Invalid input"))
 
     #Speicherkarte suchen
     def detectcard(self):
@@ -890,6 +889,38 @@ class GoProGo:
             print(len(glob.glob('*.LRV'))+len(glob.glob('*.THM')),_("Preview file(s) (LRV/THM) found."))
             self.delfiles(".LRV",".THM")
 
+    def confirm_format(self):
+        if self.detectcard() is True:
+            while 1:
+                befehl=input(_("Are you sure to remove all files from media card? (y/n) "))
+                if befehl == "y":
+                    self.format_sd()
+                    break
+                elif befehl == "n":
+                    break
+                else:
+                    print(_("Invalid input. Try again..."))
+
+    def format_sd(self):
+        print("Delete files in %s..." % self.cardpath)
+        os.chdir(self.cardpath)
+        for f in os.listdir():
+            if os.path.isfile(f) is True:
+                try:
+                    os.remove(f)
+                    self.show_message("%s deleted." % f)
+                except:
+                    self.show_message("Failed to delete file. Check permissions.")
+                    raise
+            elif os.path.isdir(f) is True:
+                try:
+                    shutil.rmtree(f)
+                    self.show_message("%s deleted." % f)
+                except:
+                    self.show_message("Failed to delete directory. Check permissions.")
+                    raise
+        self.workdir(self.stdir)
+
     #Dateien löschen, obsolet, siehe Vorschaudateien
     def delfiles(self,ftype):
         """Dateien bestimmten Typs löschen"""
@@ -917,6 +948,7 @@ class GoProGo:
         change (w)orking directory
         detect (c)ard
         (r)ead directory and rename GoPro files
+        (d)elete all files on external memory card
 
         ------- create ------
         timelapse from (v)ideo
@@ -937,6 +969,8 @@ class GoProGo:
                 self.handlecard()
             elif befehl == 'w':
                 self.chwdir()
+            elif befehl == 'd':
+                self.confirm_format()
             elif befehl == 'v':
                 ctl.countvid()
             elif befehl == 'i':
