@@ -724,7 +724,7 @@ class GoProGo:
                 for thread in thread_list:
                     thread.join()
                 
-            self.show_message("Copying files finished.")
+            self.show_message(_("Copying files finished."))
             os.chdir('..')
 
 ######## copy #######
@@ -771,7 +771,7 @@ class GoProGo:
                 time.sleep(1)
                 
             if thread_list != []:
-                self.show_message("Copy video files...")
+                self.show_message(_("Copy video files..."))
                 #app.refresh_progressbar(0.5,1)
                 for thread in thread_list:
                     thread.start()
@@ -783,12 +783,12 @@ class GoProGo:
                 for thread in thread_list:
                     thread.join()
                 
-                self.show_message("Copying files finished.")
+                self.show_message(_("Copying files finished."))
             """
 
     def copyvid_thread(self,f,dest,abs_files):
         shutil.copy(f,dest)
-        print("%s kopiert" % f)
+        print(_("%s kopiert") % f)
 
     #Verzeichnisse anlegen, wenn möglich, falls nicht, Fallback in vorheriges Arbeitsverzeichnis
     #Gebrauch: Initialisierung/Änderung des Arbeitsverzeichnisses, Erstellung von Unterordnern vor Kopieren der Speicherkarte (Abfrage, um eventuelle Fehlermeldung wegen bereits vorhandenen Ordners zu vermeiden)
@@ -902,22 +902,22 @@ class GoProGo:
                     print(_("Invalid input. Try again..."))
 
     def format_sd(self):
-        print("Delete files in %s..." % self.cardpath)
+        print(_("Delete files in %s...") % self.cardpath)
         os.chdir(self.cardpath)
         for f in os.listdir():
             if os.path.isfile(f) is True:
                 try:
                     os.remove(f)
-                    self.show_message("%s deleted." % f)
+                    self.show_message(_("%s deleted.") % f)
                 except:
-                    self.show_message("Failed to delete file. Check permissions.")
+                    self.show_message(_("Failed to delete file. Check permissions."))
                     raise
             elif os.path.isdir(f) is True:
                 try:
                     shutil.rmtree(f)
-                    self.show_message("%s deleted." % f)
+                    self.show_message(_("%s deleted.") % f)
                 except:
-                    self.show_message("Failed to delete directory. Check permissions.")
+                    self.show_message(_("Failed to delete directory. Check permissions."))
                     raise
         self.workdir(self.stdir)
 
