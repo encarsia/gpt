@@ -347,7 +347,7 @@ class GoProGUI:
             self.builder.get_object("format_sd").set_sensitive(False)
 
     def discspace_info(self):
-        """Save memory information about disc and card in list [total,used,free], use values to display levelbars and label element below"""
+        """Save memory information about disc and card in list [total,used,free], use values to display levelbar and label element below"""
         
         self.disc_space = [shutil.disk_usage(cli.stdir).total,
                             shutil.disk_usage(cli.stdir).used,
@@ -364,28 +364,28 @@ class GoProGUI:
 
         css = b"""
         
-GtkLevelBar.fill-block.empty-fill-block {
+levelbar trough block.filled.empty {
     border-color: transparent;
     background-color: transparent;
     }
 
-GtkLevelBar.fill-block {
+levelbar trough block.filled {
     background-color: #FF4D00;
 }
 
-GtkLevelBar.fill-block.level-low {
+levelbar trough block.filled.low {
     background-color: #00D30F;
 }
    
-GtkLevelBar.fill-block.level-high {
+levelbar trough block.filled.high {
     background-color: #004EFF;
 }
 
-GtkLevelBar.fill-block.level-alert {
+levelbar trough block.filled.alert {
     background-color: #CA0002;
 }
         """
- 
+
         #load css stylesheet
         style_provider = Gtk.CssProvider()
         style_provider.load_from_data(css)
