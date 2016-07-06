@@ -12,6 +12,11 @@ import fileinput
 import locale
 import gettext
 import threading
+import sys
+import codecs
+
+#requires python-lxml
+from lxml import etree
 
 _ = gettext.gettext
 
@@ -67,6 +72,7 @@ class Handler:
             cli.show_message(_("Failed to copy files. Not enough free space."))
             app.builder.get_object("nospacemessage").run()
         app.load_dircontent()
+        app.discspace_info()
 
     def on_find_sd_clicked(self,widget):
         app.find_sd()
@@ -94,8 +100,10 @@ class Handler:
     def on_treeview_selection_changed(self,widget):
         row, pos = widget.get_selected()
         if pos != None:
-            #abs path stored in 5th column in treestore, not displayed in treeview
+            #absolute path stored in 5th column in treestore, not displayed in treeview
             self.sel_folder = row[pos][4]
+            #number of video files
+            self.sel_vid = row[pos][1]
             app.activate_tl_buttons(row[pos][1],row[pos][2],row[pos][4],row[pos][6])
 
     #calculate timelapse
@@ -107,6 +115,33 @@ class Handler:
 
     def on_tlimage_sub_button_clicked(self,widget):
         app.timelapse_img_subfolder(self.sel_folder)
+
+    #right click menu in treeview
+    def on_treeview_button_release_event(self,widget,event):
+        #define context menu
+        popup=Gtk.Menu()
+        kd_item=Gtk.MenuItem(_("Open with Kdenlive"))
+        #selected row is already caught by on_treeview_selection_changed function
+        kd_item.connect("activate",self.on_open_with_kdenlive,self.sel_folder)
+        
+        #don't show menu item if there are no video files
+        if self.sel_vid > 0 and cli.kd_supp is True:
+            popup.append(kd_item)
+
+        open_item=Gtk.MenuItem(_("Open folder"))
+        open_item.connect("activate",self.on_open_folder,self.sel_folder)
+        popup.append(open_item)
+        popup.show_all()
+        #only show on right click
+        if event.button == 3:
+            popup.popup(None,None,None,None,event.button,event.time)
+            return True
+
+    def on_open_with_kdenlive(self,widget,folder):
+        kds.create_project(folder)
+
+    def on_open_folder(self,widget,folder):
+        subprocess.run(['xdg-open',folder])
 
     ##### set multiplier window ##### 
 
@@ -158,7 +193,11 @@ class Handler:
 
     def on_tl_calc_activate(self,widget):
         app.builder.get_object("tl_calc_win").show()
-    
+
+    def on_menu_kd_support_toggled(self,widget):
+        cli.kd_supp = widget.get_active()
+        cli.change_kd_support_config(cli.kd_supp)
+
     ##### Timelapse calculator window #####
 
     def on_spin_hours_value_changed(self,widget):
@@ -226,8 +265,13 @@ class GoProGUI:
         self.find_sd()
         self.discspace_info()
 
+        #only one treeview row can be selected
         self.builder.get_object("treeview-selection").set_mode(Gtk.SelectionMode.SINGLE)
-        
+
+        #set Kdenlive support menu item inactive when disabled
+        if cli.kd_supp is False:
+            self.builder.get_object("menu_kd_support").set_active(False)
+
         window = self.builder.get_object("gpwindow")
         window.show_all()
 
@@ -449,14 +493,16 @@ class GoProGo:
 
     def __init__(self):
 
+        self.install_dir = os.getcwd()
+
         #Glade files/window configuration
         gladefile_list = ["gopro.glade","tlcalculator.glade"]
         self.gladefile = []
-        
+
         for f in gladefile_list:
-            self.gladefile.append(os.path.join(os.getcwd(),"herostuff",f))
-        
-        self.locales_dir = os.path.join(os.getcwd(),'herostuff','po','locale')
+            self.gladefile.append(os.path.join(self.install_dir,"herostuff",f))
+
+        self.locales_dir = os.path.join(self.install_dir,'herostuff','po','locale')
         self.appname = 'GPT'
 
         #setting up localization
@@ -472,8 +518,9 @@ class GoProGo:
         
         if os.path.isfile(self.config) is False:
             self.stdir = self.defaultwdir
-            self.chkdir(self.stdir)      
+            self.chkdir(self.stdir)
             self.createconfig(self.stdir)
+            self.kd_supp = True
         else:
             self.readconfig()
         self.show_message(_("Working directory: %s") % self.stdir)
@@ -485,10 +532,10 @@ class GoProGo:
         config = open(self.config,"w")
         config.write(_("""##### CONFIG FILE FOR GOPRO TOOL #####
 ##### EDIT IF YOU LIKE. YOU ARE AN ADULT. #####
-
 """))
         config.close()
         self.write_wdir_config(wdir)
+        self.write_kd_supp_config()
 
     def write_wdir_config(self,wdir):
         """Write value for working directory to configuration file"""
@@ -497,36 +544,71 @@ class GoProGo:
         config.write("\n##### working directory #####\nwdir = %s\n" % wdir)
         config.close()
 
+    def write_kd_supp_config(self):
+        """Default Kdenlive support is enabled"""
+
+        config = open(self.config,"a")
+        config.write("\n##### Kdenlive support #####\nkdsupp = True\n")
+        config.close()
+
     def replace_wdir_config(self,wdir):
         """Writes new working directory in config file when changed"""
         
         for line in fileinput.input(self.config,inplace=True):
             if line.startswith("wdir"):
-                sys.stdout.write("wdir = %s" % wdir)
+                sys.stdout.write("wdir = %s\n" % wdir)
+            else:
+                sys.stdout.write(line)
+
+    def change_kd_support_config(self,supp):
+        """Changes Kdenlive support in config file when changed (menu item toggled)"""
+        
+        for line in fileinput.input(self.config,inplace=True):
+            if line.startswith("kdsupp"):
+                sys.stdout.write("kdsupp = %s" % supp)
             else:
                 sys.stdout.write(line)
 
     def readconfig(self):
-        """Reads working directory (line begins with "wdir = ...") from configuration file and tries to apply given value. If this attempt fails (due to permission problems) or there is no matching line the default value (~/GP) will be set."""
+        """Reads working directory and Kdenlive support status (line begins with "wdir = ...") from configuration file and tries to apply given value. If this attempt fails (due to permission problems) or there is no matching line the default value (~/GP) will be set."""
         
         config = open(self.config,"r")
-        match = False
+        match_wdir = False
+        match_kd = False
         for line in config:
             if line.startswith("wdir"):
-                match = True
+                match_wdir = True
                 self.stdir = os.path.abspath(line.split("=")[1].strip())
                 if self.chkdir(self.stdir) is False:
                     self.stdir = self.defaultwdir
                     self.replace_wdir_config(self.stdir)
                 continue
+            if line.startswith("kdsupp"):
+                if line.split("=")[1].strip() == "True":
+                    self.kd_supp = True
+                    match_kd = True
+                elif line.split("=")[1].strip() == "False":
+                    self.kd_supp = False
+                    match_kd = True
+                else:
+                    self.change_kd_support_config(True)
+                    self.kd_supp = True
+                    match_kd = True
+                continue
+
         config.close()
         #add wdir line when not found
-        if match is False:
+        if match_wdir is False:
             self.show_message(_("No configuration for working directory in config file. Set default value (~/GP)..."))
             self.stdir = self.defaultwdir
             self.chkdir(self.stdir) 
             #write default wdir to config file
             self.write_wdir_config(self.stdir)
+        
+        if match_kd is False:
+            self.show_message(_("Kdenlive support is enabled."))
+            self.kd_supp = True
+            self.write_kd_supp_config()
 
     def show_message(self,message):
         """Show notifications in terminal window and status bar if possible"""
@@ -693,6 +775,7 @@ class GoProGo:
             #reset progressbar
             app.refresh_progressbar(0,1)
             
+            #TODO progressbar, wenn thread fertig, ...copied in message tray
             #copy files
             for f in sorted(os.listdir()):
                 #image files
@@ -953,6 +1036,7 @@ class GoProGo:
         ------- create ------
         timelapse from (v)ideo
         timelapse from (i)mages
+        (k)denlive project 
 
         (q)uit"""))
 
@@ -975,10 +1059,106 @@ class GoProGo:
                 ctl.countvid()
             elif befehl == 'i':
                 ctl.countimg()
+            elif befehl == 'k':
+                kds.countvid()
             elif befehl == 'q':
                 break
             else:
                 print(_("Invalid input. Try again..."))
+
+class KdenliveSupport:
+
+    def __init__(self):
+        
+        self.wdir= os.getcwd()
+
+        #load Kdenlive template without clips for later project file generation
+        with open(os.path.join(cli.install_dir,"herostuff","kdenlive-template.xml"),"r") as f:
+            self.tree = etree.parse(f)
+        self.root = self.tree.getroot()
+        self.mainbin = self.tree.find("playlist") #returns first match
+
+    def create_project(self,folder):
+        #use default profile from kdenlive config
+        #avoid UnicodeDecodeError when reading file by using codecs package
+        with codecs.open(os.path.join(os.path.expanduser('~'),".config","kdenliverc"),"r",encoding="utf-8",errors="ignore") as f:
+            for line in f.readlines():
+                if "default_profile" in line:
+                    kdenlive_profile = line[16:-1]
+                    cli.show_message(_("Found default profile: %s") % kdenlive_profile)
+                    break
+
+        profile = etree.SubElement(self.mainbin,"property")
+        profile.set("name","kdenlive:docproperties.profile")
+        profile.text = kdenlive_profile
+
+        os.chdir(folder)
+
+        #remove old kdenlive project file if existing
+        try:
+            os.remove("mlt-playlist.kdenlive")
+            cli.show_message(_("Delete old Kdenlive project file."))
+        except FileNotFoundError:
+            cli.show_message(_("No existing Kdenlive project file to remove."))
+           
+        #add mediafiles
+        counter = 1
+        for f in sorted(os.listdir()):
+            newprod = etree.SubElement(self.root,"producer")
+            newprod.set("id",str(counter))
+            newprop = etree.SubElement(newprod,"property")
+            newprop.text = os.path.join(folder,f)
+            newprop.set("name","resource")
+            #insert lines after root tag, otherwise kdenlive crashes at start
+            self.root.insert(0,newprod)
+            newentry = etree.SubElement(self.mainbin,"entry")
+            newentry.set("producer",str(counter))
+            counter +=1
+
+        #save as new file
+        self.tree.write("mlt-playlist.kdenlive")
+
+        cli.show_message(_("Open Kdenlive project"))
+        subprocess.run(["kdenlive","mlt-playlist.kdenlive"])
+        
+        cli.workdir(self.wdir)
+
+    def countvid(self):
+        """Find video files in directory"""
+        self.wherevid=[]
+        counter=0
+        for path,dirs,files in sorted(os.walk(self.wdir)):
+            os.chdir(path)
+            if len(glob.glob('*.MP4')) > 0:
+                counter+=1
+                self.wherevid.append([counter,path,len(glob.glob('*.MP4'))])
+        if counter>0:
+            print(_("""
+Video:
+******"""))
+            print("--> {0:^6} | {1:50} | {2:>}".format(_("no."),_("directory"),_("quantity")))
+            for n in self.wherevid:
+                print(_("--> {0:^6} | {1:50} | {2:>4}").format(n[0],n[1],n[2]))
+            self.choosevid(counter)
+        else:
+            print(_("No video files found."))
+
+    def choosevid(self,c):
+        """Create and open Kdenlive project file for selected folder"""
+        while 1:
+            try:
+                befehl = int(input(_("Select directory to create and open Kdenlive project (0 to cancel): ")))
+                if befehl == 0:
+                    break
+                elif befehl > c or befehl < 0:
+                    print(_("Invalid input, input must be integer between 1 and %d. Try again...") % c)
+                else:
+                    message = _("Processing Kdenlive project for %s") % self.wherevid[befehl-1][1]
+                    cli.show_message(message)
+                    self.create_project(self.wherevid[befehl-1][1])
+                    break
+            except ValueError:
+                print(_("Invalid input (no integer). Try again..."))
 
 class TimeLapse:
 
@@ -1007,9 +1187,9 @@ class TimeLapse:
             print(_("""
 Video:
 ******"""))
-            print("--> {0:^6} | {1:40} | {2:>}".format(_("no."),_("directory"),_("quantity")))
+            print("--> {0:^6} | {1:50} | {2:>}".format(_("no."),_("directory"),_("quantity")))
             for n in self.wherevid:
-                print("--> {0:^6} | {1:40} | {2:>4}".format(n[0],n[1],n[2]))
+                print(_("--> {0:^6} | {1:50} | {2:>4}").format(n[0],n[1],n[2]))
             self.choosevid(counter)
         else:
             print(_("No video files found."))
@@ -1022,9 +1202,9 @@ Video:
                 if befehl == 0:
                     break
                 elif befehl > c or befehl < 0:
-                    print(_("Invalid input, input must be integer between 1 and",c,". Try again..."))
+                    print(_("Invalid input, input must be integer between 1 and %d. Try again...") % c)
                 else:
-                    message = _("Create timelapse for directory ")+self.wherevid[befehl-1][1]
+                    message = _("Create timelapse for directory %s.") % self.wherevid[befehl-1][1]
                     cli.show_message(message)
                     self.choosemult(self.wherevid[befehl-1][1])
                     break
@@ -1087,9 +1267,9 @@ Video:
             print(_("""
 Images:
 *******"""))
-            print("--> {0:^6} | {1:40} | {2:>}".format(_("no."),_("directory"),_("quantity")))
+            print("--> {0:^6} | {1:50} | {2:>}".format(_("no."),_("directory"),_("quantity")))
             for n in self.whereimg:
-                print("--> {0:^6} | {1:40} | {2:>4}".format(n[0],n[1],n[2]))
+                print(_("--> {0:^6} | {1:50} | {2:>4}").format(n[0],n[1],n[2]))
             self.chooseimg(counter)
         else:
             print(_("No photos found."))
@@ -1103,9 +1283,9 @@ Images:
                 if befehl == 0:
                     break
                 elif befehl > c or befehl < 0:
-                    print(_("Invalid input, input must be integer between 1 and",c,". Try again..."))
+                    print(_("Invalid input, input must be integer between 1 and %d. Try again...") % c)
                 else:
-                    print(_("Create timelapse for directory "),self.whereimg[befehl-1][1])
+                    print(_("Create timelapse for directory %s") % self.whereimg[befehl-1][1])
                     self.ldir_img(self.whereimg[befehl-1][1])
                     self.ffmpeg_img(self.whereimg[befehl-1][1])
                     break
@@ -1213,5 +1393,6 @@ class TimelapseCalculator:
 
 cli = GoProGo()
 ctl = TimeLapse()
+kds = KdenliveSupport()
 app = GoProGUI()
 tlc = TimelapseCalculator()
