@@ -1072,13 +1072,14 @@ class KdenliveSupport:
         
         self.wdir= os.getcwd()
 
+    def create_project(self,folder):
+
         #load Kdenlive template without clips for later project file generation
         with open(os.path.join(cli.install_dir,"herostuff","kdenlive-template.xml"),"r") as f:
             self.tree = etree.parse(f)
         self.root = self.tree.getroot()
         self.mainbin = self.tree.find("playlist") #returns first match
 
-    def create_project(self,folder):
         #use default profile from kdenlive config
         #avoid UnicodeDecodeError when reading file by using codecs package
         with codecs.open(os.path.join(os.path.expanduser('~'),".config","kdenliverc"),"r",encoding="utf-8",errors="ignore") as f:
@@ -1103,7 +1104,8 @@ class KdenliveSupport:
            
         #add mediafiles
         counter = 1
-        for f in sorted(os.listdir()):
+        for f in sorted(glob.glob('*.MP4')):
+        #for f in sorted(os.listdir()):
             newprod = etree.SubElement(self.root,"producer")
             newprod.set("id",str(counter))
             newprop = etree.SubElement(newprod,"property")
