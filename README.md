@@ -23,6 +23,7 @@ WHAT ABOUT SYSTEM REQUIREMENTS?
 
 - Python 3
 - Python 3 bindings for GObject (Gtk+ 3 (optional, commandline version available))
+- python-lxml for Kdenlive support
 - FFmpeg (optional)
 - GoPro camera
 
