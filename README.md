@@ -12,6 +12,7 @@ TELL ME ABOUT FEATURES!
 - rename files in a more logical order than according to the GoPro naming convention
 - overview of your footage
 - create timelapse videos from your stuff via FFmpeg
+- create and open Kdenlive project from video folders
 - localization: English, German
 
 YOU MUST BE JOKING!
