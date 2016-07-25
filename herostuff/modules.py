@@ -71,8 +71,6 @@ class Handler:
         else:
             cli.show_message(_("Failed to copy files. Not enough free space."))
             app.builder.get_object("nospacemessage").run()
-        app.load_dircontent()
-        app.discspace_info()
 
     def on_find_sd_clicked(self,widget):
         app.find_sd()
@@ -165,6 +163,7 @@ class Handler:
         cli.copycard(cli.cardpath,os.path.join(cli.stdir,self.copyfolder))
         app.builder.get_object("importmessage").hide_on_delete()
         app.load_dircontent()
+        app.discspace_info()
 
     def on_combobox1_changed(self,widget):
         row = widget.get_active_iter()
@@ -414,19 +413,19 @@ levelbar trough block.filled.empty {
     }
 
 levelbar trough block.filled {
-    background-color: #FF4D00;
+    background-color: #FF0000;
+}
+
+levelbar trough block.filled.lower {
+    background-color: #00D30F;
 }
 
 levelbar trough block.filled.low {
-    background-color: #00D30F;
-}
-   
-levelbar trough block.filled.high {
-    background-color: #004EFF;
+    background-color: #0000FF;
 }
 
-levelbar trough block.filled.alert {
-    background-color: #CA0002;
+levelbar trough block.filled.high {
+    background-color: #FF4D00;
 }
         """
 
@@ -440,13 +439,13 @@ levelbar trough block.filled.alert {
             Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
         )
         
-        self.disc_bar.add_offset_value("low",0.4)
-        self.disc_bar.add_offset_value("high",0.8)
-        self.disc_bar.add_offset_value("alert",0.9)
+        self.disc_bar.add_offset_value("lower",0.5)
+        self.disc_bar.add_offset_value("low",0.7)
+        self.disc_bar.add_offset_value("high",0.9)
 
-        self.card_bar.add_offset_value("low",0.4)
-        self.card_bar.add_offset_value("high",0.8)
-        self.card_bar.add_offset_value("alert",0.9)
+        self.card_bar.add_offset_value("lower",0.4)
+        self.card_bar.add_offset_value("low",0.7)
+        self.card_bar.add_offset_value("high",0.9)
 
         self.disc_bar.set_value(self.disc_space[1]/self.disc_space[0])
         self.card_bar.set_value(self.card_space[1]/self.card_space[0])
@@ -524,7 +523,7 @@ class GoProGo:
         else:
             self.readconfig()
         self.show_message(_("Working directory: %s") % self.stdir)
-
+        
     def createconfig(self,wdir):
         """Creates new configuration file and writes current working directory"""
 
@@ -770,6 +769,7 @@ class GoProGo:
             #counter for progress bar
             counter = 0
             thread_list = []
+            #TODO abf files for images = len(all_image_folders...)
             abs_files = len(os.listdir())
 
             #reset progressbar
@@ -777,10 +777,13 @@ class GoProGo:
             
             #TODO progressbar, wenn thread fertig, ...copied in message tray
             #copy files
+            
+            #TODO: seperate image/video, image without threading
             for f in sorted(os.listdir()):
                 #image files
                 if f.endswith(".JPG"):
                     if os.path.exists(os.path.join(dest,"Images_"+d[0:3],f)):
+                        #TODO no use because files will be renamed anyways after copying
                         self.show_message(_("%s already exists in target directory.") % f)
                     else:
                         self.show_message(_("Copy %s...") % f)
@@ -788,20 +791,46 @@ class GoProGo:
 
                 #video files
                 if f.endswith(".MP4"):
-                    if os.path.exists(os.path.join(dest,f)):
-                        self.show_message(_("%s already exists in target directory.") % f)
-                        #give the app time to update status and progressbar to avoid delay
-                        time.sleep(1)
-                    else:
-                        self.show_message(_("Copy %s...") % f)
-                        t = threading.Thread(target=self.copyvid_thread,args=(f,dest,abs_files,))
-                        thread_list.append(t)
-                        thread_list[-1].start()
-                        time.sleep(10)
+                    #give the app time to update status and progressbar to avoid delay
+                    #time.sleep(1)
+                    self.show_message(_("Copy %s...") % f)
+                    t = threading.Thread(target=self.copyvid_thread,args=(f,dest,abs_files,))
+                    thread_list.append(t)
+                    thread_list[-1].start()
+                    time.sleep(10)
                         
                 counter += 1
-                app.refresh_progressbar(counter,abs_files)
-                
+                #app.refresh_progressbar(counter,abs_files)
+
+##### copy #####
+            #for f in sorted(os.listdir()):
+                ##image files
+                #if f.endswith(".JPG"):
+                    #if os.path.exists(os.path.join(dest,"Images_"+d[0:3],f)):
+                        ##TODO no use because files will be renamed anyways after copying
+                        #self.show_message(_("%s already exists in target directory.") % f)
+                    #else:
+                        #self.show_message(_("Copy %s...") % f)
+                        #shutil.copy(f,os.path.join(dest,"Images_"+d[0:3]))
+
+                ##video files
+                #if f.endswith(".MP4"):
+                    #if os.path.exists(os.path.join(dest,f)):
+                        ##TODO no use because files will be renamed anyways after copying
+                        #self.show_message(_("%s already exists in target directory.") % f)
+                        ##give the app time to update status and progressbar to avoid delay
+                        #time.sleep(1)
+                    #else:
+                        #self.show_message(_("Copy %s...") % f)
+                        #t = threading.Thread(target=self.copyvid_thread,args=(f,dest,abs_files,))
+                        #thread_list.append(t)
+                        #thread_list[-1].start()
+                        #time.sleep(10)
+                        
+                #counter += 1
+                #app.refresh_progressbar(counter,abs_files)
+######################
+
             if thread_list != []:
                 #wait until all threads are finished
                 for thread in thread_list:
@@ -810,68 +839,10 @@ class GoProGo:
             self.show_message(_("Copying files finished."))
             os.chdir('..')
 
-######## copy #######
-            """
-            #counter for progress bar
-            counter = 0
-            thread_list = []
-            self.thread_counter = []
-
-            abs_files = len(os.listdir())
-            #abs_vid = len(glob.glob("*.MP4"))
-            #reset progressbar
-            app.refresh_progressbar(0,1)
-            
-            #copy files
-            for f in sorted(os.listdir()):
-                #image files
-                if f.endswith(".JPG"):
-                    if os.path.exists(os.path.join(dest,"Images_"+d[0:3],f)):
-                        self.show_message(_("%s already exists in target directory.") % f)
-                    else:
-                        self.show_message(_("Copy %s...") % f)
-                        shutil.copy(f,os.path.join(dest,"Images_"+d[0:3]))
-                    #counter += 1
-                    #app.refresh_progressbar(counter,abs_files)
-
-                #video files
-                if f.endswith(".MP4"):
-                    if os.path.exists(os.path.join(dest,f)):
-                        self.show_message(_("%s already exists in target directory.") % f)
-                        #give the app time to update status and progressbar to avoid delay
-                        #counter += 1
-                        #app.refresh_progressbar(counter,abs_files)
-                        #time.sleep(1)
-                    else:
-                        #self.show_message(_("Copy %s...") % f)
-                        t = threading.Thread(target=self.copyvid_thread,args=(f,dest,abs_files,))
-                        self.thread_counter.append("x")
-                        thread_list.append(t)
-                        #t.start()
-                        
-                counter += 1
-                app.refresh_progressbar(counter,abs_files)
-                time.sleep(1)
-                
-            if thread_list != []:
-                self.show_message(_("Copy video files..."))
-                #app.refresh_progressbar(0.5,1)
-                for thread in thread_list:
-                    thread.start()
-                    #thread.join()
-                    #self.show_message(thread)
-                    time.sleep(1)
-
-                #wait until all threads are finished
-                for thread in thread_list:
-                    thread.join()
-                
-                self.show_message(_("Copying files finished."))
-            """
-
     def copyvid_thread(self,f,dest,abs_files):
         shutil.copy(f,dest)
-        print(_("%s kopiert") % f)
+        print(_("%s copied") % f)
+        app.refresh_progressbar(threading.active_count()-1,abs_files)
 
     #Verzeichnisse anlegen, wenn möglich, falls nicht, Fallback in vorheriges Arbeitsverzeichnis
     #Gebrauch: Initialisierung/Änderung des Arbeitsverzeichnisses, Erstellung von Unterordnern vor Kopieren der Speicherkarte (Abfrage, um eventuelle Fehlermeldung wegen bereits vorhandenen Ordners zu vermeiden)
