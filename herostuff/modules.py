@@ -157,6 +157,7 @@ class Handler:
         app.builder.get_object("targetfolderwindow").hide_on_delete()
 
     def on_targetfolder_ok_clicked(self,widget):
+        #TODO add cancel button to kill import job
         app.builder.get_object("targetfolderwindow").hide_on_delete()
         app.builder.get_object("importmessage").show_all()
         time.sleep(.1)
@@ -301,17 +302,15 @@ class GoProGUI:
                 #size of directory, subdiretories exclued
                 size = sum([os.path.getsize(f) for f in os.listdir('.') if os.path.isfile(f)])
                 humansize = self.sizeof_fmt(size)
-                #number of sequences
+                #write number of sequences into table for future use
+                #TODO show number of seqs in treeview
                 try:
                     #4th/5th position in file name of last element in sorted list of sequences (e.g. Seq_03_010.JPG)
-                    seq = int(sorted(glob.glob('Seq_*_*.JPG'))[-1][4:6])
+                    seq = int(sorted(glob.glob('Seq_*_*.*'))[-1][4:6])
                 except:
                     seq = 0
                 #transmit row to treestore
                 row = self.builder.get_object("treestore1").append(parent,[dirs,vidcount,imgcount,humansize,path,seq,False])
-                #last column set True if subdirectory contains photo sequences
-                if seq != 0:
-                    self.builder.get_object("treestore1").set_value(parent,6,True)
                 #read subdirs as child rows
                 self.get_tree_data(path,row)
                 os.chdir("..")
@@ -840,6 +839,7 @@ class GoProGo:
             os.chdir('..')
 
     def copyvid_thread(self,f,dest,abs_files):
+        #TODO extra Test mit thread count
         shutil.copy(f,dest)
         print(_("%s copied") % f)
         app.refresh_progressbar(threading.active_count()-1,abs_files)
@@ -894,10 +894,11 @@ class GoProGo:
                 self.show_message(_("No video files."))
 
         #detect existing sequences
+        #TODO use treeview seq column instead
         if glob.glob('Seq_*.MP4') == []:
             seq = 0
         else:
-            seq = int(glob.glob('Seq_*.MP4')[-1][4:6])
+            seq = int(sorted(glob.glob('Seq_*.MP4'))[-1][4:6])
 
         #save in sequences (see image section below), pattern: Seq_0n_0n.MP4
         for f in sorted(glob.glob('gp*.MP4')):
