@@ -88,7 +88,6 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_stock">True</property>
-                <property name="xalign">0.54000002145767212</property>
                 <signal name="clicked" handler="on_mult_ok_clicked" swapped="no"/>
               </object>
               <packing>
@@ -204,7 +203,6 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_stock">True</property>
-                <property name="xalign">0.54000002145767212</property>
                 <signal name="clicked" handler="on_targetfolder_ok_clicked" swapped="no"/>
               </object>
               <packing>
@@ -344,7 +342,6 @@
                     <property name="label" translatable="yes">Working directory</property>
                     <property name="justify">center</property>
                     <property name="ellipsize">middle</property>
-                    <property name="xalign">0.43999999761581421</property>
                     <attributes>
                       <attribute name="weight" value="bold"/>
                     </attributes>
@@ -414,8 +411,8 @@
                   <object class="GtkLabel" id="act_wdir">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xpad">29</property>
-                    <property name="ypad">11</property>
+                    <property name="margin_top">13</property>
+                    <property name="margin_bottom">13</property>
                     <property name="label" translatable="yes">path/to/working/directory</property>
                     <property name="justify">fill</property>
                     <property name="max_width_chars">5</property>
