@@ -642,6 +642,7 @@ class GoProGo:
     #function exclusively called by cli
     def handlecard(self):
         if self.detectcard() is True:
+            self.card_content(self.cardpath)
             while 1:
                 befehl = input(_("Memory card found. Copy and rename media files to working directory? (y/n) "))
                 if befehl == "n":
@@ -659,7 +660,7 @@ class GoProGo:
 
     #Speicherkarte suchen
     def detectcard(self):
-        """Find mounted memora card"""
+        """Find mounted memory card"""
         #works for me on Archlinux, where do other distros mount removable drives? (too lazy for research...)
         #TODO try different paths
         userdrive = os.path.join("/run","media",getpass.getuser())
@@ -687,6 +688,25 @@ class GoProGo:
         except:
             self.show_message(_("No devices found."))
             return False
+
+    #collect content information of plugged memory card
+    def card_content(self,path):
+        print("Card mount point:",path)
+        #search for files
+        vid_count = 0
+        img_count = 0
+        vid_size = 0
+        img_size = 0
+        for root,dirs,files in os.walk(path):
+            for filename in files:
+                if filename.endswith(".MP4"):
+                    vid_count += 1
+                    vid_size += os.path.getsize(os.path.join(root,filename))
+                elif filename.endswith(".JPG"):
+                    img_count += 1
+                    img_size += os.path.getsize(os.path.join(root,filename))
+        print("Number of videos:",vid_count,"with a total size of",app.sizeof_fmt(vid_size))
+        print("Number of images:",img_count,"with a total size of",app.sizeof_fmt(img_size))
 
     #Dateien kopieren und umbenennen
     def copycard(self,mountpoint,targetdir):
