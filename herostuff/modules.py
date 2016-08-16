@@ -382,6 +382,7 @@ class GoProGUI:
             self.builder.get_object("import_sd").set_sensitive(True)
             self.builder.get_object("open_sd").set_sensitive(True)
             self.builder.get_object("format_sd").set_sensitive(True)
+            self.builder.get_object("sd_content_info").set_text(cli.card_content(cli.cardpath))
         else:
             self.builder.get_object("act_sd").set_text(_("(none)"))
             self.builder.get_object("import_sd").set_sensitive(False)
@@ -705,8 +706,10 @@ class GoProGo:
                 elif filename.endswith(".JPG"):
                     img_count += 1
                     img_size += os.path.getsize(os.path.join(root,filename))
-        print("Number of videos:",vid_count,"with a total size of",app.sizeof_fmt(vid_size))
-        print("Number of images:",img_count,"with a total size of",app.sizeof_fmt(img_size))
+
+        info = "Number of videos: %d, total size: %s\nNumber of images: %d, total size: %s" % (vid_count,app.sizeof_fmt(vid_size),img_count,app.sizeof_fmt(img_size))
+        print(info)
+        return info
 
     #Dateien kopieren und umbenennen
     def copycard(self,mountpoint,targetdir):
