@@ -731,7 +731,7 @@
                     <signal name="clicked" handler="on_col_vid_clicked" swapped="no"/>
                     <child>
                       <object class="GtkCellRendererText" id="cellrenderertext2">
-                        <property name="xalign">0.80000001192092896</property>
+                        <property name="xalign">1</property>
                       </object>
                       <attributes>
                         <attribute name="text">1</attribute>
@@ -747,7 +747,7 @@
                     <signal name="clicked" handler="on_col_img_clicked" swapped="no"/>
                     <child>
                       <object class="GtkCellRendererText" id="cellrenderertext3">
-                        <property name="xalign">0.80000001192092896</property>
+                        <property name="xalign">1</property>
                       </object>
                       <attributes>
                         <attribute name="text">2</attribute>
@@ -763,10 +763,26 @@
                     <signal name="clicked" handler="on_col_storage_clicked" swapped="no"/>
                     <child>
                       <object class="GtkCellRendererText" id="cellrenderertext4">
-                        <property name="xalign">0.80000001192092896</property>
+                        <property name="xalign">1</property>
                       </object>
                       <attributes>
                         <attribute name="text">3</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="col_seq">
+                    <property name="title" translatable="yes">Sequence</property>
+                    <property name="clickable">True</property>
+                    <property name="sort_indicator">True</property>
+                    <signal name="clicked" handler="on_col_seq_clicked" swapped="no"/>
+                    <child>
+                      <object class="GtkCellRendererText" id="cellrenderertext5">
+                        <property name="xalign">1</property>
+                      </object>
+                      <attributes>
+                        <attribute name="text">5</attribute>
                       </attributes>
                     </child>
                   </object>
