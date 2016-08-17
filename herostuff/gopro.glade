@@ -325,14 +325,13 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="homogeneous">True</property>
+            <property name="baseline_position">top</property>
             <child>
               <object class="GtkBox" id="box7">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="margin_left">3</property>
                 <property name="margin_right">3</property>
-                <property name="margin_top">3</property>
-                <property name="margin_bottom">3</property>
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkLabel" id="info_wdir">
@@ -357,6 +356,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="toolbar_style">both</property>
+                    <property name="show_arrow">False</property>
                     <child>
                       <object class="GtkToolButton" id="changewdir">
                         <property name="name">changedirbutton</property>
@@ -426,10 +426,21 @@
                     <property name="position">2</property>
                   </packing>
                 </child>
+                <child>
+                  <object class="GtkLabel" id="nospace_info">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
               </object>
               <packing>
                 <property name="expand">False</property>
-                <property name="fill">True</property>
+                <property name="fill">False</property>
                 <property name="position">0</property>
               </packing>
             </child>
@@ -439,8 +450,6 @@
                 <property name="can_focus">False</property>
                 <property name="margin_left">3</property>
                 <property name="margin_right">3</property>
-                <property name="margin_top">3</property>
-                <property name="margin_bottom">3</property>
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkLabel" id="label1">
@@ -465,6 +474,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="toolbar_style">both</property>
+                    <property name="show_arrow">False</property>
                     <child>
                       <object class="GtkToolButton" id="import_sd">
                         <property name="name">importbutton</property>
@@ -472,12 +482,12 @@
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Import</property>
                         <property name="use_underline">True</property>
-                        <property name="stock_id">gtk-harddisk</property>
+                        <property name="stock_id">gtk-save</property>
                         <signal name="clicked" handler="on_import_sd_clicked" swapped="no"/>
                       </object>
                       <packing>
                         <property name="expand">False</property>
-                        <property name="homogeneous">True</property>
+                        <property name="homogeneous">False</property>
                       </packing>
                     </child>
                     <child>
@@ -513,14 +523,14 @@
                       <object class="GtkToolButton" id="format_sd">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">Format</property>
+                        <property name="label" translatable="yes">Delete</property>
                         <property name="use_underline">True</property>
                         <property name="stock_id">gtk-clear</property>
                         <signal name="clicked" handler="on_format_sd_clicked" swapped="no"/>
                       </object>
                       <packing>
                         <property name="expand">False</property>
-                        <property name="homogeneous">True</property>
+                        <property name="homogeneous">False</property>
                       </packing>
                     </child>
                   </object>
@@ -558,14 +568,14 @@
               </object>
               <packing>
                 <property name="expand">False</property>
-                <property name="fill">True</property>
+                <property name="fill">False</property>
                 <property name="position">2</property>
               </packing>
             </child>
           </object>
           <packing>
             <property name="expand">False</property>
-            <property name="fill">True</property>
+            <property name="fill">False</property>
             <property name="position">1</property>
           </packing>
         </child>

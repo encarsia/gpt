@@ -66,13 +66,18 @@ class Handler:
 
     #right toolbar (memory card)
     def on_import_sd_clicked(self,widget):
-        if cli.freespace(cli.cardpath,cli.stdir) is True:
-            app.get_targetfolderwindow_content()
-        else:
-            cli.show_message(_("Failed to copy files. Not enough free space."))
-            app.builder.get_object("nospacemessage").run()
+        app.get_targetfolderwindow_content()
+        #if cli.freespace(cli.cardpath,cli.stdir) is True:
+        #    app.get_targetfolderwindow_content()
+        #else:
+            #cli.show_message(_("Failed to copy files. Not enough free space."))
+            #app.builder.get_object("nospacemessage").run()
+            
 
     def on_find_sd_clicked(self,widget):
+        #delete sd content info and no space info
+        app.builder.get_object("sd_content_info").set_text("")
+        app.builder.get_object("nospace_info").set_text("")
         app.find_sd()
         app.discspace_info()
 
@@ -260,6 +265,7 @@ class GoProGUI:
 
     def get_window_content(self):
         """Fill main window with content"""
+        
         self.show_workdir()
         self.load_dircontent()
         self.find_sd()
@@ -379,10 +385,14 @@ class GoProGUI:
         if cli.detectcard() is True:
             #activate buttons if card is mounted
             self.builder.get_object("act_sd").set_text(cli.cardpath)
-            self.builder.get_object("import_sd").set_sensitive(True)
             self.builder.get_object("open_sd").set_sensitive(True)
             self.builder.get_object("format_sd").set_sensitive(True)
             self.builder.get_object("sd_content_info").set_text(cli.card_content(cli.cardpath))
+            if cli.freespace(cli.cardpath,cli.stdir) is True:
+                self.builder.get_object("import_sd").set_sensitive(True)
+            else:
+                self.builder.get_object("import_sd").set_sensitive(False)
+                self.builder.get_object("nospace_info").set_text("Not enough disc space.\nFree at least %s." % cli.needspace)
         else:
             self.builder.get_object("act_sd").set_text(_("(none)"))
             self.builder.get_object("import_sd").set_sensitive(False)
@@ -731,6 +741,7 @@ class GoProGo:
         if shutil.disk_usage(src).used < shutil.disk_usage(dest).free:
             return True
         else:
+            self.needspace = app.sizeof_fmt(shutil.disk_usage(src).used - shutil.disk_usage(dest).free)
             return False
 
     #Zielordner wählen, neuen oder bestehenden Ordner, Defaultwert yyyy-mm-dd
