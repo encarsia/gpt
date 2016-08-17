@@ -237,6 +237,8 @@
       <column type="gint"/>
       <!-- column-name imgsub -->
       <column type="gboolean"/>
+      <!-- column-name realsize -->
+      <column type="gint64"/>
     </columns>
   </object>
   <object class="GtkWindow" id="gpwindow">

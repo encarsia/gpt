@@ -98,7 +98,11 @@ class Handler:
         widget.set_sort_column_id(2)
         
     def on_col_storage_clicked(self,widget):
-        widget.set_sort_column_id(3)
+        #use realsize column for sorting
+        widget.set_sort_column_id(7)
+
+    def on_col_seq_clicked(self,widget):
+        widget.set_sort_column_id(5)
 
     def on_treeview_selection_changed(self,widget):
         row, pos = widget.get_selected()
@@ -308,15 +312,13 @@ class GoProGUI:
                 #size of directory, subdiretories exclued
                 size = sum([os.path.getsize(f) for f in os.listdir('.') if os.path.isfile(f)])
                 humansize = self.sizeof_fmt(size)
-                #write number of sequences into table for future use
-                #TODO show number of seqs in treeview
                 try:
                     #4th/5th position in file name of last element in sorted list of sequences (e.g. Seq_03_010.JPG)
                     seq = int(sorted(glob.glob('Seq_*_*.*'))[-1][4:6])
                 except:
                     seq = 0
                 #transmit row to treestore
-                row = self.builder.get_object("treestore1").append(parent,[dirs,vidcount,imgcount,humansize,path,seq,False])
+                row = self.builder.get_object("treestore1").append(parent,[dirs,vidcount,imgcount,humansize,path,seq,False,size])
                 #read subdirs as child rows
                 self.get_tree_data(path,row)
                 os.chdir("..")
