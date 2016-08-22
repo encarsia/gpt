@@ -67,12 +67,7 @@ class Handler:
     #right toolbar (memory card)
     def on_import_sd_clicked(self,widget):
         app.get_targetfolderwindow_content()
-        #if cli.freespace(cli.cardpath,cli.stdir) is True:
-        #    app.get_targetfolderwindow_content()
-        #else:
-            #cli.show_message(_("Failed to copy files. Not enough free space."))
-            #app.builder.get_object("nospacemessage").run()
-            
+        self.on_find_sd_clicked(None)
 
     def on_find_sd_clicked(self,widget):
         #delete sd content info and no space info
@@ -87,23 +82,7 @@ class Handler:
     def on_format_sd_clicked(self,widget):
         app.builder.get_object("confirm_format_dialog").show_all()
 
-    #sort columns in TreeView
-    def on_col_dir_clicked(self,widget):
-        widget.set_sort_column_id(0)
-        
-    def on_col_vid_clicked(self,widget):
-        widget.set_sort_column_id(1)
-        
-    def on_col_img_clicked(self,widget):
-        widget.set_sort_column_id(2)
-        
-    def on_col_storage_clicked(self,widget):
-        #use realsize column for sorting
-        widget.set_sort_column_id(7)
-
-    def on_col_seq_clicked(self,widget):
-        widget.set_sort_column_id(5)
-
+    #functions in treeview table
     def on_treeview_selection_changed(self,widget):
         row, pos = widget.get_selected()
         if pos != None:
@@ -112,6 +91,9 @@ class Handler:
             #number of video files
             self.sel_vid = row[pos][1]
             app.activate_tl_buttons(row[pos][1],row[pos][2],row[pos][4],row[pos][6])
+
+    def on_cellrenderertext_edited(self,*args):
+        print("cell edited",*args)
 
     #calculate timelapse
     def on_tlvideo_button_clicked(self,widget):
@@ -125,24 +107,29 @@ class Handler:
 
     #right click menu in treeview
     def on_treeview_button_release_event(self,widget,event):
-        #define context menu
-        popup=Gtk.Menu()
-        kd_item=Gtk.MenuItem(_("Open with Kdenlive"))
-        #selected row is already caught by on_treeview_selection_changed function
-        kd_item.connect("activate",self.on_open_with_kdenlive,self.sel_folder)
-        
-        #don't show menu item if there are no video files
-        if self.sel_vid > 0 and cli.kd_supp is True:
-            popup.append(kd_item)
+        try:
+            #define context menu
+            popup=Gtk.Menu()
+            kd_item=Gtk.MenuItem(_("Open with Kdenlive"))
+            #selected row is already caught by on_treeview_selection_changed function
+            kd_item.connect("activate",self.on_open_with_kdenlive,self.sel_folder)
+            
+            #don't show menu item if there are no video files
+            if self.sel_vid > 0 and cli.kd_supp is True:
+                popup.append(kd_item)
 
-        open_item=Gtk.MenuItem(_("Open folder"))
-        open_item.connect("activate",self.on_open_folder,self.sel_folder)
-        popup.append(open_item)
-        popup.show_all()
-        #only show on right click
-        if event.button == 3:
-            popup.popup(None,None,None,None,event.button,event.time)
-            return True
+            open_item=Gtk.MenuItem(_("Open folder"))
+            open_item.connect("activate",self.on_open_folder,self.sel_folder)
+            popup.append(open_item)
+            popup.show_all()
+            #only show on right click
+            if event.button == 3:
+                popup.popup(None,None,None,None,event.button,event.time)
+                return True
+        except AttributeError:
+            # this error (missing variable self.sel_folder) is returned when clicking on title row
+            # ignoring because there is nothing to happen on right click
+            return
 
     def on_open_with_kdenlive(self,widget,folder):
         kds.create_project(folder)
@@ -184,11 +171,6 @@ class Handler:
         else:
             self.copyfolder = widget.get_child().get_text()
             cli.show_message(_("Entered: %s") % self.copyfolder)
-
-    ##### No space to copy files message dialog #####
-
-    def on_nospacemessage_response(self,widget,*args):
-        widget.hide_on_delete()
 
     ##### About dialog #####
     
@@ -269,14 +251,10 @@ class GoProGUI:
 
     def get_window_content(self):
         """Fill main window with content"""
-        
         self.show_workdir()
         self.load_dircontent()
         self.find_sd()
         self.discspace_info()
-
-        #only one treeview row can be selected
-        self.builder.get_object("treeview-selection").set_mode(Gtk.SelectionMode.SINGLE)
 
         #set Kdenlive support menu item inactive when disabled
         if cli.kd_supp is False:
@@ -296,12 +274,13 @@ class GoProGUI:
         os.chdir(cli.stdir)
         self.get_tree_data(cli.stdir)
         self.builder.get_object("treeview").expand_all()
-        self.builder.get_object("treeview-selection").unselect_all()
+        #self.builder.get_object("treeview1").expand_all()
+        #self.builder.get_object("treeview-selection").unselect_all()
         #Buttons auf inaktiv setzen, da sonst Buttons entsprechend der letzten parent-Zeile aktiviert werden
         self.activate_tl_buttons(0,0,0,False)
 
     def get_tree_data(self,directory,parent=None):
-        #FIXME: only reads subdirectories not the content of self.stdir itself, which isn't an issue at all when using import function
+        """Creates TreeStore table"""
         for dirs in sorted(os.listdir(directory)):
             path=os.path.join(directory,dirs)
             if os.path.isdir(path):
@@ -817,12 +796,8 @@ class GoProGo:
             for f in sorted(os.listdir()):
                 #image files
                 if f.endswith(".JPG"):
-                    if os.path.exists(os.path.join(dest,"Images_"+d[0:3],f)):
-                        #TODO no use because files will be renamed anyways after copying
-                        self.show_message(_("%s already exists in target directory.") % f)
-                    else:
-                        self.show_message(_("Copy %s...") % f)
-                        shutil.copy(f,os.path.join(dest,"Images_"+d[0:3]))
+                    self.show_message(_("Copy %s...") % f)
+                    shutil.copy(f,os.path.join(dest,"Images_"+d[0:3]))
 
                 #video files
                 if f.endswith(".MP4"):
@@ -836,35 +811,6 @@ class GoProGo:
                         
                 counter += 1
                 #app.refresh_progressbar(counter,abs_files)
-
-##### copy #####
-            #for f in sorted(os.listdir()):
-                ##image files
-                #if f.endswith(".JPG"):
-                    #if os.path.exists(os.path.join(dest,"Images_"+d[0:3],f)):
-                        ##TODO no use because files will be renamed anyways after copying
-                        #self.show_message(_("%s already exists in target directory.") % f)
-                    #else:
-                        #self.show_message(_("Copy %s...") % f)
-                        #shutil.copy(f,os.path.join(dest,"Images_"+d[0:3]))
-
-                ##video files
-                #if f.endswith(".MP4"):
-                    #if os.path.exists(os.path.join(dest,f)):
-                        ##TODO no use because files will be renamed anyways after copying
-                        #self.show_message(_("%s already exists in target directory.") % f)
-                        ##give the app time to update status and progressbar to avoid delay
-                        #time.sleep(1)
-                    #else:
-                        #self.show_message(_("Copy %s...") % f)
-                        #t = threading.Thread(target=self.copyvid_thread,args=(f,dest,abs_files,))
-                        #thread_list.append(t)
-                        #thread_list[-1].start()
-                        #time.sleep(10)
-                        
-                #counter += 1
-                #app.refresh_progressbar(counter,abs_files)
-######################
 
             if thread_list != []:
                 #wait until all threads are finished
