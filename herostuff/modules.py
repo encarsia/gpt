@@ -812,12 +812,15 @@ class GoProGo:
                     t = threading.Thread(target=self.copyvid_thread,args=(f,dest,abs_files,counter+vid_counter,))
                     thread_list.append(t)
                     thread_list[-1].start()
+                    #start new thread with 10 s delay
                     time.sleep(10)
             
             if thread_list != []:
                 #wait until all threads are finished
                 for thread in thread_list:
                     thread.join()
+                    #main loop (GTK+ app) can update widgets (here: progress bar)
+                    while Gtk.events_pending(): Gtk.main_iteration()
             
             #if video threads are finished new counter = old counter + prepared threads/number of video files
             counter += vid_counter
