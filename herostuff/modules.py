@@ -82,7 +82,7 @@ class Handler:
     def on_format_sd_clicked(self,widget):
         app.builder.get_object("confirm_format_dialog").show_all()
 
-    #functions in treeview table
+    #treeview table
     def on_treeview_selection_changed(self,widget):
         row, pos = widget.get_selected()
         if pos != None:
@@ -92,8 +92,8 @@ class Handler:
             self.sel_vid = row[pos][1]
             app.activate_tl_buttons(row[pos][1],row[pos][2],row[pos][4],row[pos][6])
 
-    def on_cellrenderertext_edited(self,*args):
-        print("cell edited",*args)
+    def on_cellrenderertext_edited(self,widget,pos,edit):
+        print("cell edited to",edit)
 
     #calculate timelapse
     def on_tlvideo_button_clicked(self,widget):
@@ -274,8 +274,6 @@ class GoProGUI:
         os.chdir(cli.stdir)
         self.get_tree_data(cli.stdir)
         self.builder.get_object("treeview").expand_all()
-        #self.builder.get_object("treeview1").expand_all()
-        #self.builder.get_object("treeview-selection").unselect_all()
         #Buttons auf inaktiv setzen, da sonst Buttons entsprechend der letzten parent-Zeile aktiviert werden
         self.activate_tl_buttons(0,0,0,False)
 
@@ -360,7 +358,8 @@ class GoProGUI:
             #see  http://faq.pygtk.org/index.py?req=show&file=faq23.020.htp or http://ubuntuforums.org/showthread.php?t=1056823...it, well, works
             while Gtk.events_pending(): Gtk.main_iteration()
         except:
-            pass
+            raise
+            #pass
 
     def find_sd(self):
         if cli.detectcard() is True:
@@ -665,15 +664,15 @@ class GoProGo:
                 if "Get_started_with_GoPro.url" in os.listdir():
                     self.subpath_card = "DCIM"
                     self.cardpath = os.path.join(userdrive,d)
-                    cli.show_message(_("Found GoPro device."))
+                    self.show_message(_("Found GoPro device."))
                     return True
-                elif "SONYCARD.IND" in os.listdir(os.path.join(os.getcwd(),"PRIVATE","SONY")):
+                elif os.path.exists(os.path.join(os.getcwd(),"PRIVATE","SONY","SONYCARD.IND")) is True:
                     self.subpath_card = "MP_ROOT"
                     self.cardpath = os.path.join(userdrive,d)
-                    cli.show_message(_("Found Sony device."))
+                    self.show_message(_("Found Sony device."))
                     return True
                 else:
-                    self.show_message(_("No supported device found."))
+                    self.show_message(_("Device is not supported."))
                 os.chdir('..')
             #wieder ins ursprüngliche Arbeitsverzeichnis wechseln
             self.workdir(self.stdir)
@@ -700,6 +699,9 @@ class GoProGo:
 
         info = "Number of videos: %d, total size: %s\nNumber of images: %d, total size: %s" % (vid_count,app.sizeof_fmt(vid_size),img_count,app.sizeof_fmt(img_size))
         print(info)
+        #(just for clarity) set separate variable for progress bar use
+        self.abs_vid = vid_count
+        self.abs_img = img_count
         return info
 
     #Dateien kopieren und umbenennen
@@ -768,7 +770,16 @@ class GoProGo:
         """Copy files from card to working directory (preview files excluded)"""
         os.chdir(src)
 
+        #absolute number of all files being copied
+        abs_files = self.abs_vid + self.abs_img
+        counter = 0
+
+        #reset progressbar
+        app.refresh_progressbar(0,1)
+
+        #copy files of subdirectories
         for d in os.listdir():
+
             os.chdir(d)
             self.show_message(_("Changed directory to %s") % d)
             time.sleep(.1)
@@ -780,51 +791,50 @@ class GoProGo:
                 self.chkdir(os.path.join(dest,"Images_"+d[0:3]))
                 self.workdir(os.path.join(src,d))
 
-            #counter for progress bar
-            counter = 0
+            ##### preparations for video files #####
+            #create empty list for threads used for copying video files
             thread_list = []
-            #TODO abf files for images = len(all_image_folders...)
-            abs_files = len(os.listdir())
-
-            #reset progressbar
-            app.refresh_progressbar(0,1)
+            #number of videos in subdirectory
+            vid_counter = [v.count(".MP4") for v in os.listdir()].count(1)
             
-            #TODO progressbar, wenn thread fertig, ...copied in message tray
-            #copy files
-            
-            #TODO: seperate image/video, image without threading
             for f in sorted(os.listdir()):
                 #image files
                 if f.endswith(".JPG"):
                     self.show_message(_("Copy %s...") % f)
-                    shutil.copy(f,os.path.join(dest,"Images_"+d[0:3]))
+                    #shutil.copy(f,os.path.join(dest,"Images_"+d[0:3]))
+                    time.sleep(1)
+                    counter += 1
+                    print("%s copied (%d/%d)"  % (f,counter,abs_files))
+                    app.refresh_progressbar(counter,abs_files)
 
                 #video files
                 if f.endswith(".MP4"):
                     #give the app time to update status and progressbar to avoid delay
-                    #time.sleep(1)
+                    time.sleep(1)
                     self.show_message(_("Copy %s...") % f)
-                    t = threading.Thread(target=self.copyvid_thread,args=(f,dest,abs_files,))
+                    t = threading.Thread(target=self.copyvid_thread,args=(f,dest,abs_files,counter+vid_counter,))
                     thread_list.append(t)
                     thread_list[-1].start()
-                    time.sleep(10)
-                        
-                counter += 1
-                #app.refresh_progressbar(counter,abs_files)
-
+                    time.sleep(1)
+            
             if thread_list != []:
                 #wait until all threads are finished
                 for thread in thread_list:
                     thread.join()
-                
-            self.show_message(_("Copying files finished."))
-            os.chdir('..')
+            
+            #if video threads are finished new counter = old counter + prepared threads/number of video files
+            counter += vid_counter
 
-    def copyvid_thread(self,f,dest,abs_files):
-        #TODO extra Test mit thread count
-        shutil.copy(f,dest)
-        print(_("%s copied") % f)
-        app.refresh_progressbar(threading.active_count()-1,abs_files)
+            os.chdir('..')    
+
+        self.show_message(_("Copying files finished."))
+        app.refresh_progressbar(1,1)
+
+    def copyvid_thread(self,f,dest,abs_files,counter):
+        #shutil.copy(f,dest)
+        time.sleep(5)
+        print("%s copied (%d/%d)" % (f,counter-(threading.active_count()-2),abs_files))
+        app.refresh_progressbar(counter-(threading.active_count()-2),abs_files)
 
     #Verzeichnisse anlegen, wenn möglich, falls nicht, Fallback in vorheriges Arbeitsverzeichnis
     #Gebrauch: Initialisierung/Änderung des Arbeitsverzeichnisses, Erstellung von Unterordnern vor Kopieren der Speicherkarte (Abfrage, um eventuelle Fehlermeldung wegen bereits vorhandenen Ordners zu vermeiden)
