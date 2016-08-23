@@ -801,21 +801,18 @@ class GoProGo:
                 #image files
                 if f.endswith(".JPG"):
                     self.show_message(_("Copy %s...") % f)
-                    #shutil.copy(f,os.path.join(dest,"Images_"+d[0:3]))
-                    time.sleep(1)
+                    shutil.copy(f,os.path.join(dest,"Images_"+d[0:3]))
                     counter += 1
-                    print("%s copied (%d/%d)"  % (f,counter,abs_files))
+                    self.show_message("%s copied (%d/%d)"  % (f,counter,abs_files))
                     app.refresh_progressbar(counter,abs_files)
 
                 #video files
                 if f.endswith(".MP4"):
-                    #give the app time to update status and progressbar to avoid delay
-                    time.sleep(1)
                     self.show_message(_("Copy %s...") % f)
                     t = threading.Thread(target=self.copyvid_thread,args=(f,dest,abs_files,counter+vid_counter,))
                     thread_list.append(t)
                     thread_list[-1].start()
-                    time.sleep(1)
+                    time.sleep(10)
             
             if thread_list != []:
                 #wait until all threads are finished
@@ -831,9 +828,8 @@ class GoProGo:
         app.refresh_progressbar(1,1)
 
     def copyvid_thread(self,f,dest,abs_files,counter):
-        #shutil.copy(f,dest)
-        time.sleep(5)
-        print("%s copied (%d/%d)" % (f,counter-(threading.active_count()-2),abs_files))
+        shutil.copy(f,dest)
+        self.show_message("%s copied (%d/%d)" % (f,counter-(threading.active_count()-2),abs_files))
         app.refresh_progressbar(counter-(threading.active_count()-2),abs_files)
 
     #Verzeichnisse anlegen, wenn möglich, falls nicht, Fallback in vorheriges Arbeitsverzeichnis
