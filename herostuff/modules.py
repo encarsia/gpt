@@ -808,21 +808,25 @@ class GoProGo:
 
                 #video files
                 if f.endswith(".MP4"):
-                    self.show_message(_("Copy %s...") % f)
                     t = threading.Thread(target=self.copyvid_thread,args=(f,dest,abs_files,counter+vid_counter,))
+                    #prepare threads
                     thread_list.append(t)
-                    thread_list[-1].start()
-                    #start new thread with 10 s delay
-                    time.sleep(10)
             
             if thread_list != []:
+                for thread in thread_list:
+                    #this imitates the max_workers=3 argument of the concurrent.futures.Executor class which works fine but the main loop is unresponsive when trying to update progress bar 
+                    while threading.active_count() > 3:
+                        time.sleep(2)
+                    #start prepared threads
+                    thread.start()
+                    #avoid starting at the exact same time
+                    time.sleep(.5)
+                    while Gtk.events_pending(): Gtk.main_iteration()
+            
                 #wait until all threads are finished
                 for thread in thread_list:
                     thread.join()
-                    #main loop (GTK+ app) can update widgets (here: progress bar)
-                    while Gtk.events_pending(): Gtk.main_iteration()
             
-            #if video threads are finished new counter = old counter + prepared threads/number of video files
             counter += vid_counter
 
             os.chdir('..')    
@@ -831,6 +835,7 @@ class GoProGo:
         app.refresh_progressbar(1,1)
 
     def copyvid_thread(self,f,dest,abs_files,counter):
+        self.show_message(_("Copy %s...") % f)
         shutil.copy(f,dest)
         self.show_message("%s copied (%d/%d)" % (f,counter-(threading.active_count()-2),abs_files))
         app.refresh_progressbar(counter-(threading.active_count()-2),abs_files)
