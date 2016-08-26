@@ -93,7 +93,7 @@ class Handler:
             app.activate_tl_buttons(row[pos][1],row[pos][2],row[pos][4],row[pos][6])
 
     def on_cellrenderertext_edited(self,widget,pos,edit):
-        print("cell edited to",edit)
+        print(_("cell edited to"),edit)
 
     #calculate timelapse
     def on_tlvideo_button_clicked(self,widget):
@@ -372,7 +372,7 @@ class GoProGUI:
                 self.builder.get_object("import_sd").set_sensitive(True)
             else:
                 self.builder.get_object("import_sd").set_sensitive(False)
-                self.builder.get_object("nospace_info").set_text("Not enough disc space.\nFree at least %s." % cli.needspace)
+                self.builder.get_object("nospace_info").set_text(_("Not enough disc space.\nFree at least %s.") % cli.needspace)
         else:
             self.builder.get_object("act_sd").set_text(_("(none)"))
             self.builder.get_object("import_sd").set_sensitive(False)
@@ -682,7 +682,7 @@ class GoProGo:
 
     #collect content information of plugged memory card
     def card_content(self,path):
-        print("Card mount point:",path)
+        print(_("Card mount point:"),path)
         #search for files
         vid_count = 0
         img_count = 0
@@ -697,7 +697,7 @@ class GoProGo:
                     img_count += 1
                     img_size += os.path.getsize(os.path.join(root,filename))
 
-        info = "Number of videos: %d, total size: %s\nNumber of images: %d, total size: %s" % (vid_count,app.sizeof_fmt(vid_size),img_count,app.sizeof_fmt(img_size))
+        info = _("Number of videos: %d, total size: %s\nNumber of images: %d, total size: %s") % (vid_count,app.sizeof_fmt(vid_size),img_count,app.sizeof_fmt(img_size))
         print(info)
         #(just for clarity) set separate variable for progress bar use
         self.abs_vid = vid_count
@@ -803,7 +803,7 @@ class GoProGo:
                     self.show_message(_("Copy %s...") % f)
                     shutil.copy(f,os.path.join(dest,"Images_"+d[0:3]))
                     counter += 1
-                    self.show_message("%s copied (%d/%d)"  % (f,counter,abs_files))
+                    self.show_message(_("%s copied (%d/%d)")  % (f,counter,abs_files))
                     app.refresh_progressbar(counter,abs_files)
 
                 #video files
@@ -837,7 +837,7 @@ class GoProGo:
     def copyvid_thread(self,f,dest,abs_files,counter):
         self.show_message(_("Copy %s...") % f)
         shutil.copy(f,dest)
-        self.show_message("%s copied (%d/%d)" % (f,counter-(threading.active_count()-2),abs_files))
+        self.show_message(_("%s copied (%d/%d)") % (f,counter-(threading.active_count()-2),abs_files))
         app.refresh_progressbar(counter-(threading.active_count()-2),abs_files)
 
     #Verzeichnisse anlegen, wenn möglich, falls nicht, Fallback in vorheriges Arbeitsverzeichnis

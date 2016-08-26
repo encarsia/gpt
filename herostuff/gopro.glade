@@ -662,6 +662,7 @@
           <object class="GtkScrolledWindow" id="scrolled-window">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
+            <property name="has_focus">True</property>
             <property name="shadow_type">in</property>
             <property name="min_content_height">200</property>
             <child>
@@ -921,7 +922,7 @@
     <property name="type_hint">dialog</property>
     <property name="transient_for">gpwindow</property>
     <property name="program_name">GoPro Tool</property>
-    <property name="version">v0.1</property>
+    <property name="version">v0.2</property>
     <property name="comments" translatable="yes">Helps you organizing your GoPro adventures.</property>
     <property name="website">https://github.com/encarsia/gpt</property>
     <property name="logo_icon_name">help-about</property>
