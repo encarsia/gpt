@@ -4,7 +4,7 @@
 import herostuff.modules
 
 try:
-    herostuff.modules.app.load_application_window()
+    herostuff.modules.app.load_player_window()
     herostuff.modules.app.main()
 except EOFError:
     raise

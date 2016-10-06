@@ -23,10 +23,17 @@ _ = gettext.gettext
 try:
     import gi
     gi.require_version('Gtk','3.0')
-    from gi.repository import Gtk,Gdk
+    gi.require_version('Gst','1.0')
+    gi.require_version('GdkX11','3.0')
+    gi.require_version('GstVideo','1.0')
+    from gi.repository import Gtk,Gdk,Gst,GdkX11,GstVideo,GLib
 except:
     print(_("Could not load GTK+, only command-line version is available."))
     raise
+
+
+class GenericException(Exception):
+    pass
 
 class Handler:
     """Signal assignment for Glade"""
@@ -57,6 +64,7 @@ class Handler:
         app.load_dircontent()
         cli.replace_wdir_config(win.selectedfolder)
 
+    #TODO merge with find_sd_clicked into one button
     def on_refresh_wdir_clicked(self,widget):
         app.load_dircontent()
         app.discspace_info()
@@ -92,6 +100,8 @@ class Handler:
             self.sel_vid = row[pos][1]
             app.activate_tl_buttons(row[pos][1],row[pos][2],row[pos][4],row[pos][6])
 
+
+    #TODO rename folder
     def on_cellrenderertext_edited(self,widget,pos,edit):
         print(_("cell edited to"),edit)
 
@@ -153,7 +163,6 @@ class Handler:
         app.builder.get_object("targetfolderwindow").hide_on_delete()
 
     def on_targetfolder_ok_clicked(self,widget):
-        #TODO add cancel button to kill import job
         app.builder.get_object("targetfolderwindow").hide_on_delete()
         app.builder.get_object("importmessage").show_all()
         time.sleep(.1)
@@ -219,7 +228,72 @@ class Handler:
             cli.format_sd()
             app.find_sd()
             app.discspace_info()
+
+    ##### Extended application window with media player included #####
+
+    #treeview table in player window
+    def on_treeview_selection_changed_pl(self,widget):
+        row, pos = widget.get_selected()
+        if pos != None:
+            #absolute path stored in 5th column in treestore, not displayed in treeview
+            self.sel_folder = row[pos][4]
+            #number of video files
+            self.sel_vid = row[pos][1]
+            app.activate_tl_buttons(row[pos][1],row[pos][2],row[pos][4],row[pos][6])
             
+            #show folder content in 2nd treeview with liststore2 data 
+            app.builder.get_object("liststore2").clear()
+            counter = 0
+
+            for dirs in sorted(os.listdir(row[pos][4])):
+                if dirs.endswith("JPG") or dirs.endswith("MP4"):
+                    counter += 1
+                    path = os.path.join(self.sel_folder,dirs)
+                    #transmit row to liststore
+                    app.builder.get_object("liststore2").append([counter,dirs,path])
+
+    def on_treeview_selection2_changed(self,widget):
+        try:
+            row, pos = widget.get_selected()
+            self.playbackfile = row[pos][2]
+        except:
+            #nothing selected, stop playback
+            ply.clear_playbin()
+
+    #select file in treeview2 by clicking
+    def on_treeview2_button_release_event(self,widget,event):
+        ply.clear_playbin()
+        
+        #show mediainfo
+        ply.mediainfo(self.playbackfile)
+        
+        ply.setup_player(self.playbackfile)
+        if ply.playpause_button.get_active() is True:
+            ply.playpause_button.set_active(False)
+        else:
+            ply.play()
+
+    ##### media control buttons #####
+    def on_playpause_togglebutton_toggled(self,widget):
+        if ply.playpause_button.get_active():
+            img = Gtk.Image.new_from_stock(Gtk.STOCK_MEDIA_PLAY,Gtk.IconSize.BUTTON)
+            widget.set_property("image",img)
+            ply.pause()
+        else:
+            img = Gtk.Image.new_from_stock(Gtk.STOCK_MEDIA_PAUSE,Gtk.IconSize.BUTTON)
+            widget.set_property("image",img)
+            ply.play()
+       
+    def on_forward_clicked(self,widget):
+        ply.skip_minute()
+
+    def on_backward_clicked(self,widget):
+        ply.skip_minute(-1)
+    
+    def on_progress_value_changed(self,widget):
+        ply.on_slider_seek
+
+
 class FileChooserDialog(Gtk.Window):
     """File chooser dialog when changing working directory"""
     #coder was too stupid to create a functional fcd with Glade so she borrowed some code from the documentation site
@@ -245,9 +319,32 @@ class GoProGUI:
         self.builder = Gtk.Builder()
         self.builder.set_translation_domain(cli.appname)
         
-        #load glade files
-        for f in cli.gladefile:
-            self.builder.add_from_file(f)
+        #load tlcalculator and subordinated window glade files
+        self.builder.add_from_file(cli.gladefile[0])
+        self.builder.add_from_file(cli.gladefile[1])
+
+    def load_application_window(self):
+        
+        #load application window glade file
+        self.builder.add_from_file(cli.gladefile[2])
+        self.builder.connect_signals(Handler())
+
+        self.get_window_content()
+
+        window = self.builder.get_object("gpwindow")
+        window.show_all()
+
+    def load_player_window(self):
+        
+        #load application window glade file
+        self.builder.add_from_file(cli.gladefile[3])
+        ply.prepare_player()
+        self.builder.connect_signals(Handler())
+
+        self.get_window_content()
+        
+        window = self.builder.get_object("gp_ext_appwindow")
+        window.show_all()
 
     def get_window_content(self):
         """Fill main window with content"""
@@ -260,9 +357,6 @@ class GoProGUI:
         if cli.kd_supp is False:
             self.builder.get_object("menu_kd_support").set_active(False)
 
-        window = self.builder.get_object("gpwindow")
-        window.show_all()
-
     def show_workdir(self):
         """Show path to working directory"""
         self.builder.get_object("act_wdir").set_text(cli.stdir)
@@ -273,7 +367,7 @@ class GoProGUI:
         self.builder.get_object("treestore1").clear()
         os.chdir(cli.stdir)
         self.get_tree_data(cli.stdir)
-        self.builder.get_object("treeview").expand_all()
+        self.builder.get_object("treeview1").expand_all()
         #Buttons auf inaktiv setzen, da sonst Buttons entsprechend der letzten parent-Zeile aktiviert werden
         self.activate_tl_buttons(0,0,0,False)
 
@@ -417,6 +511,11 @@ levelbar trough block.filled.low {
 levelbar trough block.filled.high {
     background-color: #FF4D00;
 }
+
+textview {
+    font-family: monospace;
+    font-size: small;
+}
         """
 
         #load css stylesheet
@@ -478,6 +577,204 @@ levelbar trough block.filled.high {
     def main(self):
         Gtk.main()
 
+class GoProPlayer:
+    
+    def __init__(self):
+        #init GStreamer
+        Gst.init(None)
+
+    def prepare_player(self):
+        #setting up videoplayer
+        self.player = Gst.ElementFactory.make("playbin","player")
+        self.sink = Gst.ElementFactory.make("xvimagesink")
+        self.sink.set_property("force-aspect-ratio",True)
+
+        #video display will be assigned to the GtkDrawingArea widget
+        self.movie_window = app.builder.get_object("play_here")
+
+        #playpause togglebutton
+        self.playpause_button = app.builder.get_object("playpause_togglebutton")
+        
+        #setting up progress scale
+        self.slider = app.builder.get_object("progress")
+        self.slider_handler_id = self.slider.connect("value-changed", self.on_slider_seek)
+
+    def setup_player(self,f):
+        #file to play must be transmitted as uri
+        self.uri = "file://"+os.path.abspath(f)
+        self.player.set_property("uri",self.uri)
+        
+        #make playbin play in specified window instead separate
+        #import GdkX11 and GstVideo 
+        win_id = self.movie_window.get_property('window').get_xid()
+        self.sink.set_window_handle(win_id)
+        self.player.set_property("video-sink",self.sink)
+        
+    def play(self):
+        if self.uri.endswith(".MP4"):
+            self.is_playing = True
+        else:
+            self.is_playing = False
+        print("play")
+        self.player.set_state(Gst.State.PLAYING)
+        
+        #starting up a timer to check on the current playback value
+        GLib.timeout_add(1000, self.update_slider)
+        
+    def pause(self):
+        self.is_playing = False
+        print("playback paused")
+        self.player.set_state(Gst.State.PAUSED)
+        
+    def current_position(self):
+        status,position = self.player.query_position(Gst.Format.TIME)
+        return position
+
+    #skip 1 minute on forward/backward button
+    def skip_minute(self,direction=1):
+        self.player.seek_simple(Gst.Format.TIME,  Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT, self.current_position() + float(60) * Gst.SECOND * direction )
+
+    def update_slider(self):
+        if not self.is_playing:
+            return False # cancel timeout
+        else:
+            success, self.duration = self.player.query_duration(Gst.Format.TIME)
+            #adjust duration and position relative to absolute scale of 100
+            try:
+                self.mult = 100 / ( self.duration / Gst.SECOND )
+            except ZeroDivisionError:
+                raise
+            if not success:
+                raise GenericException("Couldn't fetch duration")
+            #fetching the position, in nanosecs
+            success, position = self.player.query_position(Gst.Format.TIME)
+            if not success:
+                raise GenericException("Couldn't fetch current position to update slider")
+            
+            # block seek handler so we don't seek when we set_value()
+            self.slider.handler_block(self.slider_handler_id)
+            
+            self.slider.set_value( float(position) / Gst.SECOND * self.mult)
+            
+            self.slider.handler_unblock(self.slider_handler_id)
+        return True # continue calling every x milliseconds
+
+    def on_slider_seek(self,widget):
+        if self.uri.endswith(".JPG"):
+            seek_intvl = ply.slider.get_value()
+            files = len(os.listdir("Images_100"))
+            seek_file = int((files * seek_intvl) / 100)
+            self.clear_playbin()
+            self.setup_player(os.path.join("Images_100",sorted(os.listdir("Images_100"))[seek_file]))
+            self.pause()
+        elif not self.uri.endswith(".png"):
+            seek_time = ply.slider.get_value()
+            self.player.seek_simple(Gst.Format.TIME,  Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT, seek_time * Gst.SECOND / self.mult)
+        
+    def clear_playbin(self):
+        try:
+            self.is_playing = False
+            self.player.set_state(Gst.State.NULL)
+        except:
+            pass
+
+    def mediainfo(self,f):
+        """Get media file information from mediainfo and show in textviewarea"""
+        try:
+            #getting information from mediainfo and save in variable out
+            mediainfo_cmd = subprocess.Popen(["mediainfo",f],universal_newlines=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            out,err = mediainfo_cmd.communicate()
+            out = out.split("\n")
+            
+            #filter lines which should be shown
+            ginfo = ("Format",
+                    "File size",
+                    "Duration",
+                    "Overall bit rate",
+                    "Frame rate",
+                    )
+         
+            vinfo = ("Format",
+                    "Width",
+                    "Height",
+                    "Display aspect ratio",
+                    "Frame rate mode",
+                    "Frame count",
+                    "Format/Info",
+                    "Bit rate mode",
+                    "Bit rate",
+                    )
+          
+            ainfo = ("Format",
+                    "Bit rate mode",
+                    "Bit rate",
+                    )
+            
+            iinfo = ("Width",
+                    "Height",
+                    "Bit depth",
+                    )
+            
+            #prepare categories for gtk treeview
+            mtype = ("General","Video","Audio","Image")
+            mtype_info = (ginfo,vinfo,ainfo,iinfo)
+
+            """mediainfo output:
+            
+            General
+            Format : ...
+            ...    : ...
+            Video
+            ...    : ...
+            .
+            .
+            .
+            """
+
+            #create data list 
+            mediainfo=[]
+            store = Gtk.TreeStore(str,str,str)
+
+            for line in out:
+                #find start of category, reset parent
+                if line.strip() in mtype:
+                    i = mtype.index(line.strip())
+                    mt = line.strip()
+                    parent = None
+                #split output line
+                elif line.find(":") > -1:
+                    row = line.split(":",1)
+                    #only use lines defined in the variable above
+                    if row[0].strip() in mtype_info[i]:
+                        #append to intern list, obsolete in later gtk-only app
+                        mediainfo.append([mt,row[0].strip(),row[1]])
+                        if parent == None:
+                            treeiter = store.append(None,[mt,row[0].strip(),row[1]])
+                            parent == treeiter
+                        else:
+                            store.append(parent,[mt,row[0].strip(),row[1]])
+
+            #print data list
+            
+            mediatext = ""
+            for line in mediainfo:
+                string = "{0:7} | {1:20} | {2:}".format(line[0],line[1],line[2])
+                mediatext += string + "\n"
+            print(mediatext)
+            
+            #setting up text in monospace does not work anymore, not working in glade either, see css variable for details
+            #app.builder.get_object("mediainfo_text").set_monospace(True)
+            app.builder.get_object("textbuffer1").set_text(mediatext)
+            
+        except FileNotFoundError:
+            print("MediaInfo is not installed.")
+            app.builder.get_object("textbuffer1").set_text("MediaInfo is not installed.")
+
+
+        
+                    
+
+
 class GoProGo:
 
     def __init__(self):
@@ -485,12 +782,15 @@ class GoProGo:
         self.install_dir = os.getcwd()
 
         #Glade files/window configuration
-        gladefile_list = ["gopro.glade","tlcalculator.glade"]
+        gladefile_list = [  "tlcalculator.glade",
+                            "gopro.glade",
+                            "appwindow.glade",
+                            "playerwindow.glade"]
         self.gladefile = []
 
         for f in gladefile_list:
             self.gladefile.append(os.path.join(self.install_dir,"herostuff",f))
-
+        
         self.locales_dir = os.path.join(self.install_dir,'herostuff','po','locale')
         self.appname = 'GPT'
 
@@ -1365,4 +1665,5 @@ cli = GoProGo()
 ctl = TimeLapse()
 kds = KdenliveSupport()
 app = GoProGUI()
+ply = GoProPlayer()
 tlc = TimelapseCalculator()
