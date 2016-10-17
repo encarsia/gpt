@@ -302,7 +302,7 @@ class FileChooserDialog(Gtk.Window):
         dialog = Gtk.FileChooserDialog(_("Choose directory"), self,
             Gtk.FileChooserAction.SELECT_FOLDER,
             (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
-             "Apply", Gtk.ResponseType.OK))
+             _("Apply"), Gtk.ResponseType.OK))
         dialog.set_default_size(800, 400)
         response = dialog.run()
         if response == Gtk.ResponseType.OK:
@@ -311,6 +311,8 @@ class FileChooserDialog(Gtk.Window):
             self.selectedfolder = dialog.get_filename()
         elif response == Gtk.ResponseType.CANCEL:
             print(_("Cancel clicked"))
+            self.selectedfolder = cli.stdir
+            
         dialog.destroy()
 
 class GoProGUI:
@@ -322,6 +324,21 @@ class GoProGUI:
         #load tlcalculator and subordinated window glade files
         self.builder.add_from_file(cli.gladefile[0])
         self.builder.add_from_file(cli.gladefile[1])
+
+        #initiate custom css
+        #...encode() is needed because CssProvider expects byte type input
+        
+        with open(cli.stylesheet,"r") as f:
+            css = f.read().encode()
+
+        style_provider = Gtk.CssProvider()
+        style_provider.load_from_data(css)
+        
+        Gtk.StyleContext.add_provider_for_screen(
+            Gdk.Screen.get_default(),
+            style_provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+        )
 
     def load_application_window(self):
         
@@ -489,45 +506,6 @@ class GoProGUI:
         self.disc_bar = self.builder.get_object("level_wdir")
         self.card_bar = self.builder.get_object("level_sd")
 
-        css = b"""
-        
-levelbar trough block.filled.empty {
-    border-color: transparent;
-    background-color: transparent;
-    }
-
-levelbar trough block.filled {
-    background-color: #FF0000;
-}
-
-levelbar trough block.filled.lower {
-    background-color: #00D30F;
-}
-
-levelbar trough block.filled.low {
-    background-color: #0000FF;
-}
-
-levelbar trough block.filled.high {
-    background-color: #FF4D00;
-}
-
-textview {
-    font-family: monospace;
-    font-size: small;
-}
-        """
-
-        #load css stylesheet
-        style_provider = Gtk.CssProvider()
-        style_provider.load_from_data(css)
-        
-        Gtk.StyleContext.add_provider_for_screen(
-            Gdk.Screen.get_default(),
-            style_provider,
-            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
-        )
-        
         self.disc_bar.add_offset_value("lower",0.5)
         self.disc_bar.add_offset_value("low",0.7)
         self.disc_bar.add_offset_value("high",0.9)
@@ -791,6 +769,9 @@ class GoProGo:
         for f in gladefile_list:
             self.gladefile.append(os.path.join(self.install_dir,"herostuff",f))
         
+        #css stylesheet
+        self.stylesheet = os.path.join(self.install_dir,"herostuff","gtk.css")
+
         self.locales_dir = os.path.join(self.install_dir,'herostuff','po','locale')
         self.appname = 'GPT'
 
