@@ -64,7 +64,8 @@ class Handler:
         app.load_dircontent()
         cli.replace_wdir_config(win.selectedfolder)
 
-    #TODO merge with find_sd_clicked into one button
+    #TODO auto refresh every ...seconds (let's say 10?)
+    #I really like commentary discussions with myself
     def on_refresh_wdir_clicked(self,widget):
         app.load_dircontent()
         app.discspace_info()
@@ -1316,6 +1317,7 @@ class GoProGo:
                 print(_("Invalid input. Try again..."))
 
 class KdenliveSupport:
+    #TODO: update template file to recent kdenlive version to get rid of message at application start
 
     def __init__(self):
         
@@ -1368,11 +1370,14 @@ class KdenliveSupport:
 
         #save as new file
         self.tree.write("mlt-playlist.kdenlive")
-
         cli.show_message(_("Open Kdenlive project"))
-        subprocess.run(["kdenlive","mlt-playlist.kdenlive"])
-        
+        #open Kdenlive as separate thread to keep GPT responsive
+        thread = threading.Thread(target=self.openproject,args=("kdenlive","mlt-playlist.kdenlive"))
+        thread.start()
         cli.workdir(self.wdir)
+
+    def openproject(self,application,filename):
+        subprocess.run([application,filename])
 
     def countvid(self):
         """Find video files in directory"""
