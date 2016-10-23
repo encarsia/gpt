@@ -14,6 +14,7 @@ import gettext
 import threading
 import sys
 import codecs
+import logging
 
 #requires python-lxml
 from lxml import etree
@@ -70,6 +71,7 @@ class Handler:
         app.load_dircontent()
         app.discspace_info()
 
+    #TODO when bored: start subprocess as thread
     def on_open_wdir_clicked(self,widget):
         subprocess.run(['xdg-open',cli.stdir])
 
@@ -758,7 +760,14 @@ class GoProGo:
 
     def __init__(self):
 
+        #get current directory
         self.install_dir = os.getcwd()
+
+        #set up logging
+        FORMAT = "%(funcName)s %(lineno)-10d. %(levelname)-8s: %(message)s"
+
+        logging.basicConfig(filename='gpt.log',level=logging.DEBUG,filemode='w',format=FORMAT)
+        self.log = logging.getLogger(__name__)
 
         #Glade files/window configuration
         gladefile_list = [  "tlcalculator.glade",
@@ -885,10 +894,11 @@ class GoProGo:
         """Show notifications in terminal window and status bar if possible"""
         try:
             app.builder.get_object("statusbar1").push(1,message)
+            self.log.info(message)
             time.sleep(.1)
             while Gtk.events_pending(): Gtk.main_iteration()
         except NameError:
-            pass
+            self.log.exception("Exception error")
         print(message)
 
     #Arbeitsverzeichnis festlegen
