@@ -25,7 +25,7 @@ def prepare_strings_for_gettext(source,copy,i=[]):
         elif line.find('""")') > -1 and not line.find('"""))') > -1:
             line = line.replace('"""','""")')
         #check for strings in print, show_message and input function
-        elif line.find('.show_message(') > -1 or line.find('print(') > -1 or line.find('input(') > -1:
+        elif line.find('.show_message(') > -1 or line.find('print(') > -1 or line.find('input(') > -1 or line.find('.log.') > -1:
             #replace first occurance of " with _("
             line = line.replace('"','_("',1)
             #insert ) after last occurance of "
@@ -52,6 +52,7 @@ def get_pot_code(f,out):
     command = ['xgettext',
                 '-L','Python',
                 '-j',
+                '--no-location',
                 '-o', os.path.join('po',out),
                 f]
     subprocess.run(command)
@@ -63,10 +64,11 @@ def get_pot_glade(f,out):
                 '--keyword=translatable',
                 '--language=Glade',
                 '-j',
+                '--no-location',
                 '-o', os.path.join('po',out),
                 f]
     subprocess.run(command)
-    print("Added strings from glade file to %s." % out)
+    print("Added strings from %s file to %s." % (f,out))
 
 def update_po_files(t):
     os.chdir('po')
@@ -124,10 +126,14 @@ if __name__ == "__main__":
     #save new python code as copy
     prepare_strings_for_gettext(source_file,source_copy,get_ignorelist(ignorefile))
 
-    #find new strings and save these in template (.pot)
+    #find new strings in glade files and save these in template (.pot)
     get_pot_code(source_copy,transl_templ)
     get_pot_glade('gopro.glade',transl_templ)
     get_pot_glade('tlcalculator.glade',transl_templ)
+    get_pot_glade('appwindow.glade',transl_templ)
+    get_pot_glade('playerwindow.glade',transl_templ)
+
+    #get rid of 
 
     #update existing .po files with new strings
     update_po_files(transl_templ)
