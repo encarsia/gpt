@@ -103,10 +103,33 @@ class Handler:
             self.sel_vid = row[pos][1]
             app.activate_tl_buttons(row[pos][1],row[pos][2],row[pos][4],row[pos][6])
 
-
-    #TODO rename folder
     def on_cellrenderertext_edited(self,widget,pos,edit):
-        print(_("cell edited to"),edit)
+        #new folder is split(head)+edit
+        newdir = os.path.join(os.path.split(self.sel_folder)[0],edit)
+        counter = 0
+        #only do something if cell was actually edited
+        if edit != os.path.split(self.sel_folder)[1]:
+            while True:
+                #check if directory exists
+                if os.path.isdir(newdir) is False:
+                    try:
+                        os.replace(self.sel_folder,newdir)
+                        cli.show_message("Folder renamed")
+                        app.get_window_content()
+                        break
+                    except OSError:
+                        raise
+                        cli.log.exception("Exception error")
+                else:
+                        #if directory already exists just add a number at the end
+                        counter += 1
+                        if counter > 1:
+                            newdir = newdir[:-len(str(counter))]
+                        newdir = "%s%d" % (newdir,counter)
+                        cli.log.warning("Directory already exists. Trying %s..." % newdir)
+        else:
+            cli.show_message("New name is old name, there is nothing to do here.")
+            
 
     #calculate timelapse
     def on_tlvideo_button_clicked(self,widget):
