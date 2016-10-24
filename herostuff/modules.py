@@ -33,7 +33,7 @@ except:
     raise
 
 
-class GenericException(Exception):
+class SliderUpdateException(Exception):
     pass
 
 class Handler:
@@ -596,7 +596,7 @@ class GoProPlayer:
             self.is_playing = True
         else:
             self.is_playing = False
-        print("play")
+        cli.log.info("play")
         self.player.set_state(Gst.State.PLAYING)
         
         #starting up a timer to check on the current playback value
@@ -604,7 +604,7 @@ class GoProPlayer:
         
     def pause(self):
         self.is_playing = False
-        print("playback paused")
+        cli.log.info("playback paused")
         self.player.set_state(Gst.State.PAUSED)
         
     def current_position(self):
@@ -624,13 +624,15 @@ class GoProPlayer:
             try:
                 self.mult = 100 / ( self.duration / Gst.SECOND )
             except ZeroDivisionError:
-                raise
+                cli.log.exception("Exception error")
             if not success:
-                raise GenericException("Couldn't fetch duration")
+                #raise SliderUpdateException("Couldn't fetch duration")
+                cli.log.warning("Couldn't fetch duration")
             #fetching the position, in nanosecs
             success, position = self.player.query_position(Gst.Format.TIME)
             if not success:
-                raise GenericException("Couldn't fetch current position to update slider")
+                #raise SliderUpdateException("Couldn't fetch current position to update slider")
+                cli.log.warning("Couldn't fetch current position to update slider")
             
             # block seek handler so we don't seek when we set_value()
             self.slider.handler_block(self.slider_handler_id)
@@ -752,10 +754,6 @@ class GoProPlayer:
             app.builder.get_object("textbuffer1").set_text("MediaInfo is not installed.")
 
 
-        
-                    
-
-
 class GoProGo:
 
     def __init__(self):
@@ -764,9 +762,9 @@ class GoProGo:
         self.install_dir = os.getcwd()
 
         #set up logging
-        FORMAT = "%(funcName)s %(lineno)-10d. %(levelname)-8s: %(message)s"
+        FORMAT = "%(asctime)s %(funcName)-14s %(lineno)d| %(levelname)-8s | %(message)s"
 
-        logging.basicConfig(filename='gpt.log',level=logging.DEBUG,filemode='w',format=FORMAT)
+        logging.basicConfig(filename='gpt.log',level=logging.DEBUG,filemode='w',format=FORMAT,datefmt="%H:%M:%S")
         self.log = logging.getLogger(__name__)
 
         #Glade files/window configuration
@@ -894,12 +892,12 @@ class GoProGo:
         """Show notifications in terminal window and status bar if possible"""
         try:
             app.builder.get_object("statusbar1").push(1,message)
-            self.log.info(message)
             time.sleep(.1)
             while Gtk.events_pending(): Gtk.main_iteration()
         except NameError:
-            self.log.exception("Exception error")
+            self.log.debug("Could not write message to statusbar")
         print(message)
+        self.log.info(message)
 
     #Arbeitsverzeichnis festlegen
     def chwdir(self):
@@ -1226,11 +1224,6 @@ class GoProGo:
                 #andere Formate etc.
                 self.show_message(_("No matching image files."))
                 
-        #Vorschaudateien
-        #FIXME: obsolet, da nur relevante Dateien kopiert werden, trotzdem erstmal lassen
-        if glob.glob('*.LRV') or glob.glob('*.THM'):
-            print(len(glob.glob('*.LRV'))+len(glob.glob('*.THM')),_("Preview file(s) (LRV/THM) found."))
-            self.delfiles(".LRV",".THM")
 
     def confirm_format(self):
         if self.detectcard() is True:
