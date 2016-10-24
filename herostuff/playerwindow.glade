@@ -64,6 +64,7 @@
   </object>
   <object class="GtkApplicationWindow" id="gp_ext_appwindow">
     <property name="can_focus">False</property>
+    <property name="title" translatable="yes">ThereGoesMyHero (GStreamer Preview)</property>
     <signal name="destroy" handler="on_gpwindow_destroy" swapped="no"/>
     <child>
       <object class="GtkBox" id="box2">
@@ -1063,7 +1064,7 @@
         </child>
       </object>
     </child>
-    <child type="titlebar">
+    <child>
       <placeholder/>
     </child>
   </object>

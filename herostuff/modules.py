@@ -114,21 +114,21 @@ class Handler:
                 if os.path.isdir(newdir) is False:
                     try:
                         os.replace(self.sel_folder,newdir)
-                        cli.show_message("Folder renamed")
+                        cli.show_message(_("Folder renamed"))
                         app.get_window_content()
                         break
                     except OSError:
                         raise
-                        cli.log.exception("Exception error")
+                        cli.log.exception(_("Exception error"))
                 else:
                         #if directory already exists just add a number at the end
                         counter += 1
                         if counter > 1:
                             newdir = newdir[:-len(str(counter))]
                         newdir = "%s%d" % (newdir,counter)
-                        cli.log.warning("Directory already exists. Trying %s..." % newdir)
+                        cli.log.warning(_("Directory already exists. Trying %s...") % newdir)
         else:
-            cli.show_message("New name is old name, there is nothing to do here.")
+            cli.show_message(_("New name is old name, there is nothing to do here."))
             
 
     #calculate timelapse
@@ -619,7 +619,7 @@ class GoProPlayer:
             self.is_playing = True
         else:
             self.is_playing = False
-        cli.log.info("play")
+        cli.log.info(_("play"))
         self.player.set_state(Gst.State.PLAYING)
         
         #starting up a timer to check on the current playback value
@@ -627,7 +627,7 @@ class GoProPlayer:
         
     def pause(self):
         self.is_playing = False
-        cli.log.info("playback paused")
+        cli.log.info(_("playback paused"))
         self.player.set_state(Gst.State.PAUSED)
         
     def current_position(self):
@@ -647,15 +647,15 @@ class GoProPlayer:
             try:
                 self.mult = 100 / ( self.duration / Gst.SECOND )
             except ZeroDivisionError:
-                cli.log.exception("Exception error")
+                cli.log.exception(_("Exception error"))
             if not success:
                 #raise SliderUpdateException("Couldn't fetch duration")
-                cli.log.warning("Couldn't fetch duration")
+                cli.log.warning(_("Couldn't fetch duration"))
             #fetching the position, in nanosecs
             success, position = self.player.query_position(Gst.Format.TIME)
             if not success:
                 #raise SliderUpdateException("Couldn't fetch current position to update slider")
-                cli.log.warning("Couldn't fetch current position to update slider")
+                cli.log.warning(_("Couldn't fetch current position to update slider"))
             
             # block seek handler so we don't seek when we set_value()
             self.slider.handler_block(self.slider_handler_id)
@@ -773,7 +773,7 @@ class GoProPlayer:
             app.builder.get_object("textbuffer1").set_text(mediatext)
             
         except FileNotFoundError:
-            print("MediaInfo is not installed.")
+            print(_("MediaInfo is not installed."))
             app.builder.get_object("textbuffer1").set_text("MediaInfo is not installed.")
 
 
@@ -918,7 +918,7 @@ class GoProGo:
             time.sleep(.1)
             while Gtk.events_pending(): Gtk.main_iteration()
         except NameError:
-            self.log.debug("Could not write message to statusbar")
+            self.log.debug(_("Could not write message to statusbar"))
         print(message)
         self.log.info(message)
 

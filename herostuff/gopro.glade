@@ -6,7 +6,7 @@
     <property name="can_focus">False</property>
     <property name="type_hint">dialog</property>
     <property name="program_name">GoPro Tool</property>
-    <property name="version">v0.2</property>
+    <property name="version">v0.3</property>
     <property name="comments" translatable="yes">Helps you organizing your GoPro adventures.</property>
     <property name="website">https://github.com/encarsia/gpt</property>
     <property name="logo_icon_name">help-about</property>
@@ -44,6 +44,9 @@
           </packing>
         </child>
       </object>
+    </child>
+    <child>
+      <placeholder/>
     </child>
   </object>
   <object class="GtkAdjustment" id="adjustment1">
@@ -149,6 +152,9 @@
         </child>
       </object>
     </child>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
   </object>
   <object class="GtkMessageDialog" id="confirm_format_dialog">
     <property name="can_focus">False</property>
@@ -183,6 +189,9 @@ Are you really sure to proceed?</property>
         </child>
       </object>
     </child>
+    <child>
+      <placeholder/>
+    </child>
   </object>
   <object class="GtkMessageDialog" id="importmessage">
     <property name="can_focus">False</property>
@@ -214,6 +223,9 @@ Are you really sure to proceed?</property>
           </packing>
         </child>
       </object>
+    </child>
+    <child>
+      <placeholder/>
     </child>
   </object>
   <object class="GtkListStore" id="liststore1">
@@ -315,6 +327,9 @@ Are you really sure to proceed?</property>
           </packing>
         </child>
       </object>
+    </child>
+    <child type="titlebar">
+      <placeholder/>
     </child>
   </object>
   <object class="GtkTreeStore" id="treestore1">
