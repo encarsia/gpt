@@ -23,12 +23,6 @@
     <property name="can_focus">False</property>
     <property name="stock">gtk-media-pause</property>
   </object>
-  <object class="GtkListStore" id="liststore1">
-    <columns>
-      <!-- column-name folder -->
-      <column type="gchararray"/>
-    </columns>
-  </object>
   <object class="GtkListStore" id="liststore2">
     <columns>
       <!-- column-name nr -->
@@ -1064,7 +1058,7 @@
         </child>
       </object>
     </child>
-    <child>
+    <child type="titlebar">
       <placeholder/>
     </child>
   </object>
