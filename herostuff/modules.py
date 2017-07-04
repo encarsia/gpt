@@ -552,7 +552,7 @@ class GoProGUI:
     #borrowed from http://stackoverflow.com/questions/1094841/reusable-library-to-get-human-readable-version-of-file-size
     def sizeof_fmt(self,num, suffix='B'):
         """File size shown in common units"""
-        for unit in ['','Ki','Mi','Gi','Ti','Pi','Ei','Zi']:
+        for unit in ['','K','M','G','T','P','E','Z']:
             if abs(num) < 1024.0:
                 return "%3.1f %s%s" % (num, unit, suffix)
             num /= 1024.0
@@ -560,10 +560,11 @@ class GoProGUI:
 
     def get_targetfolderwindow_content(self):
         """Get list for dropdown selection and open window"""
-        copyfolder_list = self.builder.get_object("liststore1")
+        copyfolder_list = self.builder.get_object("destfolder_store")
         copyfolder_list.clear()
         #first row = default folder (today's date)
         today = time.strftime("%Y-%m-%d",time.localtime())
+        
         copyfolder_list.append([today])
 
         for d in sorted(os.listdir(cli.stdir)):

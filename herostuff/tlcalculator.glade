@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.19.0 -->
+<!-- Generated with glade 3.20.0 -->
 <interface>
   <requires lib="gtk+" version="3.16"/>
   <object class="GtkAdjustment" id="adjust_fps">
@@ -95,7 +95,6 @@
                 <property name="margin_left">3</property>
                 <property name="margin_right">3</property>
                 <property name="label" translatable="yes">Resolution</property>
-                <property name="xalign">0</property>
                 <attributes>
                   <attribute name="style" value="oblique"/>
                 </attributes>
@@ -109,10 +108,10 @@
               <object class="GtkLabel" id="label5">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="halign">start</property>
                 <property name="margin_left">3</property>
                 <property name="margin_right">3</property>
                 <property name="label" translatable="yes">Interval</property>
-                <property name="xalign">0</property>
                 <attributes>
                   <attribute name="style" value="italic"/>
                 </attributes>
@@ -126,10 +125,10 @@
               <object class="GtkLabel" id="label6">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="halign">start</property>
                 <property name="margin_left">3</property>
                 <property name="margin_right">3</property>
                 <property name="label" translatable="yes">Duration</property>
-                <property name="xalign">0</property>
                 <attributes>
                   <attribute name="style" value="italic"/>
                 </attributes>
@@ -244,6 +243,8 @@
           <object class="GtkBox" id="box1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="margin_left">5</property>
+            <property name="margin_right">5</property>
             <property name="orientation">vertical</property>
             <child>
               <object class="GtkGrid" id="grid3">
@@ -253,10 +254,10 @@
                   <object class="GtkLabel" id="label7">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="halign">start</property>
                     <property name="margin_left">3</property>
                     <property name="margin_right">10</property>
                     <property name="label" translatable="yes">Frames per second</property>
-                    <property name="xalign">0</property>
                     <attributes>
                       <attribute name="style" value="italic"/>
                     </attributes>
@@ -271,7 +272,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="margin_left">5</property>
-                    <property name="width_chars">0</property>
+                    <property name="caps_lock_warning">False</property>
                     <property name="adjustment">adjust_fps</property>
                     <signal name="value-changed" handler="on_spin_fps_value_changed" swapped="no"/>
                   </object>
@@ -284,11 +285,11 @@
                   <object class="GtkLabel" id="label10">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="halign">start</property>
                     <property name="margin_left">3</property>
                     <property name="margin_top">3</property>
                     <property name="margin_bottom">3</property>
                     <property name="label" translatable="yes">Duration</property>
-                    <property name="xalign">0</property>
                     <attributes>
                       <attribute name="style" value="italic"/>
                     </attributes>
@@ -305,7 +306,6 @@
                     <property name="margin_top">3</property>
                     <property name="margin_bottom">3</property>
                     <property name="label" translatable="yes">timelapse duration</property>
-                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -353,12 +353,12 @@
                       <object class="GtkLabel" id="label8">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="halign">start</property>
                         <property name="margin_left">3</property>
                         <property name="margin_right">3</property>
                         <property name="margin_top">2</property>
                         <property name="margin_bottom">2</property>
                         <property name="label" translatable="yes">Quantity</property>
-                        <property name="xalign">0</property>
                         <attributes>
                           <attribute name="style" value="italic"/>
                         </attributes>
@@ -372,12 +372,12 @@
                       <object class="GtkLabel" id="label9">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="halign">start</property>
                         <property name="margin_left">3</property>
                         <property name="margin_right">10</property>
                         <property name="margin_top">2</property>
                         <property name="margin_bottom">2</property>
                         <property name="label" translatable="yes">Estimated memory use</property>
-                        <property name="xalign">0</property>
                         <attributes>
                           <attribute name="style" value="italic"/>
                         </attributes>
@@ -396,7 +396,6 @@
                         <property name="margin_top">2</property>
                         <property name="margin_bottom">2</property>
                         <property name="label" translatable="yes">quantity</property>
-                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -412,7 +411,6 @@
                         <property name="margin_top">2</property>
                         <property name="margin_bottom">2</property>
                         <property name="label" translatable="yes">memory</property>
-                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -440,6 +438,9 @@
           </packing>
         </child>
       </object>
+    </child>
+    <child>
+      <placeholder/>
     </child>
   </object>
 </interface>
