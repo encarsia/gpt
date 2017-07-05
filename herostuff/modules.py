@@ -93,6 +93,25 @@ class Handler:
     def on_format_sd_clicked(self,widget):
         app.builder.get_object("confirm_format_dialog").show_all()
 
+    def on_import_other_clicked(self,widget):
+        app.get_targetfolderwindow_content()
+        app.builder.get_object("nospace_info").set_text("")
+        app.discspace_info()
+
+    def on_choose_other_location_clicked(self,widget):
+        win = FileChooserDialog()
+        win.on_folder_clicked()
+        app.builder.get_object("act_othloc").set_text(win.selectedfolder)
+        app.builder.get_object("dir_content_info").set_text(cli.card_content(win.selectedfolder))
+        if cli.abs_size == 0:
+            app.builder.get_object("import_other").set_sensitive(False)
+            cli.show_message("No files here to import...")
+        elif cli.freespace(win.selectedfolder,cli.stdir) is True:
+            app.builder.get_object("import_other").set_sensitive(True)
+        else:
+            app.builder.get_object("import_other").set_sensitive(False)
+            app.builder.get_object("nospace_info").set_text(_("Not enough disc space.\nFree at least %s.") % cli.needspace)
+
     #treeview table
     def on_treeview_selection_changed(self,widget):
         row, pos = widget.get_selected()
@@ -395,6 +414,8 @@ class GoProGUI:
         self.load_dircontent()
         self.find_sd()
         self.discspace_info()
+        self.builder.get_object("act_othloc").set_text(_("(none)"))
+        self.builder.get_object("import_other").set_sensitive(False)
 
         #set Kdenlive support menu item inactive when disabled
         if cli.kd_supp is False:
@@ -1016,6 +1037,7 @@ class GoProGo:
         #(just for clarity) set separate variable for progress bar use
         self.abs_vid = vid_count
         self.abs_img = img_count
+        self.abs_size = vid_size + img_size
         return info
 
     #Dateien kopieren und umbenennen
@@ -1035,10 +1057,10 @@ class GoProGo:
     #Speicherplatz analysieren
     def freespace(self,src,dest):
         """Check for free disc space"""
-        if shutil.disk_usage(src).used < shutil.disk_usage(dest).free:
+        if self.abs_size < shutil.disk_usage(dest).free:
             return True
         else:
-            self.needspace = app.sizeof_fmt(shutil.disk_usage(src).used - shutil.disk_usage(dest).free)
+            self.needspace = app.sizeof_fmt(self.abs_size - shutil.disk_usage(dest).free)
             return False
 
     #Zielordner wählen, neuen oder bestehenden Ordner, Defaultwert yyyy-mm-dd
