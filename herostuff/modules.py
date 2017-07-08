@@ -92,6 +92,7 @@ class Handler:
 
     def on_format_sd_clicked(self,widget):
         app.builder.get_object("confirm_format_dialog").show_all()
+        self.on_find_sd_clicked(None)
 
     def on_import_other_clicked(self,widget):
         app.get_targetfolderwindow_content()
