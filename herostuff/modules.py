@@ -15,6 +15,7 @@ import threading
 import sys
 import codecs
 import logging
+import platform
 
 #requires python-lxml
 from lxml import etree
@@ -29,7 +30,7 @@ try:
     gi.require_version('GstVideo','1.0')
     from gi.repository import Gtk,Gdk,Gst,GdkX11,GstVideo,GLib
 except:
-    print(_("Could not load GTK+, only command-line version is available."))
+    print(_("Could not load GObject Python bindings, only command-line version is available."))
     raise
 
 
@@ -71,7 +72,6 @@ class Handler:
         app.load_dircontent()
         app.discspace_info()
 
-    #TODO when bored: start subprocess as thread
     def on_open_wdir_clicked(self,widget):
         subprocess.run(['xdg-open',cli.stdir])
 
@@ -988,9 +988,12 @@ class GoProGo:
     #Speicherkarte suchen
     def detectcard(self):
         """Find mounted memory card"""
-        #works for me on Archlinux, where do other distros mount removable drives? (too lazy for research...)
-        #TODO try different paths
-        userdrive = os.path.join("/run","media",getpass.getuser())
+        #search in /media or /run/media on Arch based machines
+        #for any other location use the "import from different location" option
+        if platform.dist()[0] == "arch":
+            userdrive = os.path.join("/run","media",getpass.getuser())
+        else:
+            userdrive = os.path.join("media",getpass.getuser())
         self.show_message(_("Search device in %s") % userdrive)
         try:
             os.chdir(userdrive)
@@ -1134,6 +1137,7 @@ class GoProGo:
             #number of videos in subdirectory
             vid_counter = [v.count(".MP4") for v in os.listdir()].count(1)
             
+            #FIXME: thread counter
             for f in sorted(os.listdir()):
                 #image files
                 if f.endswith(".JPG"):
