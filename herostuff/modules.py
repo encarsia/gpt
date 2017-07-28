@@ -1136,8 +1136,11 @@ class GoProGo:
             thread_list = []
             #number of videos in subdirectory
             vid_counter = [v.count(".MP4") for v in os.listdir()].count(1)
+            #this probably needs some explanation:
+            #this list is used to show the threads remaining to be finished, not the active_count because there are only max 3 active threads when copying video files; I'm open for a clean solution here but as long at this works for me this will last - nothing is as duable as a makeshift...
+            self.thread_counter = []
+            [self.thread_counter.append("x") for i in range(vid_counter)]
             
-            #FIXME: thread counter
             for f in sorted(os.listdir()):
                 #image files
                 if f.endswith(".JPG"):
@@ -1149,7 +1152,7 @@ class GoProGo:
 
                 #video files
                 if f.endswith(".MP4"):
-                    t = threading.Thread(target=self.copyvid_thread,args=(f,dest,abs_files,counter+vid_counter,))
+                    t = threading.Thread(target=self.copyvid_thread,args=(f,dest,abs_files,))
                     #prepare threads
                     thread_list.append(t)
             
@@ -1175,11 +1178,12 @@ class GoProGo:
         self.show_message(_("Copying files finished."))
         app.refresh_progressbar(1,1)
 
-    def copyvid_thread(self,f,dest,abs_files,counter):
+    def copyvid_thread(self,f,dest,abs_files):
         self.show_message(_("Copy %s...") % f)
         shutil.copy(f,dest)
-        self.show_message(_("%s copied (%d/%d)") % (f,counter-(threading.active_count()-2),abs_files))
-        app.refresh_progressbar(counter-(threading.active_count()-2),abs_files)
+        self.thread_counter.pop()
+        self.show_message(_("%s copied (%d/%d)") % (f,abs_files-len(self.thread_counter),abs_files))
+        app.refresh_progressbar(abs_files-len(self.thread_counter),abs_files)
 
     #Verzeichnisse anlegen, wenn möglich, falls nicht, Fallback in vorheriges Arbeitsverzeichnis
     #Gebrauch: Initialisierung/Änderung des Arbeitsverzeichnisses, Erstellung von Unterordnern vor Kopieren der Speicherkarte (Abfrage, um eventuelle Fehlermeldung wegen bereits vorhandenen Ordners zu vermeiden)
