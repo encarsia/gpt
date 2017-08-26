@@ -395,6 +395,7 @@ class GoProGUI:
         self.get_window_content()
 
         window = self.builder.get_object("gpwindow")
+        self.set_dialog_relations(window,self.builder.get_object)
         window.show_all()
 
     def load_player_window(self):
@@ -407,7 +408,16 @@ class GoProGUI:
         self.get_window_content()
         
         window = self.builder.get_object("gp_ext_appwindow")
+        self.set_dialog_relations(window,self.builder.get_object)
         window.show_all()
+
+    def set_dialog_relations(self,mainwin,dialog):
+        [dialog(d).set_transient_for(mainwin) for d in ("aboutdialog",
+                                                        "multwindow",
+                                                        "confirm_format_dialog",
+                                                        "targetfolderwindow",
+                                                        "importmessage")]
+        
 
     def get_window_content(self):
         """Fill main window with content"""
@@ -534,9 +544,11 @@ class GoProGUI:
                 self.builder.get_object("nospace_info").set_text(_("Not enough disc space.\nFree at least %s.") % cli.needspace)
         else:
             self.builder.get_object("act_sd").set_text(_("(none)"))
+            
             self.builder.get_object("import_sd").set_sensitive(False)
             self.builder.get_object("open_sd").set_sensitive(False)
             self.builder.get_object("format_sd").set_sensitive(False)
+            self.builder.get_object("sd_content_info").set_text("")
 
     def discspace_info(self):
         """Save memory information about disc and card in list [total,used,free], use values to display levelbar and label element below"""
