@@ -32,10 +32,10 @@ WHAT ABOUT SYSTEM REQUIREMENTS?
 
 HOW DO I USE IT?
 
-- for commandline version execute ./run-cli.py in a terminal window, you will find out the rest
-- for GTK+ version execute ./run-gtk.py
-- for extended application window execute ./run-player.py
-- for standalone timelapse calculator run ./run-tlcalc.py
+- for commandline version execute `./run-cli.py` in a terminal window, you will find out the rest
+- for GTK+ version execute `./run-gtk.py`
+- for extended application window execute `./run-player.py`
+- for standalone timelapse calculator run `./run-tlcalc.py`
 
 I HAVE SOME IDEAS.
 YOUR CODE NEEDS SOME IMPROVEMENTS.
@@ -48,3 +48,10 @@ BUT WAIT - THERE IS MORE!
 - there are 2 additional scripts which only help me getting localization done and can be easily ignored. fyi:
   - herostuff/localizeorcry.py:     wraps new strings for gettext recognition in the source files (code and glade) and updates translation template and existing po files
   - herostuff/po/update_mo.py:      updates all mo files, only needed when translated strings are added to po files
+
+SCREENSHOTS!
+
+- [Click](screenshots/)
+
+![Player window v0.4]
+(screenshots/window_player_v0.4.png)
