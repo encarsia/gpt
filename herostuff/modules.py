@@ -106,7 +106,7 @@ class Handler:
         app.builder.get_object("dir_content_info").set_text(cli.card_content(win.selectedfolder))
         if cli.abs_size == 0:
             app.builder.get_object("import_other").set_sensitive(False)
-            cli.show_message("No files here to import...")
+            cli.show_message(_("No files here to import..."))
         elif cli.freespace(win.selectedfolder,cli.stdir) is True:
             app.builder.get_object("import_other").set_sensitive(True)
         else:
