@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GoPro Tool v0.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-24 19:20+0200\n"
+"POT-Creation-Date: 2017-08-28 15:10+0200\n"
 "PO-Revision-Date: 2016-02-14 21:14+0100\n"
 "Last-Translator: Anke K. <an.ke@bahnfreikartoffelbrei.de>\n"
 "Language-Team: English\n"
@@ -115,6 +115,9 @@ msgstr ""
 msgid "Choose destination folder (return for default value: %s): "
 msgstr ""
 
+msgid "Choose different location"
+msgstr ""
+
 msgid "Choose directory"
 msgstr ""
 
@@ -130,6 +133,11 @@ msgid "Copy files from %s to %s."
 msgstr ""
 
 msgid "Copying files finished."
+msgstr ""
+
+msgid ""
+"Could not load GObject Python bindings, only command-line version is "
+"available."
 msgstr ""
 
 msgid "Could not load GTK+, only command-line version is available."
@@ -374,6 +382,9 @@ msgstr ""
 msgid "No existing Kdenlive project file to remove."
 msgstr ""
 
+msgid "No files here to import..."
+msgstr ""
+
 msgid "No matching image files."
 msgstr ""
 
@@ -411,6 +422,12 @@ msgid "Open folder"
 msgstr ""
 
 msgid "Open with Kdenlive"
+msgstr ""
+
+msgid "Other"
+msgstr ""
+
+msgid "Other location"
 msgstr ""
 
 msgid "Permission denied."
@@ -535,7 +552,13 @@ msgstr ""
 msgid "no."
 msgstr ""
 
+msgid "path/to/another/location"
+msgstr ""
+
 msgid "path/to/memory/card"
+msgstr ""
+
+msgid "path/to/other/location"
 msgstr ""
 
 msgid "path/to/working/directory"

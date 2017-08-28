@@ -15,6 +15,7 @@ import threading
 import sys
 import codecs
 import logging
+import platform
 
 #requires python-lxml
 from lxml import etree
@@ -29,7 +30,7 @@ try:
     gi.require_version('GstVideo','1.0')
     from gi.repository import Gtk,Gdk,Gst,GdkX11,GstVideo,GLib
 except:
-    print(_("Could not load GTK+, only command-line version is available."))
+    print(_("Could not load GObject Python bindings, only command-line version is available."))
     raise
 
 
@@ -71,7 +72,6 @@ class Handler:
         app.load_dircontent()
         app.discspace_info()
 
-    #TODO when bored: start subprocess as thread
     def on_open_wdir_clicked(self,widget):
         subprocess.run(['xdg-open',cli.stdir])
 
@@ -92,6 +92,26 @@ class Handler:
 
     def on_format_sd_clicked(self,widget):
         app.builder.get_object("confirm_format_dialog").show_all()
+        self.on_find_sd_clicked(None)
+
+    def on_import_other_clicked(self,widget):
+        app.get_targetfolderwindow_content()
+        app.builder.get_object("nospace_info").set_text("")
+        app.discspace_info()
+
+    def on_choose_other_location_clicked(self,widget):
+        win = FileChooserDialog()
+        win.on_folder_clicked()
+        app.builder.get_object("act_othloc").set_text(win.selectedfolder)
+        app.builder.get_object("dir_content_info").set_text(cli.card_content(win.selectedfolder))
+        if cli.abs_size == 0:
+            app.builder.get_object("import_other").set_sensitive(False)
+            cli.show_message(_("No files here to import..."))
+        elif cli.freespace(win.selectedfolder,cli.stdir) is True:
+            app.builder.get_object("import_other").set_sensitive(True)
+        else:
+            app.builder.get_object("import_other").set_sensitive(False)
+            app.builder.get_object("nospace_info").set_text(_("Not enough disc space.\nFree at least %s.") % cli.needspace)
 
     #treeview table
     def on_treeview_selection_changed(self,widget):
@@ -375,6 +395,7 @@ class GoProGUI:
         self.get_window_content()
 
         window = self.builder.get_object("gpwindow")
+        self.set_dialog_relations(window,self.builder.get_object)
         window.show_all()
 
     def load_player_window(self):
@@ -387,7 +408,16 @@ class GoProGUI:
         self.get_window_content()
         
         window = self.builder.get_object("gp_ext_appwindow")
+        self.set_dialog_relations(window,self.builder.get_object)
         window.show_all()
+
+    def set_dialog_relations(self,mainwin,dialog):
+        [dialog(d).set_transient_for(mainwin) for d in ("aboutdialog",
+                                                        "multwindow",
+                                                        "confirm_format_dialog",
+                                                        "targetfolderwindow",
+                                                        "importmessage")]
+        
 
     def get_window_content(self):
         """Fill main window with content"""
@@ -395,6 +425,8 @@ class GoProGUI:
         self.load_dircontent()
         self.find_sd()
         self.discspace_info()
+        self.builder.get_object("act_othloc").set_text(_("(none)"))
+        self.builder.get_object("import_other").set_sensitive(False)
 
         #set Kdenlive support menu item inactive when disabled
         if cli.kd_supp is False:
@@ -512,9 +544,11 @@ class GoProGUI:
                 self.builder.get_object("nospace_info").set_text(_("Not enough disc space.\nFree at least %s.") % cli.needspace)
         else:
             self.builder.get_object("act_sd").set_text(_("(none)"))
+            
             self.builder.get_object("import_sd").set_sensitive(False)
             self.builder.get_object("open_sd").set_sensitive(False)
             self.builder.get_object("format_sd").set_sensitive(False)
+            self.builder.get_object("sd_content_info").set_text("")
 
     def discspace_info(self):
         """Save memory information about disc and card in list [total,used,free], use values to display levelbar and label element below"""
@@ -966,9 +1000,12 @@ class GoProGo:
     #Speicherkarte suchen
     def detectcard(self):
         """Find mounted memory card"""
-        #works for me on Archlinux, where do other distros mount removable drives? (too lazy for research...)
-        #TODO try different paths
-        userdrive = os.path.join("/run","media",getpass.getuser())
+        #search in /media or /run/media on Arch based machines
+        #for any other location use the "import from different location" option
+        if platform.dist()[0] == "arch":
+            userdrive = os.path.join("/run","media",getpass.getuser())
+        else:
+            userdrive = os.path.join("media",getpass.getuser())
         self.show_message(_("Search device in %s") % userdrive)
         try:
             os.chdir(userdrive)
@@ -1016,6 +1053,7 @@ class GoProGo:
         #(just for clarity) set separate variable for progress bar use
         self.abs_vid = vid_count
         self.abs_img = img_count
+        self.abs_size = vid_size + img_size
         return info
 
     #Dateien kopieren und umbenennen
@@ -1035,10 +1073,10 @@ class GoProGo:
     #Speicherplatz analysieren
     def freespace(self,src,dest):
         """Check for free disc space"""
-        if shutil.disk_usage(src).used < shutil.disk_usage(dest).free:
+        if self.abs_size < shutil.disk_usage(dest).free:
             return True
         else:
-            self.needspace = app.sizeof_fmt(shutil.disk_usage(src).used - shutil.disk_usage(dest).free)
+            self.needspace = app.sizeof_fmt(self.abs_size - shutil.disk_usage(dest).free)
             return False
 
     #Zielordner wählen, neuen oder bestehenden Ordner, Defaultwert yyyy-mm-dd
@@ -1110,6 +1148,10 @@ class GoProGo:
             thread_list = []
             #number of videos in subdirectory
             vid_counter = [v.count(".MP4") for v in os.listdir()].count(1)
+            #this probably needs some explanation:
+            #this list is used to show the threads remaining to be finished, not the active_count because there are only max 3 active threads when copying video files; I'm open for a clean solution here but as long at this works for me this will last - nothing is as duable as a makeshift...
+            self.thread_counter = []
+            [self.thread_counter.append("x") for i in range(vid_counter)]
             
             for f in sorted(os.listdir()):
                 #image files
@@ -1122,7 +1164,7 @@ class GoProGo:
 
                 #video files
                 if f.endswith(".MP4"):
-                    t = threading.Thread(target=self.copyvid_thread,args=(f,dest,abs_files,counter+vid_counter,))
+                    t = threading.Thread(target=self.copyvid_thread,args=(f,dest,abs_files,))
                     #prepare threads
                     thread_list.append(t)
             
@@ -1148,11 +1190,12 @@ class GoProGo:
         self.show_message(_("Copying files finished."))
         app.refresh_progressbar(1,1)
 
-    def copyvid_thread(self,f,dest,abs_files,counter):
+    def copyvid_thread(self,f,dest,abs_files):
         self.show_message(_("Copy %s...") % f)
         shutil.copy(f,dest)
-        self.show_message(_("%s copied (%d/%d)") % (f,counter-(threading.active_count()-2),abs_files))
-        app.refresh_progressbar(counter-(threading.active_count()-2),abs_files)
+        self.thread_counter.pop()
+        self.show_message(_("%s copied (%d/%d)") % (f,abs_files-len(self.thread_counter),abs_files))
+        app.refresh_progressbar(abs_files-len(self.thread_counter),abs_files)
 
     #Verzeichnisse anlegen, wenn möglich, falls nicht, Fallback in vorheriges Arbeitsverzeichnis
     #Gebrauch: Initialisierung/Änderung des Arbeitsverzeichnisses, Erstellung von Unterordnern vor Kopieren der Speicherkarte (Abfrage, um eventuelle Fehlermeldung wegen bereits vorhandenen Ordners zu vermeiden)

@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GoPro Tool v0.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-24 19:22+0200\n"
-"PO-Revision-Date: 2016-10-24 19:40+0200\n"
+"POT-Creation-Date: 2017-08-28 15:10+0200\n"
+"PO-Revision-Date: 2017-08-28 15:16+0200\n"
 "Last-Translator: Anke K. <an.ke@bahnfreikartoffelbrei.de>\n"
 "Language-Team: German\n"
 "Language: de\n"
@@ -14,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.8.9\n"
+"X-Generator: Poedit 2.0.3\n"
 
 msgid ""
 "\n"
@@ -140,6 +140,9 @@ msgstr "Zielordner wählen"
 msgid "Choose destination folder (return for default value: %s): "
 msgstr "Zielordner wählen ('Return' verwendet Standardwert: %s): "
 
+msgid "Choose different location"
+msgstr "Speicherort wählen"
+
 msgid "Choose directory"
 msgstr "Verzeichnis wählen"
 
@@ -156,6 +159,13 @@ msgstr "Kopiere Dateien von %s nach %s."
 
 msgid "Copying files finished."
 msgstr "Kopiervorgang beendet."
+
+msgid ""
+"Could not load GObject Python bindings, only command-line version is "
+"available."
+msgstr ""
+"Konnte GObject Python-Bindings nicht laden, nur Kommandozeilenversion "
+"möglich."
 
 msgid "Could not load GTK+, only command-line version is available."
 msgstr "Konnte GTK+ nicht laden, nur Kommandozeilenversion möglich."
@@ -409,6 +419,9 @@ msgstr "Keine Medien gefunden."
 msgid "No existing Kdenlive project file to remove."
 msgstr "Keine alte Projektdatei zum Löschen vorhanden."
 
+msgid "No files here to import..."
+msgstr "Keine Dateien hier zum Importieren..."
+
 msgid "No matching image files."
 msgstr "Keine passenden Bilddateien."
 
@@ -451,6 +464,12 @@ msgstr "Öffne Ordner"
 
 msgid "Open with Kdenlive"
 msgstr "Öffne mit Kdenlive"
+
+msgid "Other"
+msgstr "Andere"
+
+msgid "Other location"
+msgstr "Anderer Speicherort"
 
 msgid "Permission denied."
 msgstr "Zugriff verweigert."
@@ -581,8 +600,14 @@ msgstr "Name"
 msgid "no."
 msgstr "Nr."
 
+msgid "path/to/another/location"
+msgstr "Pfad/zu/anderem/Speicherort"
+
 msgid "path/to/memory/card"
 msgstr "Pfad/zur/Speicherkarte"
+
+msgid "path/to/other/location"
+msgstr "Pfad/zu/anderem/Speicherort"
 
 msgid "path/to/working/directory"
 msgstr "Pfad/zum/Arbeitsverzeichnis"
