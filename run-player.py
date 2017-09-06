@@ -10,5 +10,3 @@ except EOFError:
     raise
 finally:
     print("The End Is Nigh!")
-
-#TODO Menü: start new process for kdenlive
