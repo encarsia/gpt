@@ -53,5 +53,4 @@ SCREENSHOTS!
 
 - [Click](screenshots/)
 
-![Player window v0.4]
-(screenshots/window_player_v0.4.png)
+![Player window v0.4](screenshots/window_player_v0.4.png)

@@ -119,6 +119,7 @@ class Handler:
         if pos != None:
             #absolute path stored in 5th column in treestore, not displayed in treeview
             self.sel_folder = row[pos][4]
+            app.sel_folder = self.sel_folder
             #number of video files
             self.sel_vid = row[pos][1]
             app.activate_tl_buttons(row[pos][1],row[pos][2],row[pos][4],row[pos][6])
@@ -201,7 +202,7 @@ class Handler:
     def on_mult_ok_clicked(self,widget):
         mult = app.builder.get_object("mult_spinbutton").get_value()
         app.builder.get_object("multwindow").hide_on_delete()
-        app.timelapse_vid(self.sel_folder,mult)
+        app.timelapse_vid(app.sel_folder,mult)
 
     ##### select destination folder window ####
 
@@ -283,6 +284,7 @@ class Handler:
         if pos != None:
             #absolute path stored in 5th column in treestore, not displayed in treeview
             self.sel_folder = row[pos][4]
+            app.sel_folder = self.sel_folder
             #number of video files
             self.sel_vid = row[pos][1]
             app.activate_tl_buttons(row[pos][1],row[pos][2],row[pos][4],row[pos][6])
@@ -1387,7 +1389,6 @@ class GoProGo:
                 print(_("Invalid input. Try again..."))
 
 class KdenliveSupport:
-    #TODO: update template file to recent kdenlive version to get rid of message at application start
 
     def __init__(self):
         
