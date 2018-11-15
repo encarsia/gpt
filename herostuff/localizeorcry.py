@@ -6,8 +6,8 @@ import subprocess
 
 def prepare_strings_for_gettext(source,copy,i=[]):
     """wrap strings  with _() for gettext recognition"""
-    f = open(source,'r')
-    out = open(copy,'w')
+    f = open(source, 'r')
+    out = open(copy, 'w')
     count_new = 0
     count_old = 0
     for line in f:

@@ -14,7 +14,7 @@ handlers:
         class: logging.handlers.RotatingFileHandler
         maxBytes: 100000
         backupCount: 1
-        filename: non.log
+        filename: gpt.log
         level: DEBUG
     console:
         formatter: default

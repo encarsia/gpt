@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import herostuff.modules
-import sys
 
 try:
     herostuff.modules.app.load_player_window()

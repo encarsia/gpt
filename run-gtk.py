@@ -11,7 +11,6 @@ except EOFError:
 finally:
     print("The End Is Nigh!")
 
-#TODO show message dialog while creating timelapse
-#TODO eject/unmount card
-#TODO player window: create timelapse on single videos
-#TODO make correct use of gtk application
+# TODO show message dialog while creating timelapse
+# TODO eject/unmount card
+# TODO player window: create timelapse on single videos
