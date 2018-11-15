@@ -1,2 +1,20 @@
 __pycache__/
-gpt.log
+gpt.log*
+
+# temporary glade files
+*.glade~
+*.glade#
+
+# PyCharm
+.idea/
+
+# setuptools packaging
+build/
+dist/
+*.egg-info/
+data/non.desktop
+
+# localization helper scripts
+*localizeorcry.py
+*update_mo.py
+*ignoredstrings
