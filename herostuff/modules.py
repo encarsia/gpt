@@ -52,6 +52,34 @@ class Handler:
         widget.hide_on_delete()
         return True
 
+    def on_window_destroy(self, widget):
+        print(widget)
+        app.on_app_shutdown(app.app)
+
+    # ########## popover menu #####################
+
+    def on_appwin_preview_clicked(self, widget):
+        self.on_window_close(app.window)
+        app.load_player_window()
+        app.on_app_activate(app.app)
+
+    def on_appwin_normal_clicked(self, widget):
+        self.on_window_close(app.window)
+        app.load_application_window()
+        app.on_app_activate(app.app)
+
+    def on_kd_support_stateset(self, widget, state):
+        cli.kd_supp = state
+        cli.change_kd_support_config(cli.kd_supp)
+
+    def on_menu_about_activate(self, widget):
+        app.obj("aboutdialog").run()
+
+    def on_tl_calc_activate(self, widget):
+        app.obj("tl_calc_win").show()
+
+    # ########## toolbar ##########################
+
     # left toolbar (working directory)
     def on_changewdir_clicked(self, widget):
         win = FileChooserDialog()
@@ -223,18 +251,6 @@ class Handler:
             self.copyfolder = widget.get_child().get_text()
             cli.show_message(_("Entered: %s") % self.copyfolder)
 
-    # #### Menu #####
-
-    def on_menu_about_activate(self, widget):
-        app.obj("aboutdialog").run()
-
-    def on_tl_calc_activate(self, widget):
-        app.obj("tl_calc_win").show()
-
-    def on_menu_kd_support_toggled(self, widget):
-        cli.kd_supp = widget.get_active()
-        cli.change_kd_support_config(cli.kd_supp)
-
     # #### Timelapse calculator window #####
 
     def on_spin_hours_value_changed(self, widget):
@@ -395,7 +411,6 @@ class GoProGUI:
     def on_app_activate(self, app):
         self.builder.connect_signals(Handler())
         self.get_window_content()
-
         self.window.set_application(app)
         self.set_dialog_relations(self.window, self.obj)
         self.window.show_all()
@@ -447,8 +462,8 @@ class GoProGUI:
         self.obj("import_other").set_sensitive(False)
 
         # set Kdenlive support menu item inactive when disabled
-        if cli.kd_supp is False:
-            self.obj("menu_kd_support").set_active(False)
+        self.obj("menu_kd_support").set_active(cli.kd_supp)
+        self.obj("kd_supp_switch").set_state(cli.kd_supp)
 
     def show_workdir(self):
         """Show path to working directory"""
