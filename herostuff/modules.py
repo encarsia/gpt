@@ -14,7 +14,6 @@ import locale
 import logging
 import logging.config
 import os
-import platform
 import setproctitle
 import shutil
 import subprocess
@@ -53,7 +52,6 @@ class Handler:
         return True
 
     def on_window_destroy(self, widget):
-        print(widget)
         app.on_app_shutdown(app.app)
 
     # ########## popover menu #####################
@@ -462,7 +460,6 @@ class GoProGUI:
         self.obj("import_other").set_sensitive(False)
 
         # set Kdenlive support menu item inactive when disabled
-        self.obj("menu_kd_support").set_active(cli.kd_supp)
         self.obj("kd_supp_switch").set_state(cli.kd_supp)
 
     def show_workdir(self):
@@ -987,7 +984,6 @@ class GoProGo:
             if line.startswith("wdir"):
                 match_wdir = True
                 self.stdir = os.path.abspath(line.split("=")[1].strip())
-                # FIXME doesnt read correct path from config
                 if not self.chkdir(self.stdir):
                     self.stdir = self.defaultwdir
                     self.replace_wdir_config(self.stdir)
@@ -1028,8 +1024,7 @@ class GoProGo:
                 Gtk.main_iteration()
         except NameError:
             self.log.debug(_("Could not write message to statusbar"))
-        # TODO print message only in cli mode
-        # print(message)
+            print(message)
         if log in self.loglevels.keys():
             lvl = self.loglevels[log]
         else:
@@ -1083,37 +1078,34 @@ class GoProGo:
     def detectcard(self):
         """Find mounted memory card"""
 
-        # search in /media or /run/media on Arch based machines
-        # for any other location use the "import from different location" option
-        # TODO replace deprecated function
-        if platform.dist()[0] == "arch":
-            userdrive = os.path.join("/run", "media", getpass.getuser())
-        else:
-            userdrive = os.path.join("media", getpass.getuser())
-        self.show_message(_("Search device in %s") % userdrive)
-        try:
-            os.chdir(userdrive)
-            for d in os.listdir():
-                os.chdir(d)
-                self.show_message(_("Search in %s") % d)
-                if "Get_started_with_GoPro.url" in os.listdir():
-                    self.subpath_card = "DCIM"
-                    self.cardpath = os.path.join(userdrive, d)
-                    self.show_message(_("Found GoPro device."))
-                    return True
-                elif os.path.exists(os.path.join(os.getcwd(), "PRIVATE", "SONY", "SONYCARD.IND")):
-                    self.subpath_card = "MP_ROOT"
-                    self.cardpath = os.path.join(userdrive, d)
-                    self.show_message(_("Found Sony device."))
-                    return True
-                else:
-                    self.show_message(_("Device is not supported."))
-                os.chdir("..")
-            # wieder ins ursprüngliche Arbeitsverzeichnis wechseln
-            self.workdir(self.stdir)
-        except:
-            self.show_message(_("No devices found."))
-            return False
+        # list of possible paths to temporary storage
+        userdrive = [os.path.join("/run", "media", getpass.getuser()),
+                     os.path.join("/media", getpass.getuser()),
+                     ]
+        for path in userdrive:
+            try:
+                os.chdir(path)
+                for d in os.listdir():
+                    os.chdir(d)
+                    self.show_message(_("Search in %s") % d)
+                    if "Get_started_with_GoPro.url" in os.listdir():
+                        self.subpath_card = "DCIM"
+                        self.cardpath = os.path.join(path, d)
+                        self.show_message(_("Found GoPro device."))
+                        return True
+                    elif os.path.exists(os.path.join(os.getcwd(), "PRIVATE", "SONY", "SONYCARD.IND")):
+                        self.subpath_card = "MP_ROOT"
+                        self.cardpath = os.path.join(path, d)
+                        self.show_message(_("Found Sony device."))
+                        return True
+                    else:
+                        self.show_message(_("Device is not supported."))
+                    os.chdir("..")
+                # wieder ins ursprüngliche Arbeitsverzeichnis wechseln
+                self.workdir(self.stdir)
+            except FileNotFoundError:
+                self.show_message(_("No device found in path {}.").format(path))
+                return False
 
     # collect content information of plugged memory card
     def card_content(self, path):
