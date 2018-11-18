@@ -287,8 +287,11 @@ Are you really sure to proceed?</property>
   <object class="GtkMessageDialog" id="importmessage">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Import...wait</property>
+    <property name="resizable">False</property>
     <property name="window_position">center-on-parent</property>
     <property name="type_hint">dialog</property>
+    <property name="urgency_hint">True</property>
+    <property name="deletable">False</property>
     <property name="text" translatable="yes">Import in progress</property>
     <property name="secondary_text" translatable="yes">An import job is running. Please wait until finished.</property>
     <child internal-child="vbox">

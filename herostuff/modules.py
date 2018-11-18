@@ -129,8 +129,10 @@ class Handler:
         if cli.abs_size == 0:
             app.obj("import_other").set_sensitive(False)
             cli.show_message(_("No files here to import..."))
-        elif cli.freespace(win.selectedfolder, cli.stdir) is True:
+        elif cli.freespace(win.selectedfolder, cli.stdir):
             app.obj("import_other").set_sensitive(True)
+            cli.cardpath = win.selectedfolder
+            print(cli.cardpath)
         else:
             app.obj("import_other").set_sensitive(False)
             app.obj("nospace_info").set_text(_("Not enough disc space.\nFree at least %s.")) % cli.needspace
@@ -231,11 +233,12 @@ class Handler:
         app.obj("targetfolderwindow").hide_on_delete()
 
     def on_targetfolder_ok_clicked(self, widget):
-        app.obj("targetfolderwindow").hide_on_delete()
-        app.obj("importmessage").run()
+        self.on_window_close(app.obj("targetfolderwindow"))
+        app.obj("importmessage").show_all()
         time.sleep(.1)
+        cli.subpath_card = ""
         cli.copycard(cli.cardpath, os.path.join(cli.stdir, self.copyfolder))
-        app.obj("importmessage").hide_on_delete()
+        self.on_window_close(app.obj("importmessage"))
         app.load_dircontent()
         app.discspace_info()
 
@@ -1103,6 +1106,7 @@ class GoProGo:
                     os.chdir("..")
                 # wieder ins ursprüngliche Arbeitsverzeichnis wechseln
                 self.workdir(self.stdir)
+                return False
             except FileNotFoundError:
                 self.show_message(_("No device found in path {}.").format(path))
                 return False
@@ -1136,7 +1140,6 @@ class GoProGo:
         self.abs_size = vid_size + img_size
         return info
 
-    # Dateien kopieren und umbenennen
     def copycard(self, mountpoint, targetdir):
         """Copy media files to target folder in working directory and rename them"""
         self.chkdir(targetdir)
@@ -1210,8 +1213,8 @@ class GoProGo:
         app.refresh_progressbar(0, 1)
 
         # copy files of subdirectories
-        for d in os.listdir():
-
+        # for d in os.listdir():
+        for d, *args in os.walk(os.getcwd()):
             os.chdir(d)
             self.show_message(_("Changed directory to %s") % d)
             time.sleep(.1)
@@ -1262,9 +1265,13 @@ class GoProGo:
                 while Gtk.events_pending():
                     Gtk.main_iteration()
             
-                # wait until all threads are finished
-                for thread in thread_list:
-                    thread.join()
+            # wait until all threads are finished
+            # FIXME: without the for loop: threads work one by one which contradicts threading itself but the
+                # GTK mainloop isn't blocked
+                # with for loop: it works as intended but the GTK mainloop is blocked so no statusbar notification and
+                # progressbar value are shown plus the app window is unresponsive/frozen
+            #for thread in thread_list:
+                thread.join()
             
             counter += vid_counter
 
