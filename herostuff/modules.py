@@ -671,11 +671,12 @@ class GoProPlayer:
     def prepare_player(self):
         # setting up videoplayer
         self.player = Gst.ElementFactory.make("playbin", "player")
-        self.sink = Gst.ElementFactory.make("xvimagesink")
-        self.sink.set_property("force-aspect-ratio", True)
+        self.sink = Gst.ElementFactory.make("gtksink")
 
-        # video display will be assigned to the GtkDrawingArea widget
-        self.movie_window = app.obj("play_here")
+        # get the widget the gtksink creates and add to box with empty space where the DrawingArea used to be when using
+        # the xvimagesink that does not work with HeaderBar (yes, I eliminated the failure)
+        video_widget = self.sink.get_property("widget")
+        app.obj("video_box").add(video_widget)
 
         # playpause togglebutton
         self.playpause_button = app.obj("playpause_togglebutton")
@@ -686,13 +687,9 @@ class GoProPlayer:
 
     def setup_player(self, f):
         # file to play must be transmitted as uri
-        self.uri = "file://"+os.path.abspath(f)
+        self.uri = "file://" + os.path.abspath(f)
         self.player.set_property("uri", self.uri)
         
-        # make playbin play in specified window instead separate
-        # import GdkX11 and GstVideo
-        win_id = self.movie_window.get_property("window").get_xid()
-        self.sink.set_window_handle(win_id)
         self.player.set_property("video-sink", self.sink)
         
     def play(self):
