@@ -385,6 +385,7 @@ class GoProGUI:
                            "sub_windows": "gopro.glade",
                            "main_window": "appwindow.glade",
                            "main_window_mediaplayer": "playerwindow.glade",
+                           "stack_window": "stack_window.glade"
                            }
 
         for f in self.gladefiles:
@@ -401,7 +402,6 @@ class GoProGUI:
         # load tlcalculator and subordinated window glade files
         self.builder.add_from_file(self.gladefiles["timelapse_calculator"])
         self.builder.add_from_file(self.gladefiles["sub_windows"])
-        # self.builder.connect_signals(Handler())
 
         # setup Gtk application
         self.app = Gtk.Application.new(None, Gio.ApplicationFlags(0))
@@ -436,6 +436,11 @@ class GoProGUI:
             style_provider,
             Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
         )
+
+    def load_stack_application_window(self):
+        self.builder.add_from_file(self.gladefiles["stack_window"])
+        self.window = self.obj("app_window")
+        ply.prepare_player()
 
     def load_application_window(self):
         self.builder.add_from_file(self.gladefiles["main_window"])
