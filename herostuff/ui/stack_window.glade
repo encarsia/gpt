@@ -854,7 +854,7 @@
                     </child>
                     <child>
                       <object class="GtkScrolledWindow" id="scrolledwindow2">
-                        <property name="width_request">200</property>
+                        <property name="width_request">150</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="shadow_type">in</property>
@@ -996,7 +996,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkBox" id="box12">
+                          <object class="GtkBox" id="media_control">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
@@ -1057,7 +1057,7 @@
                             </child>
                             <child>
                               <object class="GtkScale" id="progress">
-                                <property name="width_request">300</property>
+                                <property name="width_request">200</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="halign">center</property>

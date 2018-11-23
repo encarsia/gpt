@@ -132,10 +132,10 @@ class Handler:
         elif cli.freespace(win.selectedfolder, cli.stdir):
             app.obj("import_other").set_sensitive(True)
             cli.cardpath = win.selectedfolder
-            print(cli.cardpath)
+            # print(cli.cardpath)
         else:
             app.obj("import_other").set_sensitive(False)
-            app.obj("nospace_info").set_text(_("Not enough disc space.\nFree at least %s.")) % cli.needspace
+            app.obj("nospace_info").set_text(_("Not enough disc space.\nFree at least {}.").format(cli.needspace))
 
     # treeview table
     def on_treeview_selection_changed(self, widget):
@@ -328,6 +328,12 @@ class Handler:
         else:
             ply.play()
 
+        # set controls inactive if image file is shown in preview
+        if self.playbackfile.endswith("JPG"):
+            app.obj("media_control").set_sensitive(False)
+        else:
+            app.obj("media_control").set_sensitive(True)
+
     # #### media control buttons #####
     def on_playpause_togglebutton_toggled(self, widget):
         if ply.playpause_button.get_active():
@@ -350,6 +356,7 @@ class Handler:
 
     # ####### stackswitchwer ############
     def on_stack_visible_child_name_notify(self, widget, *args):
+        # move treeview that lists the folder content to the visible stack child to avoid duplicate code
         view = app.obj("stack").get_visible_child_name()
         if view == "ext":
             app.obj("content_wdir_compact").remove(app.obj("treeview_wdir"))
@@ -376,11 +383,8 @@ class FileChooserDialog(Gtk.Window):
         dialog.set_default_size(800, 400)
         response = dialog.run()
         if response == Gtk.ResponseType.OK:
-            print(_("Select clicked"))
-            print(_("Folder selected: ") + dialog.get_filename())
             self.selectedfolder = dialog.get_filename()
         elif response == Gtk.ResponseType.CANCEL:
-            print(_("Cancel clicked"))
             self.selectedfolder = cli.stdir
             
         dialog.destroy()
@@ -869,15 +873,14 @@ class GoProPlayer:
             for line in mediainfo:
                 string = "{0:7} | {1:20} | {2:}".format(line[0], line[1], line[2])
                 mediatext += string + "\n"
-            print(mediatext)
-            
+
             # setting up text in monospace does not work anymore, not working in glade either,
             # see css variable for details
             # app.obj("mediainfo_text").set_monospace(True)
             app.obj("textbuffer1").set_text(mediatext)
             
         except FileNotFoundError:
-            print(_("MediaInfo is not installed."))
+            cli.show_message(_("MediaInfo is not installed."))
             app.obj("textbuffer1").set_text("MediaInfo is not installed.")
 
 
@@ -887,9 +890,9 @@ class GoProGo:
 
         setproctitle.setproctitle("GPT")
         self.install_dir = os.getcwd()
-        print(self.install_dir)
         self.user_app_dir = os.path.join(os.path.expanduser("~"),
-                                         ".gpt",
+                                         ".config",
+                                         "gpt",
                                          )
         # create hidden app folder in user"s home directory if it does
         # not exist
@@ -900,6 +903,7 @@ class GoProGo:
         GLib.set_prgname("GoProTool")
 
         # set up logging
+        os.chdir(self.user_app_dir)
         self.log = logging.getLogger("gpt")
         with open(os.path.join(self.install_dir, "herostuff", "logging.yaml")) as f:
             config = yaml.load(f)
@@ -931,7 +935,7 @@ class GoProGo:
     
         # check for config file to set up working directory
         # create file in case it does not exist
-        self.config = os.path.join(os.path.expanduser("~"), ".config", "gpt.conf")
+        self.config = os.path.join(self.user_app_dir, "config.py")
         self.defaultwdir = os.path.join(os.path.expanduser("~"), "GP")
         
         if os.path.isfile(self.config):
@@ -1169,10 +1173,15 @@ class GoProGo:
     # Speicherplatz analysieren
     def freespace(self, src, dest):
         """Check for free disc space"""
-        if self.abs_size < shutil.disk_usage(dest).free:
+        import_size = 0
+        for dirpath, dirnames, filenames in os.walk(src):
+            for f in filenames:
+                fp = os.path.join(dirpath, f)
+                import_size += os.path.getsize(fp)
+        if import_size < shutil.disk_usage(dest).free:
             return True
         else:
-            self.needspace = app.sizeof_fmt(self.abs_size - shutil.disk_usage(dest).free)
+            self.needspace = app.sizeof_fmt(import_size - shutil.disk_usage(dest).free)
             return False
 
     # Zielordner wählen, neuen oder bestehenden Ordner, Defaultwert yyyy-mm-dd
