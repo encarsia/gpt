@@ -348,6 +348,16 @@ class Handler:
     def on_progress_value_changed(self, widget):
         ply.on_slider_seek
 
+    # ####### stackswitchwer ############
+    def on_stack_visible_child_name_notify(self, widget, *args):
+        view = app.obj("stack").get_visible_child_name()
+        if view == "ext":
+            app.obj("content_wdir_compact").remove(app.obj("treeview_wdir"))
+            app.obj("content_wdir_ext").add(app.obj("treeview_wdir"))
+        else:
+            app.obj("content_wdir_ext").remove(app.obj("treeview_wdir"))
+            app.obj("content_wdir_compact").add(app.obj("treeview_wdir"))
+
 
 class FileChooserDialog(Gtk.Window):
     """File chooser dialog when changing working directory"""
@@ -441,6 +451,7 @@ class GoProGUI:
         self.builder.add_from_file(self.gladefiles["stack_window"])
         self.window = self.obj("app_window")
         ply.prepare_player()
+        self.obj("stack").set_visible_child_name("ext")
 
     def load_application_window(self):
         self.builder.add_from_file(self.gladefiles["main_window"])
@@ -480,7 +491,7 @@ class GoProGUI:
         self.obj("treestore1").clear()
         os.chdir(cli.stdir)
         self.get_tree_data(cli.stdir)
-        self.obj("treeview1").expand_all()
+        self.obj("treeview_wdir").expand_all()
         # Buttons auf inaktiv setzen, da sonst Buttons entsprechend der letzten parent-Zeile aktiviert werden
         self.activate_tl_buttons(0, 0, 0, False)
 
