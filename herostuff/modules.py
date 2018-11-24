@@ -4,7 +4,6 @@
 __version__ = "0.5"
 
 import codecs
-
 import errno
 import fileinput
 import getpass
@@ -76,6 +75,12 @@ class Handler:
     def on_tl_calc_activate(self, widget):
         app.obj("tl_calc_win").show()
 
+    def on_radio_compact_toggled(self, widget):
+        if widget.get_active():
+            cli.change_appview_config("compact")
+        else:
+            cli.change_appview_config("ext")
+
     # ########## toolbar ##########################
 
     # left toolbar (working directory)
@@ -88,8 +93,6 @@ class Handler:
         app.load_dircontent()
         cli.replace_wdir_config(win.selectedfolder)
 
-    # TODO auto refresh every ...seconds (let"s say 10?)
-    # I really like commentary discussions with myself
     def on_refresh_wdir_clicked(self, widget):
         app.load_dircontent()
         app.discspace_info()
@@ -170,8 +173,8 @@ class Handler:
                     counter += 1
                     if counter > 1:
                         newdir = newdir[:-len(str(counter))]
-                    newdir = "%s%d" % (newdir, counter)
-                    cli.log.warning(_("Directory already exists. Trying %s...")) % newdir
+                    newdir = "{}{}".format(newdir, counter)
+                    cli.log.warning(_("Directory already exists. Trying {}...").format(newdir))
         else:
             cli.show_message(_("New name is old name, there is nothing to do here."))
             
@@ -247,10 +250,10 @@ class Handler:
         if row:
             model = widget.get_model()
             self.copyfolder = model[row][0]
-            cli.show_message(_("Selected: %s") % self.copyfolder)
+            cli.show_message(_("Selected: {}").format(self.copyfolder))
         else:
             self.copyfolder = widget.get_child().get_text()
-            cli.show_message(_("Entered: %s") % self.copyfolder)
+            cli.show_message(_("Entered: {}").format(self.copyfolder))
 
     # #### Timelapse calculator window #####
 
@@ -300,12 +303,15 @@ class Handler:
             app.obj("liststore2").clear()
             counter = 0
 
-            for dirs in sorted(os.listdir(row[pos][4])):
-                if dirs.endswith("JPG") or dirs.endswith("MP4"):
-                    counter += 1
-                    path = os.path.join(self.sel_folder, dirs)
-                    # transmit row to liststore
-                    app.obj("liststore2").append([counter, dirs, path])
+            try:
+                for dirs in sorted(os.listdir(row[pos][4])):
+                    if dirs.endswith("JPG") or dirs.endswith("MP4"):
+                        counter += 1
+                        path = os.path.join(self.sel_folder, dirs)
+                        # transmit row to liststore
+                        app.obj("liststore2").append([counter, dirs, path])
+            except FileNotFoundError:
+                pass  # this happens after renaming folders within the application
 
     def on_treeview_selection2_changed(self, widget):
         try:
@@ -355,7 +361,7 @@ class Handler:
         ply.on_slider_seek
 
     # ####### stackswitchwer ############
-    def on_stack_visible_child_name_notify(self, widget, *args):
+    def on_stack_visible_child_name_notify(self, widget, param):
         # move treeview that lists the folder content to the visible stack child to avoid duplicate code
         view = app.obj("stack").get_visible_child_name()
         if view == "ext":
@@ -455,7 +461,13 @@ class GoProGUI:
         self.builder.add_from_file(self.gladefiles["stack_window"])
         self.window = self.obj("app_window")
         ply.prepare_player()
-        self.obj("stack").set_visible_child_name("ext")
+        self.obj("stack").set_visible_child_name(cli.default_app_view)
+        if cli.default_app_view == "compact":
+            self.obj("radio_compact").set_active(True)
+            self.obj("content_wdir_ext").remove(app.obj("treeview_wdir"))
+            self.obj("content_wdir_compact").add(app.obj("treeview_wdir"))
+        else:
+            self.obj("radio_ext").set_active(True)
 
     def load_application_window(self):
         self.builder.add_from_file(self.gladefiles["main_window"])
@@ -567,7 +579,7 @@ class GoProGUI:
         for dirs in sorted(os.listdir(p)):
             if dirs.startswith("Images_1"):
                 counter += 1
-                cli.show_message(_("Create %d of %d") % (counter, abs_subf))
+                cli.show_message(_("Create {} of {}").format(counter, abs_subf))
                 self.refresh_progressbar(counter, abs_subf)
                 ctl.ffmpeg_img(dirs)
                 os.chdir("..")
@@ -597,7 +609,7 @@ class GoProGUI:
                 self.obj("import_sd").set_sensitive(True)
             else:
                 self.obj("import_sd").set_sensitive(False)
-                self.obj("nospace_info").set_text(_("Not enough disc space.\nFree at least %s.") % cli.needspace)
+                self.obj("nospace_info").set_text(_("Not enough disc space.\nFree at least {}.").format(cli.needspace))
         else:
             self.obj("act_sd").set_text(_("(none)"))
             self.obj("import_sd").set_sensitive(False)
@@ -946,7 +958,7 @@ class GoProGo:
             self.createconfig(self.stdir)
             self.kd_supp = True
 
-        self.show_message(_("Working directory: %s") % self.stdir)
+        self.show_message(_("Working directory: {}").format(self.stdir))
         
     def createconfig(self, wdir):
         """Creates new configuration file and writes current working directory"""
@@ -954,41 +966,50 @@ class GoProGo:
         print(_("Creating config file..."))
         config = open(self.config, "w")
         config.write(_("""##### CONFIG FILE FOR GOPRO TOOL #####
-##### EDIT IF YOU LIKE. YOU ARE AN ADULT. #####
-"""))
+##### EDIT IF YOU LIKE. YOU ARE AN ADULT. #####"""))
         config.close()
         self.write_wdir_config(wdir)
         self.write_kd_supp_config()
 
     def write_wdir_config(self, wdir):
         """Write value for working directory to configuration file"""
-        
         config = open(self.config, "a")
-        config.write("\n##### working directory #####\nwdir = %s\n" % wdir)
+        config.write("\n##### working directory #####\nwdir = {}\n".format(wdir))
         config.close()
 
     def write_kd_supp_config(self):
-        """Default Kdenlive support is enabled"""
-
+        """Default Kdenlive support is enabled and written to configuration file"""
         config = open(self.config, "a")
         config.write("\n##### Kdenlive support #####\nkdsupp = True\n")
         config.close()
 
+    def write_app_view_config(self, appview):
+        """Write value for default application window stack page to configuration file"""
+        config = open(self.config, "a")
+        config.write("\n##### default application view #####\nappview = {}\n".format(appview))
+        config.close()
+
     def replace_wdir_config(self, wdir):
         """Writes new working directory in config file when changed"""
-        
         for line in fileinput.input(self.config, inplace=True):
             if line.startswith("wdir"):
-                sys.stdout.write("wdir = %s\n" % wdir)
+                sys.stdout.write("wdir = {}\n".format(wdir))
             else:
                 sys.stdout.write(line)
 
     def change_kd_support_config(self, supp):
         """Changes Kdenlive support in config file when changed (menu item toggled)"""
-        
         for line in fileinput.input(self.config, inplace=True):
             if line.startswith("kdsupp"):
-                sys.stdout.write("kdsupp = %s" % supp)
+                sys.stdout.write("kdsupp = {}".format(supp))
+            else:
+                sys.stdout.write(line)
+
+    def change_appview_config(self, view):
+        """Changes default application stack page in config file when changed (menu item toggled)"""
+        for line in fileinput.input(self.config, inplace=True):
+            if line.startswith("appview"):
+                sys.stdout.write("appview = {}".format(view))
             else:
                 sys.stdout.write(line)
 
@@ -996,10 +1017,10 @@ class GoProGo:
         """Reads working directory and Kdenlive support status (line begins with "wdir = ...")
            from configuration file and tries to apply given value. If this attempt fails (due
            to permission problems) or there is no matching line the default value (~/GP) will be set."""
-        
-        config = open(self.config, "r")
         match_wdir = False
         match_kd = False
+        match_view = False
+        config = open(self.config, "r")
         for line in config:
             if line.startswith("wdir"):
                 match_wdir = True
@@ -1020,7 +1041,14 @@ class GoProGo:
                     self.kd_supp = True
                     match_kd = True
                 continue
-
+            if line.startswith("appview"):
+                if line.split("=")[1].strip() == "compact":
+                    self.default_app_view = "compact"
+                    match_view = True
+                else:
+                    self.default_app_view = "ext"
+                    match_view = True
+                continue
         config.close()
         # add wdir line when not found
         if not match_wdir:
@@ -1035,6 +1063,11 @@ class GoProGo:
             self.kd_supp = True
             self.write_kd_supp_config()
 
+        if not match_view:
+            self.show_message("Default application view is set to extended.")
+            self.default_app_view = "ext"
+            self.write_app_view_config(self.default_app_view)
+
     def show_message(self, message, log="info"):
         """Show notifications in terminal window and status bar if possible"""
         try:
@@ -1042,7 +1075,7 @@ class GoProGo:
             time.sleep(.1)
             while Gtk.events_pending():
                 Gtk.main_iteration()
-        except NameError:
+        except (AttributeError, NameError):
             self.log.debug(_("Could not write message to statusbar"))
             print(message)
         if log in self.loglevels.keys():
@@ -1107,7 +1140,7 @@ class GoProGo:
                 os.chdir(path)
                 for d in os.listdir():
                     os.chdir(d)
-                    self.show_message(_("Search in %s") % d)
+                    self.show_message(_("Search in {}").format(d))
                     if "Get_started_with_GoPro.url" in os.listdir():
                         self.subpath_card = "DCIM"
                         self.cardpath = os.path.join(path, d)
@@ -1145,7 +1178,7 @@ class GoProGo:
                     img_count += 1
                     img_size += os.path.getsize(os.path.join(root, filename))
 
-        info = _("Number of videos: %d, total size: %s\nNumber of images: %d, total size: %s") % (vid_count,
+        info = _("Number of videos: {}, total size: {}\nNumber of images: {}, total size: {}").format(vid_count,
                                                                                                   app.sizeof_fmt(vid_size),
                                                                                                   img_count,
                                                                                                   app.sizeof_fmt(img_size),
@@ -1160,7 +1193,7 @@ class GoProGo:
     def copycard(self, mountpoint, targetdir):
         """Copy media files to target folder in working directory and rename them"""
         self.chkdir(targetdir)
-        self.show_message(_("Copy files from %s to %s.") % (mountpoint, targetdir))
+        self.show_message(_("Copy files from {} to {}.").format(mountpoint, targetdir))
         self.copymedia(os.path.join(mountpoint, self.subpath_card), targetdir)
         self.show_message(_("Files successfully copied."))
         os.chdir(targetdir)
@@ -1212,11 +1245,11 @@ class GoProGo:
             return default
         while 1:
             try:
-                prompt = input(_("Choose destination folder (return for default value: %s): ") % default)
+                prompt = input(_("Choose destination folder (return for default value: {}): ").format(default))
                 if prompt == "":
                     return default
                 elif int(prompt) > c or int(prompt) < 1:
-                    print(_("Invalid input, input must be integer between 1 and %d. Try again...") % c)
+                    print(_("Invalid input, input must be integer between 1 and {}. Try again...").format(c))
                 else:
                     return self.copydirlist[int(prompt)-1][1]
             except ValueError:
@@ -1238,7 +1271,7 @@ class GoProGo:
         # for d in os.listdir():
         for d, *args in os.walk(os.getcwd()):
             os.chdir(d)
-            self.show_message(_("Changed directory to %s") % d)
+            self.show_message(_("Changed directory to {}").format(d))
             time.sleep(.1)
 
             # for easy handling keep pictures in subfolders analogue to source file structure
@@ -1263,10 +1296,9 @@ class GoProGo:
             for f in sorted(os.listdir()):
                 # image files
                 if f.endswith(".JPG"):
-                    self.show_message(_("Copy %s...") % f)
                     shutil.copy(f, os.path.join(dest, "Images_" + d[0:3]))
                     counter += 1
-                    self.show_message(_("%s copied (%d/%d)") % (f, counter, abs_files))
+                    self.show_message(_("{} copied ({}/{})").format(f, counter, abs_files))
                     app.refresh_progressbar(counter, abs_files)
 
                 # video files
@@ -1303,10 +1335,9 @@ class GoProGo:
         app.refresh_progressbar(1, 1)
 
     def copyvid_thread(self, f, dest, abs_files):
-        self.show_message(_("Copy %s...") % f)
         shutil.copy(f, dest)
         self.thread_counter.pop()
-        self.show_message(_("%s copied (%d/%d)") % (f, abs_files - len(self.thread_counter), abs_files))
+        self.show_message(_("{} copied ({}/{})").format(f, abs_files - len(self.thread_counter), abs_files))
         app.refresh_progressbar(abs_files - len(self.thread_counter), abs_files)
 
     # Verzeichnisse anlegen, wenn möglich, falls nicht, Fallback in vorheriges Arbeitsverzeichnis
@@ -1339,7 +1370,7 @@ class GoProGo:
     # Verzeichnis wechseln
     def workdir(self, path):
         """Change directory"""
-        self.show_message(_("Change directory to %s") % path)
+        self.show_message(_("Change directory to {}").format(path))
         os.chdir(path)
 
     def sortfiles(self):
@@ -1349,7 +1380,7 @@ class GoProGo:
 
         # Video
         if glob.glob("GP*.MP4") or glob.glob("GOPR*.MP4"):
-            message = "%d video file(s) will be renamed." % (len(glob.glob("GP*.MP4")) + len(glob.glob("GOPR*.MP4")))
+            message = _("{} video file(s) will be renamed.").format(len(glob.glob("GP*.MP4")) + len(glob.glob("GOPR*.MP4")))
             self.show_message(message)
             for f in glob.glob("GP*.MP4"):
                 newfile = "gp" + f[4:8]+f[2:4] + ".MP4"
@@ -1381,7 +1412,7 @@ class GoProGo:
         # pattern for sequences: Seq_0n_00n.JPG, single shots: Img_00n.JPG
         if glob.glob("G0*.JPG") or glob.glob("GOPR*.JPG"):
             # Einzelbilder
-            message = _("%d image files will be renamed.") % (len(glob.glob("G*.JPG")) + len(glob.glob("GOPR*.JPG")))
+            message = _("{} image files will be renamed.").format(len(glob.glob("G*.JPG")) + len(glob.glob("GOPR*.JPG")))
             self.show_message(message)
             counter = 1
             for f in sorted(glob.glob("GOPR*.JPG")):
@@ -1421,20 +1452,20 @@ class GoProGo:
                     print(_("Invalid input. Try again..."))
 
     def format_sd(self):
-        print(_("Delete files in %s...") % self.cardpath)
+        print(_("Delete files in {}...").format(self.cardpath))
         os.chdir(self.cardpath)
         for f in os.listdir():
             if os.path.isfile(f):
                 try:
                     os.remove(f)
-                    self.show_message(_("%s deleted.") % f)
+                    self.show_message(_("{} deleted.").format(f))
                 except:
                     self.show_message(_("Failed to delete file. Check permissions."))
                     raise
             elif os.path.isdir(f):
                 try:
                     shutil.rmtree(f)
-                    self.show_message(_("%s deleted.") % f)
+                    self.show_message(_("{} deleted.").format(f))
                 except:
                     self.show_message(_("Failed to delete directory. Check permissions."))
                     raise
@@ -1449,7 +1480,7 @@ class GoProGo:
             if befehl == "y":
                 for file in os.listdir(self.dir):
                     if file.endswith(ftype):
-                        self.show_message(_("Deleting %s.") % file)
+                        self.show_message(_("Deleting {}.").format(file))
                         os.remove(file)
                 break
             elif befehl == "n":
@@ -1533,7 +1564,7 @@ class KdenliveSupport:
             for line in f.readlines():
                 if "default_profile" in line:
                     kdenlive_profile = line[16:-1]
-                    cli.show_message(_("Found default profile: %s") % kdenlive_profile)
+                    cli.show_message(_("Found default profile: {}").format(kdenlive_profile))
                     break
 
         profile = etree.SubElement(self.mainbin, "property")
@@ -1606,9 +1637,9 @@ Video:
                 if befehl == 0:
                     break
                 elif befehl > c or befehl < 0:
-                    print(_("Invalid input, input must be integer between 1 and %d. Try again...") % c)
+                    print(_("Invalid input, input must be integer between 1 and {}. Try again...").format(c))
                 else:
-                    message = _("Processing Kdenlive project for %s") % self.wherevid[befehl-1][1]
+                    message = _("Processing Kdenlive project for {}").format(self.wherevid[befehl-1][1])
                     cli.show_message(message)
                     self.create_project(self.wherevid[befehl-1][1])
                     break
@@ -1661,9 +1692,9 @@ Video:
                 if befehl == 0:
                     break
                 elif befehl > c or befehl < 0:
-                    print(_("Invalid input, input must be integer between 1 and %d. Try again...") % c)
+                    print(_("Invalid input, input must be integer between 1 and {}. Try again...").format(c))
                 else:
-                    message = _("Create timelapse for directory %s.") % self.wherevid[befehl-1][1]
+                    message = _("Create timelapse for directory {}.").format(self.wherevid[befehl-1][1])
                     cli.show_message(message)
                     self.choosemult(self.wherevid[befehl-1][1])
                     break
@@ -1695,7 +1726,7 @@ Video:
         abs_vid = len(glob.glob("*MP4"))
         for f in glob.glob("*.MP4"):
             counter += 1
-            cli.show_message(_("Create %d of %d") % (counter, abs_vid))
+            cli.show_message(_("Create {} of {}").format(counter, abs_vid))
             # converted from bash script
             # ffmpeg -i $file -r 30 -filter:v "setpts=1/$1*PTS" -an lapse/${file:0:-4}-x$1.MP4
             filename = os.path.join("lapse", f[0:-4] + "-x" + str(m) + ".MP4")
@@ -1745,9 +1776,9 @@ Images:
                 if befehl == 0:
                     break
                 elif befehl > c or befehl < 0:
-                    print(_("Invalid input, input must be integer between 1 and %d. Try again...") % c)
+                    print(_("Invalid input, input must be integer between 1 and {}. Try again...").format(c))
                 else:
-                    print(_("Create timelapse for directory %s") % self.whereimg[befehl-1][1])
+                    print(_("Create timelapse for directory {}").format(self.whereimg[befehl-1][1]))
                     self.ldir_img(self.whereimg[befehl-1][1])
                     self.ffmpeg_img(self.whereimg[befehl-1][1])
                     break
@@ -1770,7 +1801,7 @@ Images:
         os.chdir(path)
         seq = int(sorted(glob.glob("Seq_*_*.JPG"))[-1][4:6])
         for s in range(1, seq+1):
-            cli.show_message(_("Create %d of %d") % (s, seq))
+            cli.show_message(_("Create {} of {}").format(s, seq))
             # converted from bash script
             # ffmpeg -f image2 -r 30 -i %04d.jpg -r 30 ../lapse/$dir.MP4
             f = "Seq_%02d_" % s + "%03d.JPG"
@@ -1851,7 +1882,7 @@ class TimelapseCalculator:
         
         self.filenum_label.set_text(str(files))
         self.memory_label.set_text(app.sizeof_fmt(size))
-        self.tl_dur_label.set_text("%d min %d s" % (tl_dur // 60, tl_dur % 60))
+        self.tl_dur_label.set_text("{} min {} s".format(tl_dur // 60, tl_dur % 60))
 
     def standalone(self):
         app.obj("tl_calc_win").show_all()
