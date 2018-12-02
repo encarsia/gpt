@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import herostuff.modules
+import sys
+from herostuff import modules
 
 try:
-    herostuff.modules.tlc.standalone()
-    herostuff.modules.app.main()
+    modules.app.main(sys.argv)
 except EOFError:
     raise
 finally:

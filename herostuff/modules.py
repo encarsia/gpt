@@ -73,7 +73,7 @@ class Handler:
         app.obj("aboutdialog").run()
 
     def on_tl_calc_activate(self, widget):
-        app.obj("tl_calc_win").show()
+        app.obj("tl_calc_win").show_all()
 
     def on_radio_compact_toggled(self, widget):
         if widget.get_active():
@@ -135,7 +135,6 @@ class Handler:
         elif cli.freespace(win.selectedfolder, cli.stdir):
             app.obj("import_other").set_sensitive(True)
             cli.cardpath = win.selectedfolder
-            # print(cli.cardpath)
         else:
             app.obj("import_other").set_sensitive(False)
             app.obj("nospace_info").set_text(_("Not enough disc space.\nFree at least {}.").format(cli.needspace))
@@ -425,9 +424,67 @@ class GoProGUI:
 
         # setup Gtk application
         self.app = Gtk.Application.new(None, Gio.ApplicationFlags(0))
+
+        # define commandline options to pass
+        self.app.add_main_option_entries([
+            self.create_option_entry("--version", "-v", description="Show version info"),
+            self.create_option_entry("--default", description="Default GUI with integrated view switch"),
+            self.create_option_entry("--alt-gui-compact", "-c", description="Altenative GUI, compact view"),
+            self.create_option_entry("--alt-gui-ext", "-e", description="Alternative GUI, extended view (GStreamer preview)"),
+            self.create_option_entry("--cli", description="Commandline interface"),
+            self.create_option_entry("--tl-calc", "-t", description="Run the timelapse calculator")
+        ])
+
+        # connect basic application signals
         self.app.connect("startup", self.on_app_startup)
         self.app.connect("activate", self.on_app_activate)
         self.app.connect("shutdown", self.on_app_shutdown)
+        self.app.connect("handle-local-options", self.on_local_option)
+
+    def create_option_entry(self,
+                            long_name,
+                            short_name=0,
+                            flags=0,
+                            arg=GLib.OptionArg.NONE,
+                            arg_data=None,
+                            description=None,
+                            arg_description=None
+                            ):
+        option = GLib.OptionEntry()
+        option.long_name = long_name.lstrip("-")
+        option.short_name = 0 if not short_name else ord(short_name.lstrip("-"))
+        option.flags = flags
+        option.arg = arg
+        option.arg_data = arg_data
+        option.description = description
+        option.arg_description = arg_description
+        return option
+
+    def on_local_option(self, app, option):
+        self.calc_sa = False
+        if option.contains("version"):
+            print(__version__)  # TODO: details
+            return 0    # quit
+        elif option.contains("cli"):
+            cli.help()
+            cli.shell()
+            return 0
+        elif option.contains("default"):
+            self.load_stack_application_window()
+        elif option.contains("alt-gui-compact"):
+            self.load_application_window()
+        elif option.contains("alt-gui-ext"):
+            self.load_player_window()
+        elif option.contains("tl-calc"):
+            tlc.standalone()
+            return 0
+        else:
+            # insert key do option GLibVariantDict
+            option.insert_value("default", GLib.Variant("u", True))
+            self.on_local_option(app, option)
+
+        # contiunue with loading the app
+        return -1
 
     def on_app_activate(self, app):
         self.builder.connect_signals(Handler())
@@ -689,8 +746,8 @@ class GoProGUI:
         window = self.obj("targetfolderwindow")
         window.show_all() 
 
-    def main(self):
-        self.app.run()
+    def main(self, argv):
+        self.app.run(argv)
 
 
 class GoProPlayer:
@@ -963,7 +1020,7 @@ class GoProGo:
     def createconfig(self, wdir):
         """Creates new configuration file and writes current working directory"""
 
-        print(_("Creating config file..."))
+        self.show_message(_("Creating config file..."))
         config = open(self.config, "w")
         config.write(_("""##### CONFIG FILE FOR GOPRO TOOL #####
 ##### EDIT IF YOU LIKE. YOU ARE AN ADULT. #####"""))
@@ -1347,12 +1404,12 @@ class GoProGo:
         """Create folder if nonexistent, check for write permission then change into directory"""
         try:
             os.makedirs(path)
-            print(_("Folder created."))
+            self.show_message(_("Folder created."))
             self.workdir(path)
             return True
         except OSError as exception:
             if exception.errno == errno.EEXIST:
-                print(_("Directory already exists. OK."))
+                self.show_message(_("Directory already exists. OK."))
                 if os.access(path, os.W_OK):
                     self.workdir(path)
                 else:
@@ -1360,7 +1417,7 @@ class GoProGo:
                     self.workdir(self.stdir)
                 return True
             elif exception.errno == errno.EACCES:
-                print(_("Permission denied."))
+                self.show_message(_("Permission denied."))
                 return False
             else:
                 self.show_message(_("Invalid path"))
@@ -1864,9 +1921,6 @@ class TimelapseCalculator:
 
         self.set_fileinfo()
 
-        # connect signals
-        app.builder.connect_signals(Handler())
-
     def get_combobox_data(self, widget, list_col):
         row = widget.get_active_iter()
         model = widget.get_model()
@@ -1885,7 +1939,11 @@ class TimelapseCalculator:
         self.tl_dur_label.set_text("{} min {} s".format(tl_dur // 60, tl_dur % 60))
 
     def standalone(self):
-        app.obj("tl_calc_win").show_all()
+        window = app.obj("tl_calc_win")
+        window.connect("delete-event", Gtk.main_quit)
+        app.builder.connect_signals(Handler())
+        window.show_all()
+        Gtk.main()
 
 
 cli = GoProGo()

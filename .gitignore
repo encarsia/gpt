@@ -1,5 +1,4 @@
 __pycache__/
-gpt.log*
 
 # temporary glade files
 *.glade~
@@ -18,3 +17,6 @@ data/non.desktop
 *localizeorcry.py
 *update_mo.py
 *ignoredstrings
+
+# obsolete run scripts to execute different UI alternatives
+run-*
