@@ -1,12 +1,9 @@
-# German translations for PACKAGE package.
-# Copyright (C) 2016 THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
 msgid ""
 msgstr ""
-"Project-Id-Version: GoPro Tool v0.3\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-28 15:10+0200\n"
-"PO-Revision-Date: 2017-08-28 15:16+0200\n"
+"Project-Id-Version: GoPro Tool v0.5\n"
+"Report-Msgid-Bugs-To: https://github.com/encarsia/gpt\n"
+"POT-Creation-Date: 2018-09-30 17:08+0200\n"
+"PO-Revision-Date: 2018-12-05 19:07+0100\n"
 "Last-Translator: Anke K. <an.ke@bahnfreikartoffelbrei.de>\n"
 "Language-Team: German\n"
 "Language: de\n"
@@ -14,7 +11,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.0.3\n"
+"X-Generator: Poedit 2.2\n"
 
 msgid ""
 "\n"
@@ -69,23 +66,10 @@ msgstr ""
 
 msgid ""
 "##### CONFIG FILE FOR GOPRO TOOL #####\n"
-"##### EDIT IF YOU LIKE. YOU ARE AN ADULT. #####\n"
+"##### EDIT IF YOU LIKE. YOU ARE AN ADULT. #####"
 msgstr ""
 "##### CONFIG FILE FOR GOPRO TOOL #####\n"
-"##### EDIT IF YOU LIKE. YOU ARE AN ADULT. #####\n"
-"\n"
-
-#, python-format
-msgid "%d image files will be renamed."
-msgstr "%d Bilddateien werden umbenannt."
-
-#, python-format
-msgid "%s copied (%d/%d)"
-msgstr "%s kopiert (%d/%d)"
-
-#, python-format
-msgid "%s deleted."
-msgstr "%s gelöscht."
+"##### EDIT IF YOU LIKE. YOU ARE AN ADULT. #####"
 
 msgid "(none)"
 msgstr "(keine)"
@@ -93,15 +77,20 @@ msgstr "(keine)"
 msgid "(project) folders in working directory"
 msgstr "(Projekt-) Ordner im Arbeitsverzeichnis"
 
-msgid "**************************************"
-msgstr "**************************************"
-
-#, python-brace-format
-msgid "--> {0:^6} | {1:50} | {2:>4}"
-msgstr "--> {0:^6} | {1:50} | {2:>4}"
+msgid "About"
+msgstr "Über"
 
 msgid "An import job is running. Please wait until finished."
 msgstr "Import läuft. Bitte warten, bis der Prozess abgeschlossen ist."
+
+msgid "Application executed from {}"
+msgstr "Anwendung ausgeführt von {}"
+
+msgid "Application terminated on window close button. Bye."
+msgstr "Anwendung wurde durch Schließen des Fensters beendet. Tschüss."
+
+msgid "Application version: {}"
+msgstr "Programm-Version: {}"
 
 msgid "Apply"
 msgstr "Anwenden"
@@ -110,18 +99,14 @@ msgid "Are you sure to remove all files from media card? (y/n) "
 msgstr ""
 "Sollen wirklich alle Dateien von der Speicherkarte entfernt werden? (y/n) "
 
-msgid "Cancel clicked"
-msgstr "Abbruch"
-
 msgid "Card mount point:"
 msgstr "Einhängepunkt:"
 
 msgid "Change"
 msgstr "Ändern"
 
-#, python-format
-msgid "Change directory to %s"
-msgstr "Wechsele ins Verzeichnis %s"
+msgid "Change directory to {}"
+msgstr "Wechsele ins Verzeichnis {}"
 
 msgid "Change working directory"
 msgstr "Arbeitsverzeichnis ändern"
@@ -129,16 +114,14 @@ msgstr "Arbeitsverzeichnis ändern"
 msgid "Change working directory? (y/N) "
 msgstr "Arbeitsverzeichnis ändern? (y/N) "
 
-#, python-format
-msgid "Changed directory to %s"
-msgstr "Ins Verzeichnis %s gewechselt"
+msgid "Changed directory to {}"
+msgstr "Ins Verzeichnis {} gewechselt"
 
 msgid "Choose destination folder"
 msgstr "Zielordner wählen"
 
-#, python-format
-msgid "Choose destination folder (return for default value: %s): "
-msgstr "Zielordner wählen ('Return' verwendet Standardwert: %s): "
+msgid "Choose destination folder (return for default value: {}): "
+msgstr "Zielordner wählen ('Return' verwendet Standardwert: {}): "
 
 msgid "Choose different location"
 msgstr "Speicherort wählen"
@@ -146,29 +129,17 @@ msgstr "Speicherort wählen"
 msgid "Choose directory"
 msgstr "Verzeichnis wählen"
 
+msgid "Compact view"
+msgstr "Kompaktansicht"
+
 msgid "Content"
 msgstr "Inhalt"
 
-#, python-format
-msgid "Copy %s..."
-msgstr "Kopiere %s"
-
-#, python-format
-msgid "Copy files from %s to %s."
-msgstr "Kopiere Dateien von %s nach %s."
+msgid "Copy files from {} to {}."
+msgstr "Kopiere Dateien von {} nach {}."
 
 msgid "Copying files finished."
 msgstr "Kopiervorgang beendet."
-
-msgid ""
-"Could not load GObject Python bindings, only command-line version is "
-"available."
-msgstr ""
-"Konnte GObject Python-Bindings nicht laden, nur Kommandozeilenversion "
-"möglich."
-
-msgid "Could not load GTK+, only command-line version is available."
-msgstr "Konnte GTK+ nicht laden, nur Kommandozeilenversion möglich."
 
 msgid "Could not write message to statusbar"
 msgstr "Nachricht konnte nicht in der Statusbar eingeblendet werden."
@@ -181,23 +152,26 @@ msgstr ""
 msgid "Couldn't fetch duration"
 msgstr "Dauer konnte nicht ermittelt werden."
 
-#, python-format
-msgid "Create %d of %d"
-msgstr "Erstelle %d von %d"
-
 msgid "Create timelapse"
 msgstr "Erstelle Timelapse"
 
-#, python-format
-msgid "Create timelapse for directory %s"
-msgstr "Erstelle Timelapse für Verzeichnis %s"
+msgid "Create timelapse for directory {}"
+msgstr "Erstelle Timelapse für Verzeichnis {}"
 
-#, python-format
-msgid "Create timelapse for directory %s."
-msgstr "Erstelle Timelapse für Verzeichnis %s."
+msgid "Create timelapse for directory {}."
+msgstr "Erstelle Timelapse für Verzeichnis {}."
+
+msgid "Create {} of {}"
+msgstr "Erstelle {} von {}"
 
 msgid "Creating config file..."
 msgstr "Erstelle Konfigurationsdatei..."
+
+msgid "Default application view is set to extended."
+msgstr "Standardansicht ist eingestellt auf \"erweitert\"."
+
+msgid "Default view"
+msgstr "Standardansicht"
 
 msgid "Delete"
 msgstr "Löschen"
@@ -208,9 +182,8 @@ msgstr "Löschen (y/n) "
 msgid "Delete data on memory card?"
 msgstr "Alle Daten auf der Speicherkarte löschen?"
 
-#, python-format
-msgid "Delete files in %s..."
-msgstr "Lösche Dteien in %s..."
+msgid "Delete files in {}..."
+msgstr "Lösche Dteien in {}..."
 
 msgid "Delete files on external card?"
 msgstr "Dateien auf externer Karte löschen?"
@@ -218,9 +191,8 @@ msgstr "Dateien auf externer Karte löschen?"
 msgid "Delete old Kdenlive project file."
 msgstr "Lösche alte Kdenlive-Projektdatei."
 
-#, python-format
-msgid "Deleting %s."
-msgstr "Lösche %s."
+msgid "Deleting {}."
+msgstr "Lösche {}."
 
 msgid "Destination folder"
 msgstr "Zielordner"
@@ -231,9 +203,8 @@ msgstr "Gerät wird nicht unterstützt."
 msgid "Directory already exists. OK."
 msgstr "Verzeichnis existiert bereits. OK."
 
-#, python-format
-msgid "Directory already exists. Trying %s..."
-msgstr "Verzeichnis existiert bereits. Versuche %s..."
+msgid "Directory already exists. Trying {}..."
+msgstr "Verzeichnis existiert bereits. Versuche {}..."
 
 msgid "Disc space"
 msgstr "Speicherplatz"
@@ -244,9 +215,8 @@ msgstr "Fertig."
 msgid "Duration"
 msgstr "Dauer"
 
-#, python-format
-msgid "Entered: %s"
-msgstr "Eingabe: %s"
+msgid "Entered: {}"
+msgstr "Eingabe: {}"
 
 msgid "Error: no write permission"
 msgstr "Fehler: Keine Schreibberechtigung"
@@ -290,24 +260,23 @@ msgstr "Ordner erstellt."
 msgid "Folder renamed"
 msgstr "Ordner umbenannt."
 
-msgid "Folder selected: "
-msgstr "Ordner ausgewählt: "
-
 msgid "Found GoPro device."
 msgstr "GoPro-Medium gefunden."
 
 msgid "Found Sony device."
 msgstr "Sony-Medium gefunden."
 
-#, python-format
-msgid "Found default profile: %s"
-msgstr "Standardprofil gefunden: %s"
+msgid "Found default profile: {}"
+msgstr "Standardprofil gefunden: {}"
 
 msgid "Found photos..."
 msgstr "Fotos gefunden."
 
 msgid "Frames per second"
 msgstr "Frames pro Sekunde"
+
+msgid "GTK+ version: {}.{}.{}"
+msgstr "GTK+-Version: {}.{}.{}"
 
 msgid "Helps you organizing your GoPro adventures."
 msgstr "Hilft dir bei der Organisation deiner GoPro-Abenteuer."
@@ -349,10 +318,9 @@ msgstr "Ungültige Eingabe (keine Ganzzahl). Nächster Versuch..."
 msgid "Invalid input (no number). Try again..."
 msgstr "Ungültige Eingabe (keine Zahl). Nächster Versuch..."
 
-#, python-format
-msgid "Invalid input, input must be integer between 1 and %d. Try again..."
+msgid "Invalid input, input must be integer between 1 and {}. Try again..."
 msgstr ""
-"Ungültige Eingabe. Eingabe muss ganze Zahl zwischen 1 und %d sein. Nächster "
+"Ungültige Eingabe. Eingabe muss ganze Zahl zwischen 1 und {} sein. Nächster "
 "Versuch..."
 
 msgid "Invalid input. Try again..."
@@ -369,6 +337,9 @@ msgstr "Kdenlive-Support ist aktiviert."
 
 msgid "Media information"
 msgstr "Medieninformation"
+
+msgid "Media preview"
+msgstr "Mediavorschau"
 
 msgid "MediaInfo data"
 msgstr "MediaInfo-Daten"
@@ -413,8 +384,8 @@ msgstr ""
 "Keine Konfiguration für Arbeitsverzeichnis in der Konfigurationsdatei. "
 "Verwende Standardwert (~/GP)..."
 
-msgid "No devices found."
-msgstr "Keine Medien gefunden."
+msgid "No device found in path {}."
+msgstr "Keine Medien gefunden in Pfad {}."
 
 msgid "No existing Kdenlive project file to remove."
 msgstr "Keine alte Projektdatei zum Löschen vorhanden."
@@ -437,21 +408,19 @@ msgstr "Keine Videodateien."
 msgid "No."
 msgstr "Nr."
 
-#, python-format
 msgid ""
 "Not enough disc space.\n"
-"Free at least %s."
+"Free at least {}."
 msgstr ""
 "Nicht genug Speicherplatz vorhanden.\n"
-"Mindestens %s freigeben."
+"Mindestens {} freigeben."
 
-#, python-format
 msgid ""
-"Number of videos: %d, total size: %s\n"
-"Number of images: %d, total size: %s"
+"Number of videos: {}, total size: {}\n"
+"Number of images: {}, total size: {}"
 msgstr ""
-"Anzahl Videos: %d, Gesamtgröße: %s\n"
-"Anzahl Fotos: %d, Gesamtgröße: %s"
+"Anzahl Videos: {}, Gesamtgröße: {}\n"
+"Anzahl Fotos: {}, Gesamtgröße: {}"
 
 msgid "Open"
 msgstr "Öffnen"
@@ -480,9 +449,11 @@ msgstr "Foto"
 msgid "Photo (subdirectories)"
 msgstr "Foto (Unterordner)"
 
-#, python-format
-msgid "Processing Kdenlive project for %s"
-msgstr "Verarbeite Kdenlive-Projekt für %s"
+msgid "Preferences"
+msgstr "Einstellungen"
+
+msgid "Processing Kdenlive project for {}"
+msgstr "Verarbeite Kdenlive-Projekt für {}"
 
 msgid "Quantity"
 msgstr "Anzahl"
@@ -499,16 +470,8 @@ msgstr "Auflösung"
 msgid "Search"
 msgstr "Suche"
 
-#, python-format
-msgid "Search device in %s"
-msgstr "Suche Medium in %s"
-
-#, python-format
-msgid "Search in %s"
-msgstr "Suche in %s"
-
-msgid "Select clicked"
-msgstr "Auswahl angeklickt"
+msgid "Search in {}"
+msgstr "Suche in {}"
 
 msgid "Select directory to create and open Kdenlive project (0 to cancel): "
 msgstr ""
@@ -518,9 +481,8 @@ msgstr ""
 msgid "Select directory to create timelapse video of (0 to cancel): "
 msgstr "Verzeichnis für Timelapse-Video auswählen (0 für Abbruch): "
 
-#, python-format
-msgid "Selected: %s"
-msgstr "Ausgewählt: %s"
+msgid "Selected: {}"
+msgstr "Ausgewählt: {}"
 
 msgid "Sequence"
 msgstr "Sequenz"
@@ -530,6 +492,12 @@ msgstr "Größe"
 
 msgid "Status"
 msgstr "Status"
+
+msgid "Switch to extended application window"
+msgstr "Wechsle zum erweiterten Anwendungsfenster"
+
+msgid "Switch to normal application window"
+msgstr "Wechsle zum normalen Anwendungsfenster"
 
 msgid "There are no subfolders in the working directory yet"
 msgstr "Noch keine Unterordner im Arbeitsverzeichnis"
@@ -556,9 +524,8 @@ msgstr ""
 msgid "Working directory"
 msgstr "Arbeitsverzeichnis"
 
-#, python-format
-msgid "Working directory: %s"
-msgstr "Arbeitsverzeichnis: %s"
+msgid "Working directory: {}"
+msgstr "Arbeitsverzeichnis: {}"
 
 msgid ""
 "You are about to delete all files on your memory card.\n"
@@ -569,8 +536,8 @@ msgstr ""
 "\n"
 "Wirklich fortfahren?"
 
-msgid "_Help"
-msgstr "_Hilfe"
+msgid "compact"
+msgstr "kompakt"
 
 msgid "directory"
 msgstr "Verzeichnis"
@@ -587,6 +554,9 @@ msgstr "frei: {0} von {1}"
 
 msgid "hours"
 msgstr "Stunden"
+
+msgid "media preview"
+msgstr "Mediavorschau"
 
 msgid "memory"
 msgstr "Speicher"
@@ -623,3 +593,15 @@ msgstr "Anzahl"
 
 msgid "timelapse duration"
 msgstr "Timelapse-Dauer"
+
+msgid "{} copied ({}/{})"
+msgstr "{} kopiert ({}/{})"
+
+msgid "{} deleted."
+msgstr "{} gelöscht."
+
+msgid "{} image files will be renamed."
+msgstr "{} Bilddateien werden umbenannt."
+
+msgid "{} video file(s) will be renamed."
+msgstr "{} Bilddateien werden umbenannt."

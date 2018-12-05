@@ -20,7 +20,6 @@ import sys
 import threading
 import time
 import yaml
-
 from lxml import etree
 
 try:
@@ -443,7 +442,7 @@ class GoProGUI:
 
     def create_option_entry(self,
                             long_name,
-                            short_name=0,
+                            short_name=None,
                             flags=0,
                             arg=GLib.OptionArg.NONE,
                             arg_data=None,
@@ -986,12 +985,12 @@ class GoProGo:
                           }
 
         # log version info for debugging
-        self.log.debug("Application version: {}".format(__version__))
-        self.log.debug("GTK+ version: {}.{}.{}".format(Gtk.get_major_version(),
+        self.log.debug(_("Application version: {}").format(__version__))
+        self.log.debug(_("GTK+ version: {}.{}.{}").format(Gtk.get_major_version(),
                                                        Gtk.get_minor_version(),
                                                        Gtk.get_micro_version(),
                                                        ))
-        self.log.debug("Application executed from {}".format(self.install_dir))
+        self.log.debug(_("Application executed from {}").format(self.install_dir))
 
         self.locales_dir = os.path.join(self.install_dir, "herostuff", "po", "locale")
         self.appname = "GPT"
@@ -1121,7 +1120,7 @@ class GoProGo:
             self.write_kd_supp_config()
 
         if not match_view:
-            self.show_message("Default application view is set to extended.")
+            self.show_message(_("Default application view is set to extended."))
             self.default_app_view = "ext"
             self.write_app_view_config(self.default_app_view)
 
@@ -1288,7 +1287,7 @@ class GoProGo:
                 self.copydirlist.append([counter, d])
         if counter > 0:
             print(_("(project) folders in working directory"))
-            print(_("**************************************"))
+            print("**************************************")
             print("--> {0:^6} | {1:25}".format(_("no."), _("name")))
             for n in self.copydirlist:
                 print("--> {0:^6} | {1:25}".format(n[0], n[1]))
@@ -1681,7 +1680,7 @@ Video:
                                                        _("quantity"),
                                                        ))
             for n in self.wherevid:
-                print(_("--> {0:^6} | {1:50} | {2:>4}").format(n[0], n[1], n[2]))
+                print("--> {0:^6} | {1:50} | {2:>4}".format(n[0], n[1], n[2]))
             self.choosevid(counter)
         else:
             print(_("No video files found."))
@@ -1736,7 +1735,7 @@ Video:
                                                        _("quantity"),
                                                        ))
             for n in self.wherevid:
-                print(_("--> {0:^6} | {1:50} | {2:>4}").format(n[0], n[1], n[2]))
+                print("--> {0:^6} | {1:50} | {2:>4}".format(n[0], n[1], n[2]))
             self.choosevid(counter)
         else:
             print(_("No video files found."))
@@ -1819,7 +1818,7 @@ Images:
                                                        _("quantity"),
                                                        ))
             for n in self.whereimg:
-                print(_("--> {0:^6} | {1:50} | {2:>4}").format(n[0], n[1], n[2]))
+                print("--> {0:^6} | {1:50} | {2:>4}".format(n[0], n[1], n[2]))
             self.chooseimg(counter)
         else:
             print(_("No photos found."))
