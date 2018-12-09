@@ -178,7 +178,7 @@ class Handler:
             
     # calculate timelapse
     def on_tlvideo_button_clicked(self, widget):
-        app.obj("multwindow").show_all()
+        app.obj("multwindow").run()
         
     def on_tlimage_button_clicked(self, widget):
         app.timelapse_img(self.sel_folder)
@@ -218,15 +218,15 @@ class Handler:
     def on_open_folder(self, widget, folder):
         subprocess.run(["xdg-open", folder])
 
-    # #### set multiplier window #####
+    # #### set multiplier dialog #####
 
-    def on_mult_cancel_clicked(self, widget):
-        app.obj("multwindow").hide_on_delete()
-
-    def on_mult_ok_clicked(self, widget):
-        mult = app.obj("mult_spinbutton").get_value()
-        app.obj("multwindow").hide_on_delete()
-        app.timelapse_vid(app.sel_folder, mult)
+    def on_mult_response(self, widget, response):
+        if response == -5:
+            mult = app.obj("mult_spinbutton").get_value()
+            self.on_window_close(widget)
+            app.timelapse_vid(app.sel_folder, mult)
+        else:
+            self.on_window_close(widget)
 
     # #### select destination folder window ####
 
@@ -1364,27 +1364,12 @@ class GoProGo:
                     thread_list.append(t)
             
             for thread in thread_list:
-                # this imitates the max_workers=3 argument of the concurrent.futures.Executor class which works
-                # fine but the main loop is unresponsive when trying to update progress bar
-                while threading.active_count() > 3:
-                    time.sleep(2)
-                # start prepared threads
                 thread.start()
-                # avoid starting at the exact same time
-                time.sleep(.5)
                 while Gtk.events_pending():
                     Gtk.main_iteration()
-            
-            # wait until all threads are finished
-            # FIXME: without the for loop: threads work one by one which contradicts threading itself but the
-                # GTK mainloop isn't blocked
-                # with for loop: it works as intended but the GTK mainloop is blocked so no statusbar notification and
-                # progressbar value are shown plus the app window is unresponsive/frozen
-            #for thread in thread_list:
-                thread.join()
+                thread.join()   # wait until thread is finished
             
             counter += vid_counter
-
             os.chdir("..")
 
         self.show_message(_("Copying files finished."))
@@ -1775,14 +1760,16 @@ Video:
                 print(_("Invalid input (no number). Try again..."))
 
     def ffmpeg_vid(self, path, m):
-        """Let FFmpeg compute timelapse"""
+        """Let FFmpeg compute timelapse from video"""
         os.chdir(path)
-        # counter for progress bar
-        counter = 0
+        cli.show_message(_("Create timelapse videos..."))
+        self._thread_list = []
+        # add progressbar pulse to threads
+        t = threading.Thread(target=self._pulse_thread)
+        self._thread_list.append(t)
+
         abs_vid = len(glob.glob("*MP4"))
         for f in glob.glob("*.MP4"):
-            counter += 1
-            cli.show_message(_("Create {} of {}").format(counter, abs_vid))
             # converted from bash script
             # ffmpeg -i $file -r 30 -filter:v "setpts=1/$1*PTS" -an lapse/${file:0:-4}-x$1.MP4
             filename = os.path.join("lapse", f[0:-4] + "-x" + str(m) + ".MP4")
@@ -1796,9 +1783,27 @@ Video:
                        "-nostats",
                        "-loglevel", "0",
                        filename]
-            subprocess.run(command)
-            app.refresh_progressbar(counter, abs_vid)
+            t = threading.Thread(target=self._create_timelapse, args=(command,))
+            self._thread_list.append(t)
+        # this will start the threads but itself is a thread to avoid mainloop blocking
+        t = threading.Thread(target=self._start_threads, args=(self._thread_list,))
+        t.start()
+
+    def _create_timelapse(self, command):
+        subprocess.run(command)
+
+    def _pulse_thread(self):
+        while threading.active_count() > 2:
+            app.obj("progressbar").pulse()
+            time.sleep(.1)
+        app.obj("progressbar").set_fraction(1)
         cli.show_message(_("Done."))
+
+    def _start_threads(self, threads):
+        for thread in threads:
+            thread.start()  # first run will start the progressbar pulse
+            while threading.active_count() > 3: # only run one ffmpeg job at a time
+                time.sleep(10)
 
     def countimg(self):
         """Find image files in directory"""
@@ -1850,14 +1855,17 @@ Images:
         os.chdir(path)
 
     def ffmpeg_img(self, path):
-        """Let FFmpeg compute a timelapse per sequence with 30 fps and original resolution"""
+        """Let FFmpeg compute one timelapse per image sequence with 30 fps and original resolution"""
         # 30 fps works for me because I choose a suitable interval depending on record length and purpose.
         # Here I just want this kind of "raw" video which needs additional cropping to fit into widescreen
         # format and probably some color enhancement, background music etc. so a video editing program is mandatory anyway.
         os.chdir(path)
+        self._thread_list = []
+        t = threading.Thread(target=self._pulse_thread)
+        self._thread_list.append(t)
+
         seq = int(sorted(glob.glob("Seq_*_*.JPG"))[-1][4:6])
         for s in range(1, seq+1):
-            cli.show_message(_("Create {} of {}").format(s, seq))
             # converted from bash script
             # ffmpeg -f image2 -r 30 -i %04d.jpg -r 30 ../lapse/$dir.MP4
             f = "Seq_%02d_" % s + "%03d.JPG"
@@ -1872,9 +1880,11 @@ Images:
                        "-loglevel", "0",
                        filename,
                        ]
-            subprocess.run(command)
-        cli.show_message(_("Done."))
-
+            t = threading.Thread(target=self._create_timelapse, args=(command,))
+            self._thread_list.append(t)
+        # this will start the threads but itself is a thread to avoid mainloop blocking
+        t = threading.Thread(target=self._start_threads, args=(self._thread_list,))
+        t.start()
 
 class TimelapseCalculator:
     
