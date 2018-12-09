@@ -480,7 +480,7 @@ class GoProGUI:
                                             Gtk.MINOR_VERSION,
                                             Gtk.MICRO_VERSION,
                                             ))
-            print("Application executed from {}".format(cli.install_dir))
+            print(_("Application executed from {}".format(cli.install_dir)))
             return 0    # quit
         elif option.contains("cli"):
             cli.help()
@@ -1013,8 +1013,8 @@ class GoProGo:
                           }
 
         # log version info for debugging
-        self.log.debug(_("Application version: {}").format(__version__))
-        self.log.debug(_("GTK+ version: {}.{}.{}").format(Gtk.get_major_version(),
+        self.log.debug("Application version: {}".format(__version__))
+        self.log.debug("GTK+ version: {}.{}.{}".format(Gtk.get_major_version(),
                                                           Gtk.get_minor_version(),
                                                           Gtk.get_micro_version(),
                                                           ))
@@ -1163,7 +1163,7 @@ class GoProGo:
                 Gtk.main_iteration()
         except (AttributeError, NameError):
             self.log.debug(_("Could not write message to statusbar"))
-            self.log.debug("Message: {}".format(message))
+            self.log.debug(_("Message: {}").format(message))
             # print(message)
         if log in self.loglevels.keys():
             lvl = self.loglevels[log]
@@ -1586,7 +1586,7 @@ class GoProGo:
         timelapse from (i)mages
         (k)denlive project 
 
-        (q)uit""").format(self.stdir))
+        (q)uit""")).format(self.stdir)
 
     def shell(self):
         """Input prompt"""
@@ -1928,7 +1928,7 @@ Images:
             t = threading.Thread(target=self._start_threads, args=(self._thread_list,))
             t.start()
         except IndexError:
-            cli.show_message("Image files are not a sequence.")
+            cli.show_message(_("Image files are not a sequence."))
 
 
 class TimelapseCalculator:

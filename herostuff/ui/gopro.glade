@@ -83,7 +83,7 @@
             <property name="halign">center</property>
             <property name="margin_top">9</property>
             <property name="margin_bottom">11</property>
-            <property name="text" translatable="yes">10</property>
+            <property name="text">10</property>
             <property name="progress_pulse_step">1</property>
             <property name="adjustment">adjustment1</property>
             <property name="value">10</property>

@@ -19,14 +19,16 @@ msgstr ""
 msgid ""
 "\n"
 "        (h)elp\n"
+"        ------------- working directory ----------\n"
+"        {}\n"
 "        \n"
-"        ------- routines ----\n"
+"        ------------- routines -------------------\n"
 "        change (w)orking directory\n"
 "        detect (c)ard\n"
 "        (r)ead directory and rename GoPro files\n"
 "        (d)elete all files on external memory card\n"
 "\n"
-"        ------- create ------\n"
+"        ------------- create ---------------------\n"
 "        timelapse from (v)ideo\n"
 "        timelapse from (i)mages\n"
 "        (k)denlive project \n"
@@ -67,9 +69,6 @@ msgid "Application executed from {}"
 msgstr ""
 
 msgid "Application terminated on window close button. Bye."
-msgstr ""
-
-msgid "Application version: {}"
 msgstr ""
 
 msgid "Apply"
@@ -136,6 +135,9 @@ msgid "Create timelapse for directory {}"
 msgstr ""
 
 msgid "Create timelapse for directory {}."
+msgstr ""
+
+msgid "Create timelapse videos..."
 msgstr ""
 
 msgid "Create {} of {}"
@@ -252,13 +254,13 @@ msgstr ""
 msgid "Frames per second"
 msgstr ""
 
-msgid "GTK+ version: {}.{}.{}"
-msgstr ""
-
 msgid "Helps you organizing your GoPro adventures."
 msgstr ""
 
 msgid "Image"
+msgstr ""
+
+msgid "Image files are not a sequence."
 msgstr ""
 
 msgid ""
@@ -325,6 +327,9 @@ msgstr ""
 
 msgid ""
 "Memory card found. Copy and rename media files to working directory? (y/n) "
+msgstr ""
+
+msgid "Message: {}"
 msgstr ""
 
 msgid "Move along. There is nothing to see here."
@@ -451,6 +456,9 @@ msgid "Sequence"
 msgstr ""
 
 msgid "Size"
+msgstr ""
+
+msgid "Specify multiplier for timelapse"
 msgstr ""
 
 msgid "Status"
