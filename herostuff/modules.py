@@ -230,18 +230,18 @@ class Handler:
 
     # #### select destination folder window ####
 
-    def on_targetfolder_cancel_clicked(self, widget):
-        app.obj("targetfolderwindow").hide_on_delete()
-
-    def on_targetfolder_ok_clicked(self, widget):
-        self.on_window_close(app.obj("targetfolderwindow"))
-        app.obj("importmessage").show_all()
-        time.sleep(.1)
-        cli.subpath_card = ""
-        cli.copycard(cli.cardpath, os.path.join(cli.stdir, self.copyfolder))
-        self.on_window_close(app.obj("importmessage"))
-        app.load_dircontent()
-        app.discspace_info()
+    def on_targetfolder_response(self, widget, response):
+        if response == -5:
+            self.on_window_close(widget)
+            app.obj("importmessage").show_all()
+            time.sleep(.1)
+            cli.subpath_card = ""
+            cli.copycard(cli.cardpath, os.path.join(cli.stdir, self.copyfolder))
+            self.on_window_close(app.obj("importmessage"))
+            app.load_dircontent()
+            app.discspace_info()
+        else:
+            self.on_window_close(widget)
 
     def on_combobox1_changed(self, widget):
         row = widget.get_active_iter()

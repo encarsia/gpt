@@ -46,182 +46,10 @@
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
   </object>
-  <object class="GtkMessageDialog" id="confirm_format_dialog">
-    <property name="can_focus">False</property>
-    <property name="has_focus">True</property>
-    <property name="title" translatable="yes">Delete files on external card?</property>
-    <property name="resizable">False</property>
-    <property name="type_hint">dialog</property>
-    <property name="message_type">question</property>
-    <property name="buttons">ok-cancel</property>
-    <property name="text" translatable="yes">Delete data on memory card?</property>
-    <property name="secondary_text" translatable="yes">You are about to delete all files on your memory card.
-
-Are you really sure to proceed?</property>
-    <signal name="delete-event" handler="on_window_close" swapped="no"/>
-    <signal name="response" handler="on_confirm_format_dialog_response" swapped="no"/>
-    <child internal-child="vbox">
-      <object class="GtkBox" id="messagedialog-vbox6">
-        <property name="can_focus">False</property>
-        <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
-        <child internal-child="action_area">
-          <object class="GtkButtonBox" id="messagedialog-action_area6">
-            <property name="can_focus">False</property>
-            <property name="homogeneous">True</property>
-            <property name="layout_style">end</property>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">False</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-      </object>
-    </child>
-  </object>
-  <object class="GtkListStore" id="destfolder_store">
-    <columns>
-      <!-- column-name folder -->
-      <column type="gchararray"/>
-    </columns>
-  </object>
-  <object class="GtkWindow" id="targetfolderwindow">
-    <property name="width_request">300</property>
-    <property name="height_request">170</property>
-    <property name="can_focus">False</property>
-    <property name="title" translatable="yes">Destination folder</property>
-    <signal name="delete-event" handler="on_window_close" swapped="no"/>
-    <child type="titlebar">
-      <placeholder/>
-    </child>
-    <child>
-      <object class="GtkBox" id="box2">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="orientation">vertical</property>
-        <child>
-          <object class="GtkLabel" id="label2">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="margin_top">22</property>
-            <property name="margin_bottom">26</property>
-            <property name="label" translatable="yes">Choose destination folder</property>
-            <attributes>
-              <attribute name="weight" value="bold"/>
-            </attributes>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkComboBox" id="combobox1">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="model">destfolder_store</property>
-            <property name="has_entry">True</property>
-            <property name="id_column">0</property>
-            <signal name="changed" handler="on_combobox1_changed" swapped="no"/>
-            <child internal-child="entry">
-              <object class="GtkEntry" id="combobox-entry">
-                <property name="can_focus">True</property>
-              </object>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">1</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkButtonBox" id="buttonbox3">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="margin_top">10</property>
-            <property name="spacing">8</property>
-            <property name="layout_style">end</property>
-            <child>
-              <object class="GtkButton" id="targetfolder_cancel">
-                <property name="label">gtk-cancel</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-                <signal name="clicked" handler="on_targetfolder_cancel_clicked" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="targetfolder_ok">
-                <property name="label">gtk-ok</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-                <signal name="clicked" handler="on_targetfolder_ok_clicked" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">3</property>
-          </packing>
-        </child>
-      </object>
-    </child>
-  </object>
-  <object class="GtkMessageDialog" id="importmessage">
-    <property name="can_focus">False</property>
-    <property name="title" translatable="yes">Import...wait</property>
-    <property name="resizable">False</property>
-    <property name="window_position">center-on-parent</property>
-    <property name="type_hint">dialog</property>
-    <property name="urgency_hint">True</property>
-    <property name="deletable">False</property>
-    <property name="text" translatable="yes">Import in progress</property>
-    <property name="secondary_text" translatable="yes">An import job is running. Please wait until finished.</property>
-    <child internal-child="vbox">
-      <object class="GtkBox" id="messagedialog-vbox3">
-        <property name="can_focus">False</property>
-        <property name="halign">baseline</property>
-        <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
-        <child internal-child="action_area">
-          <object class="GtkButtonBox" id="messagedialog-action_area3">
-            <property name="width_request">300</property>
-            <property name="can_focus">False</property>
-            <property name="homogeneous">True</property>
-            <property name="layout_style">end</property>
-            <child>
-              <placeholder/>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">False</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-      </object>
-    </child>
-  </object>
   <object class="GtkMessageDialog" id="multwindow">
     <property name="can_focus">False</property>
     <property name="type_hint">dialog</property>
+    <property name="message_type">question</property>
     <property name="buttons">ok-cancel</property>
     <property name="text" translatable="yes">Multiplier</property>
     <property name="secondary_text" translatable="yes">Specify multiplier for timelapse</property>
@@ -231,6 +59,9 @@ Are you really sure to proceed?</property>
     <child internal-child="vbox">
       <object class="GtkBox">
         <property name="can_focus">False</property>
+        <property name="margin_left">3</property>
+        <property name="margin_right">3</property>
+        <property name="margin_bottom">3</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
@@ -261,6 +92,141 @@ Are you really sure to proceed?</property>
             <property name="expand">False</property>
             <property name="fill">True</property>
             <property name="position">2</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkMessageDialog" id="confirm_format_dialog">
+    <property name="can_focus">False</property>
+    <property name="has_focus">True</property>
+    <property name="title" translatable="yes">Delete files on external card?</property>
+    <property name="resizable">False</property>
+    <property name="type_hint">dialog</property>
+    <property name="message_type">question</property>
+    <property name="buttons">ok-cancel</property>
+    <property name="text" translatable="yes">Delete data on memory card?</property>
+    <property name="secondary_text" translatable="yes">You are about to delete all files on your memory card.
+
+Are you really sure to proceed?</property>
+    <signal name="delete-event" handler="on_window_close" swapped="no"/>
+    <signal name="response" handler="on_confirm_format_dialog_response" swapped="no"/>
+    <child internal-child="vbox">
+      <object class="GtkBox" id="messagedialog-vbox6">
+        <property name="can_focus">False</property>
+        <property name="margin_left">3</property>
+        <property name="margin_right">3</property>
+        <property name="margin_bottom">3</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox" id="messagedialog-action_area6">
+            <property name="can_focus">False</property>
+            <property name="homogeneous">True</property>
+            <property name="layout_style">end</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkListStore" id="destfolder_store">
+    <columns>
+      <!-- column-name folder -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
+  <object class="GtkMessageDialog" id="targetfolderwindow">
+    <property name="width_request">300</property>
+    <property name="can_focus">False</property>
+    <property name="type_hint">dialog</property>
+    <property name="message_type">question</property>
+    <property name="buttons">ok-cancel</property>
+    <property name="text" translatable="yes">Choose destination folder</property>
+    <property name="secondary_text"> </property>
+    <signal name="delete-event" handler="on_window_close" swapped="no"/>
+    <signal name="response" handler="on_targetfolder_response" swapped="no"/>
+    <child internal-child="vbox">
+      <object class="GtkBox">
+        <property name="can_focus">False</property>
+        <property name="margin_left">3</property>
+        <property name="margin_right">3</property>
+        <property name="margin_bottom">3</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox">
+            <property name="can_focus">False</property>
+            <property name="homogeneous">True</property>
+            <property name="layout_style">end</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkComboBox" id="combobox1">
+            <property name="width_request">100</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="model">destfolder_store</property>
+            <property name="has_entry">True</property>
+            <property name="id_column">0</property>
+            <signal name="changed" handler="on_combobox1_changed" swapped="no"/>
+            <child internal-child="entry">
+              <object class="GtkEntry">
+                <property name="can_focus">True</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkMessageDialog" id="importmessage">
+    <property name="can_focus">False</property>
+    <property name="title" translatable="yes">Import...wait</property>
+    <property name="resizable">False</property>
+    <property name="window_position">center-on-parent</property>
+    <property name="type_hint">dialog</property>
+    <property name="urgency_hint">True</property>
+    <property name="deletable">False</property>
+    <property name="text" translatable="yes">Import in progress</property>
+    <property name="secondary_text" translatable="yes">An import job is running. Please wait until finished.</property>
+    <child internal-child="vbox">
+      <object class="GtkBox" id="messagedialog-vbox3">
+        <property name="can_focus">False</property>
+        <property name="halign">baseline</property>
+        <property name="margin_left">3</property>
+        <property name="margin_right">3</property>
+        <property name="margin_bottom">3</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox" id="messagedialog-action_area3">
+            <property name="width_request">300</property>
+            <property name="can_focus">False</property>
+            <property name="homogeneous">True</property>
+            <property name="layout_style">end</property>
+            <child>
+              <placeholder/>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
           </packing>
         </child>
       </object>
