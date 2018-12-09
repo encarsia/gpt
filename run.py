@@ -8,5 +8,3 @@ try:
     modules.app.main(sys.argv)
 except EOFError:
     raise
-finally:
-    print("The End Is Nigh!")

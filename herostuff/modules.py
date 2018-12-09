@@ -462,7 +462,10 @@ class GoProGUI:
     def on_local_option(self, app, option):
         self.calc_sa = False
         if option.contains("version"):
-            print(__version__)  # TODO: details
+            print("GPT:    {}".format(__version__))
+            print("Python: {}".format(sys.version[:5]))
+            print("GTK+:   {}.{}.{}".format(Gtk.MAJOR_VERSION, Gtk.MINOR_VERSION, Gtk.MICRO_VERSION))
+            print("Application executed from {}".format(cli.install_dir))
             return 0    # quit
         elif option.contains("cli"):
             cli.help()
@@ -1133,7 +1136,8 @@ class GoProGo:
                 Gtk.main_iteration()
         except (AttributeError, NameError):
             self.log.debug(_("Could not write message to statusbar"))
-            print(message)
+            self.log.debug("Message: {}".format(message))
+            # print(message)
         if log in self.loglevels.keys():
             lvl = self.loglevels[log]
         else:
@@ -1534,19 +1538,21 @@ class GoProGo:
         """Serving the menu..."""
         print(_("""
         (h)elp
+        ------------- working directory ----------
+        {}
         
-        ------- routines ----
+        ------------- routines -------------------
         change (w)orking directory
         detect (c)ard
         (r)ead directory and rename GoPro files
         (d)elete all files on external memory card
 
-        ------- create ------
+        ------------- create ---------------------
         timelapse from (v)ideo
         timelapse from (i)mages
         (k)denlive project 
 
-        (q)uit"""))
+        (q)uit""").format(self.stdir))
 
     def shell(self):
         """Input prompt"""
@@ -1864,27 +1870,31 @@ Images:
         t = threading.Thread(target=self._pulse_thread)
         self._thread_list.append(t)
 
-        seq = int(sorted(glob.glob("Seq_*_*.JPG"))[-1][4:6])
-        for s in range(1, seq+1):
-            # converted from bash script
-            # ffmpeg -f image2 -r 30 -i %04d.jpg -r 30 ../lapse/$dir.MP4
-            f = "Seq_%02d_" % s + "%03d.JPG"
-            filename = os.path.join("..", "lapse", "Seq_%02d_%s.MP4" % (s, path[-2:]))
-            command = ["ffmpeg",
-                       "-y",
-                       "-f", "image2",
-                       "-r", "30",
-                       "-i", f,
-                       "-r", "30",
-                       "-nostats",
-                       "-loglevel", "0",
-                       filename,
-                       ]
-            t = threading.Thread(target=self._create_timelapse, args=(command,))
-            self._thread_list.append(t)
-        # this will start the threads but itself is a thread to avoid mainloop blocking
-        t = threading.Thread(target=self._start_threads, args=(self._thread_list,))
-        t.start()
+        try:
+            seq = int(sorted(glob.glob("Seq_*_*.JPG"))[-1][4:6])
+            for s in range(1, seq+1):
+                # converted from bash script
+                # ffmpeg -f image2 -r 30 -i %04d.jpg -r 30 ../lapse/$dir.MP4
+                f = "Seq_%02d_" % s + "%03d.JPG"
+                filename = os.path.join("..", "lapse", "Seq_%02d_%s.MP4" % (s, path[-2:]))
+                command = ["ffmpeg",
+                           "-y",
+                           "-f", "image2",
+                           "-r", "30",
+                           "-i", f,
+                           "-r", "30",
+                           "-nostats",
+                           "-loglevel", "0",
+                           filename,
+                           ]
+                # this will start the threads but itself is a thread to avoid mainloop blocking
+                t = threading.Thread(target=self._create_timelapse, args=(command,))
+                self._thread_list.append(t)
+            t = threading.Thread(target=self._start_threads, args=(self._thread_list,))
+            t.start()
+        except IndexError:
+            cli.show_message("Image files are not a sequence.")
+
 
 class TimelapseCalculator:
     
