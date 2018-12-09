@@ -1,0 +1,37 @@
+version: 1
+
+formatters:
+    default:
+        format: '%(asctime)s | %(levelname)-8s | %(lineno)-4d | %(name)s | %(message)s'
+        datefmt: '%Y-%m-%d %H:%M:%S'
+    file:
+        format: '%(asctime)s | %(levelname)-8s | %(message)s'
+        datefmt: '%Y-%m-%d %H:%M:%S'
+
+handlers:
+    file:
+        formatter: file
+        class: logging.handlers.RotatingFileHandler
+        maxBytes: 100000
+        backupCount: 1
+        filename: gpt.log
+        level: DEBUG
+    console:
+        formatter: default
+        class: logging.StreamHandler
+        stream: ext://sys.stdout
+        level: WARNING
+
+root:
+    level: DEBUG
+    handlers: [console]
+
+loggers:
+#    default:
+#        level: DEBUG
+#        handlers: [file, console]
+    gpt:
+        level: DEBUG
+        handlers: [file]
+
+
