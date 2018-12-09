@@ -13,23 +13,22 @@ import locale
 import logging
 import logging.config
 import os
-import setproctitle
 import shutil
 import subprocess
 import sys
 import threading
 import time
+
 import yaml
 from lxml import etree
+import setproctitle
 
 try:
     import gi
     gi.require_version("Gtk", "3.0")
     gi.require_version("Gst", "1.0")
-    gi.require_version("GdkX11", "3.0")
-    gi.require_version("GstVideo", "1.0")
-    from gi.repository import Gtk, Gdk, Gst, GdkX11, GstVideo, GLib, Gio
-except:
+    from gi.repository import Gtk, Gdk, Gst, GLib, Gio
+except ImportError:
     print("Could not load GObject Python bindings, only command-line version is available.")
     raise
 
@@ -136,7 +135,8 @@ class Handler:
             cli.cardpath = win.selectedfolder
         else:
             app.obj("import_other").set_sensitive(False)
-            app.obj("nospace_info").set_text(_("Not enough disc space.\nFree at least {}.").format(cli.needspace))
+            app.obj("nospace_info").set_text(
+                _("Not enough disc space.\nFree at least {}.").format(cli.needspace))
 
     # treeview table
     def on_treeview_selection_changed(self, widget):
@@ -175,11 +175,11 @@ class Handler:
                     cli.log.warning(_("Directory already exists. Trying {}...").format(newdir))
         else:
             cli.show_message(_("New name is old name, there is nothing to do here."))
-            
+
     # calculate timelapse
     def on_tlvideo_button_clicked(self, widget):
         app.obj("multwindow").run()
-        
+
     def on_tlimage_button_clicked(self, widget):
         app.timelapse_img(self.sel_folder)
 
@@ -194,7 +194,7 @@ class Handler:
             kd_item = Gtk.MenuItem(_("Open with Kdenlive"))
             # selected row is already caught by on_treeview_selection_changed function
             kd_item.connect("activate", self.on_open_with_kdenlive, self.sel_folder)
-            
+
             # don"t show menu item if there are no video files
             if self.sel_vid > 0 and cli.kd_supp is True:
                 popup.append(kd_item)
@@ -210,7 +210,7 @@ class Handler:
         except AttributeError:
             # this error (missing variable self.sel_folder) is returned when clicking on title row
             # ignoring because there is nothing to happen on right click
-            return
+            pass
 
     def on_open_with_kdenlive(self, widget, folder):
         kds.create_project(folder)
@@ -269,14 +269,14 @@ class Handler:
 
     def on_combobox_res_changed(self, widget):
         tlc.fsize = tlc.get_combobox_data(widget, 2)
-        tlc.set_fileinfo()      
+        tlc.set_fileinfo()
 
     def on_combobox_intvl_changed(self, widget):
         tlc.intvl = tlc.get_combobox_data(widget, 1)
         tlc.set_fileinfo()
 
     # #### Confirm formatting SD card #####
-    
+
     def on_confirm_format_dialog_response(self, widget, event):
         widget.hide_on_delete()
         if event == -5:
@@ -296,7 +296,7 @@ class Handler:
             # number of video files
             self.sel_vid = row[pos][1]
             app.activate_tl_buttons(row[pos][1], row[pos][2], row[pos][4], row[pos][6])
-            
+
             # show folder content in 2nd treeview with liststore2 data
             app.obj("liststore2").clear()
             counter = 0
@@ -322,10 +322,10 @@ class Handler:
     # select file in treeview2 by clicking
     def on_treeview2_button_release_event(self, widget, event):
         ply.clear_playbin()
-        
+
         # show mediainfo
         ply.mediainfo(self.playbackfile)
-        
+
         ply.setup_player(self.playbackfile)
         if ply.playpause_button.get_active() is True:
             ply.playpause_button.set_active(False)
@@ -348,19 +348,20 @@ class Handler:
             img = Gtk.Image.new_from_stock(Gtk.STOCK_MEDIA_PAUSE, Gtk.IconSize.BUTTON)
             widget.set_property("image", img)
             ply.play()
-       
+
     def on_forward_clicked(self, widget):
         ply.skip_minute()
 
     def on_backward_clicked(self, widget):
         ply.skip_minute(-1)
-    
+
     def on_progress_value_changed(self, widget):
         ply.on_slider_seek
 
     # ####### stackswitchwer ############
     def on_stack_visible_child_name_notify(self, widget, param):
-        # move treeview that lists the folder content to the visible stack child to avoid duplicate code
+        # move treeview that lists the folder content to the visible stack child to avoid
+        # duplicate code
         view = app.obj("stack").get_visible_child_name()
         if view == "ext":
             app.obj("content_wdir_compact").remove(app.obj("treeview_wdir"))
@@ -372,7 +373,8 @@ class Handler:
 
 class FileChooserDialog(Gtk.Window):
     """File chooser dialog when changing working directory"""
-    # coder was too stupid to create a functional fcd with Glade so she borrowed some code from the documentation site
+    # coder was too stupid to create a functional fcd with Glade so she borrowed some code
+    # from the documentation site
     def on_folder_clicked(self):
         Gtk.Window.__init__(self, title=_("Change working directory"))
         dialog = Gtk.FileChooserDialog(_("Choose directory"),
@@ -390,7 +392,7 @@ class FileChooserDialog(Gtk.Window):
             self.selectedfolder = dialog.get_filename()
         elif response == Gtk.ResponseType.CANCEL:
             self.selectedfolder = cli.stdir
-            
+
         dialog.destroy()
 
 
@@ -426,12 +428,22 @@ class GoProGUI:
 
         # define commandline options to pass
         self.app.add_main_option_entries([
-            self.create_option_entry("--version", "-v", description="Show version info"),
-            self.create_option_entry("--default", description="Default GUI with integrated view switch"),
-            self.create_option_entry("--alt-gui-compact", "-c", description="Altenative GUI, compact view"),
-            self.create_option_entry("--alt-gui-ext", "-e", description="Alternative GUI, extended view (GStreamer preview)"),
-            self.create_option_entry("--cli", description="Commandline interface"),
-            self.create_option_entry("--tl-calc", "-t", description="Run the timelapse calculator")
+            self.create_option_entry("--version",
+                                     "-v",
+                                     description="Show version info"),
+            self.create_option_entry("--default",
+                                     description="Default GUI with integrated view switch"),
+            self.create_option_entry("--alt-gui-compact",
+                                     "-c",
+                                     description="Altenative GUI, compact view"),
+            self.create_option_entry("--alt-gui-ext",
+                                     "-e",
+                                     description="Alternative GUI, extended view (GStreamer preview)"),
+            self.create_option_entry("--cli",
+                                     description="Commandline interface"),
+            self.create_option_entry("--tl-calc",
+                                     "-t",
+                                     description="Run the timelapse calculator")
         ])
 
         # connect basic application signals
@@ -464,7 +476,10 @@ class GoProGUI:
         if option.contains("version"):
             print("GPT:    {}".format(__version__))
             print("Python: {}".format(sys.version[:5]))
-            print("GTK+:   {}.{}.{}".format(Gtk.MAJOR_VERSION, Gtk.MINOR_VERSION, Gtk.MICRO_VERSION))
+            print("GTK+:   {}.{}.{}".format(Gtk.MAJOR_VERSION,
+                                            Gtk.MINOR_VERSION,
+                                            Gtk.MICRO_VERSION,
+                                            ))
             print("Application executed from {}".format(cli.install_dir))
             return 0    # quit
         elif option.contains("cli"):
@@ -567,7 +582,8 @@ class GoProGUI:
         os.chdir(cli.stdir)
         self.get_tree_data(cli.stdir)
         self.obj("treeview_wdir").expand_all()
-        # Buttons auf inaktiv setzen, da sonst Buttons entsprechend der letzten parent-Zeile aktiviert werden
+        # Buttons auf inaktiv setzen, da sonst Buttons entsprechend der letzten parent-Zeile
+        # aktiviert werden
         self.activate_tl_buttons(0, 0, 0, False)
 
     def get_tree_data(self, directory, parent=None):
@@ -583,7 +599,8 @@ class GoProGUI:
                 size = sum([os.path.getsize(f) for f in os.listdir(".") if os.path.isfile(f)])
                 humansize = self.sizeof_fmt(size)
                 try:
-                    # 4th/5th position in file name of last element in sorted list of sequences (e.g. Seq_03_010.JPG)
+                    # 4th/5th position in file name of last element in sorted list of sequences
+                    # (e.g. Seq_03_010.JPG)
                     seq = int(sorted(glob.glob("Seq_*_*.*"))[-1][4:6])
                 except:
                     seq = 0
@@ -627,7 +644,7 @@ class GoProGUI:
         ctl.ldir_img(p)
         ctl.ffmpeg_img(p)
         self.load_dircontent()
-        
+
     def timelapse_img_subfolder(self, p):
         """Create timelapse from images in subfolders"""
         self.refresh_progressbar(0, 1)
@@ -668,7 +685,8 @@ class GoProGUI:
                 self.obj("import_sd").set_sensitive(True)
             else:
                 self.obj("import_sd").set_sensitive(False)
-                self.obj("nospace_info").set_text(_("Not enough disc space.\nFree at least {}.").format(cli.needspace))
+                self.obj("nospace_info").set_text(
+                    _("Not enough disc space.\nFree at least {}.").format(cli.needspace))
         else:
             self.obj("act_sd").set_text(_("(none)"))
             self.obj("import_sd").set_sensitive(False)
@@ -679,7 +697,7 @@ class GoProGUI:
     def discspace_info(self):
         """Save memory information about disc and card in list
            [total,used,free], use values to display levelbar and label element below"""
-        
+
         self.disc_space = [shutil.disk_usage(cli.stdir).total,
                            shutil.disk_usage(cli.stdir).used,
                            shutil.disk_usage(cli.stdir).free,
@@ -707,18 +725,22 @@ class GoProGUI:
         self.disc_bar.set_value(self.disc_space[1] / self.disc_space[0])
         self.card_bar.set_value(self.card_space[1] / self.card_space[0])
 
-        self.obj("free_wdir").set_text(_("free: {0} of {1}").format(self.sizeof_fmt(self.disc_space[2]),
-                                                                    self.sizeof_fmt(self.disc_space[0]),
-                                                                    ))
+        self.obj("free_wdir").set_text(_("free: {0} of {1}").format(
+            self.sizeof_fmt(self.disc_space[2]),
+            self.sizeof_fmt(self.disc_space[0]),
+            ))
+
         if self.card_space[3]:
-            self.obj("free_sd").set_text(_("free: {0} of {1}").format(self.sizeof_fmt(self.card_space[2]),
-                                                                      self.sizeof_fmt(self.card_space[0]),
-                                                                      ))
+            self.obj("free_sd").set_text(_("free: {0} of {1}").format(
+                self.sizeof_fmt(self.card_space[2]),
+                self.sizeof_fmt(self.card_space[0]),
+                ))
         else:
             self.obj("free_sd").set_text("")
 
     # borrowed from
-    # http://stackoverflow.com/questions/1094841/reusable-library-to-get-human-readable-version-of-file-size
+    # http://stackoverflow.com/questions/1094841/
+    # reusable-library-to-get-human-readable-version-of-file-size
     def sizeof_fmt(self, num, suffix="B"):
         """File size shown in common units"""
         for unit in ["", "K", "M", "G", "T", "P", "E", "Z"]:
@@ -733,27 +755,27 @@ class GoProGUI:
         copyfolder_list.clear()
         # first row = default folder (today"s date)
         today = time.strftime("%Y-%m-%d", time.localtime())
-        
+
         copyfolder_list.append([today])
 
         for d in sorted(os.listdir(cli.stdir)):
             if d != today:
                 copyfolder_list.append([d])
-        
+
         # glade bug: no effects when set in glade
         self.obj("combobox1").set_entry_text_column(0)
         # set first row as default editable entry
         self.obj("combobox1").set_active(0)
 
         window = self.obj("targetfolderwindow")
-        window.show_all() 
+        window.show_all()
 
     def main(self, argv):
         self.app.run(argv)
 
 
 class GoProPlayer:
-    
+
     def __init__(self):
 
         # init GStreamer
@@ -764,14 +786,15 @@ class GoProPlayer:
         self.player = Gst.ElementFactory.make("playbin", "player")
         self.sink = Gst.ElementFactory.make("gtksink")
 
-        # get the widget the gtksink creates and add to box with empty space where the DrawingArea used to be when using
-        # the xvimagesink that does not work with HeaderBar (yes, I eliminated the failure)
+        # get the widget the gtksink creates and add to box with empty space where the DrawingArea
+        # used to be when using the xvimagesink that does not work with HeaderBar (yes, I
+        # eliminated the failure)
         video_widget = self.sink.get_property("widget")
         app.obj("video_box").add(video_widget)
 
         # playpause togglebutton
         self.playpause_button = app.obj("playpause_togglebutton")
-        
+
         # setting up progress scale
         self.slider = app.obj("progress")
         self.slider_handler_id = self.slider.connect("value-changed", self.on_slider_seek)
@@ -780,9 +803,9 @@ class GoProPlayer:
         # file to play must be transmitted as uri
         self.uri = "file://" + os.path.abspath(f)
         self.player.set_property("uri", self.uri)
-        
+
         self.player.set_property("video-sink", self.sink)
-        
+
     def play(self):
         if self.uri.endswith(".MP4"):
             self.is_playing = True
@@ -790,15 +813,15 @@ class GoProPlayer:
             self.is_playing = False
         cli.log.info(_("play"))
         self.player.set_state(Gst.State.PLAYING)
-        
+
         # starting up a timer to check on the current playback value
         GLib.timeout_add(1000, self.update_slider)
-        
+
     def pause(self):
         self.is_playing = False
         cli.log.info(_("playback paused"))
         self.player.set_state(Gst.State.PAUSED)
-        
+
     def current_position(self):
         status, position = self.player.query_position(Gst.Format.TIME)
         return position
@@ -828,12 +851,12 @@ class GoProPlayer:
             if not success:
                 # raise SliderUpdateException("Couldn"t fetch current position to update slider")
                 cli.log.warning(_("Couldn't fetch current position to update slider"))
-            
+
             # block seek handler so we don"t seek when we set_value()
             self.slider.handler_block(self.slider_handler_id)
-            
+
             self.slider.set_value(float(position) / Gst.SECOND * self.mult)
-            
+
             self.slider.handler_unblock(self.slider_handler_id)
         return True  # continue calling every x milliseconds
 
@@ -843,7 +866,9 @@ class GoProPlayer:
             files = len(os.listdir("Images_100"))
             seek_file = int((files * seek_intvl) / 100)
             self.clear_playbin()
-            self.setup_player(os.path.join("Images_100", sorted(os.listdir("Images_100"))[seek_file]))
+            self.setup_player(os.path.join("Images_100",
+                                           sorted(os.listdir("Images_100"))[seek_file]),
+                              )
             self.pause()
         elif not self.uri.endswith(".png"):
             seek_time = ply.slider.get_value()
@@ -851,7 +876,7 @@ class GoProPlayer:
                                     Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT,
                                     seek_time * Gst.SECOND / self.mult,
                                     )
-        
+
     def clear_playbin(self):
         try:
             self.is_playing = False
@@ -870,7 +895,7 @@ class GoProPlayer:
                                              )
             out, err = mediainfo_cmd.communicate()
             out = out.split("\n")
-            
+
             # filter lines which should be shown
             ginfo = ("Format",
                      "File size",
@@ -878,7 +903,7 @@ class GoProPlayer:
                      "Overall bit rate",
                      "Frame rate",
                      )
-         
+
             vinfo = ("Format",
                      "Width",
                      "Height",
@@ -889,23 +914,23 @@ class GoProPlayer:
                      "Bit rate mode",
                      "Bit rate",
                      )
-          
+
             ainfo = ("Format",
                      "Bit rate mode",
                      "Bit rate",
                      )
-            
+
             iinfo = ("Width",
                      "Height",
                      "Bit depth",
                      )
-            
+
             # prepare categories for gtk treeview
             mtype = ("General", "Video", "Audio", "Image")
             mtype_info = (ginfo, vinfo, ainfo, iinfo)
 
             """mediainfo output:
-            
+
             General
             Format : ...
             ...    : ...
@@ -949,7 +974,7 @@ class GoProPlayer:
             # see css variable for details
             # app.obj("mediainfo_text").set_monospace(True)
             app.obj("textbuffer1").set_text(mediatext)
-            
+
         except FileNotFoundError:
             cli.show_message(_("MediaInfo is not installed."))
             app.obj("textbuffer1").set_text("MediaInfo is not installed.")
@@ -990,9 +1015,9 @@ class GoProGo:
         # log version info for debugging
         self.log.debug(_("Application version: {}").format(__version__))
         self.log.debug(_("GTK+ version: {}.{}.{}").format(Gtk.get_major_version(),
-                                                       Gtk.get_minor_version(),
-                                                       Gtk.get_micro_version(),
-                                                       ))
+                                                          Gtk.get_minor_version(),
+                                                          Gtk.get_micro_version(),
+                                                          ))
         self.log.debug(_("Application executed from {}").format(self.install_dir))
 
         self.locales_dir = os.path.join(self.install_dir, "herostuff", "po", "locale")
@@ -1000,15 +1025,15 @@ class GoProGo:
 
         # setting up localization
         locale.bindtextdomain(self.appname, self.locales_dir)
-        locale.textdomain(self.locales_dir)      
+        locale.textdomain(self.locales_dir)
         gettext.bindtextdomain(self.appname, self.locales_dir)
         gettext.textdomain(self.appname)
-    
+
         # check for config file to set up working directory
         # create file in case it does not exist
         self.config = os.path.join(self.user_app_dir, "config.py")
         self.defaultwdir = os.path.join(os.path.expanduser("~"), "GP")
-        
+
         if os.path.isfile(self.config):
             self.readconfig()
         else:
@@ -1018,7 +1043,7 @@ class GoProGo:
             self.kd_supp = True
 
         self.show_message(_("Working directory: {}").format(self.stdir))
-        
+
     def createconfig(self, wdir):
         """Creates new configuration file and writes current working directory"""
 
@@ -1065,7 +1090,8 @@ class GoProGo:
                 sys.stdout.write(line)
 
     def change_appview_config(self, view):
-        """Changes default application stack page in config file when changed (menu item toggled)"""
+        """Changes default application stack page in config file when changed
+           (menu item toggled)"""
         for line in fileinput.input(self.config, inplace=True):
             if line.startswith("appview"):
                 sys.stdout.write("appview = {}".format(view))
@@ -1075,7 +1101,8 @@ class GoProGo:
     def readconfig(self):
         """Reads working directory and Kdenlive support status (line begins with "wdir = ...")
            from configuration file and tries to apply given value. If this attempt fails (due
-           to permission problems) or there is no matching line the default value (~/GP) will be set."""
+           to permission problems) or there is no matching line the default value (~/GP) will
+           be set."""
         match_wdir = False
         match_kd = False
         match_view = False
@@ -1113,10 +1140,10 @@ class GoProGo:
         if not match_wdir:
             self.show_message(_("No configuration for working directory in config file. Set default value (~/GP)..."))
             self.stdir = self.defaultwdir
-            self.chkdir(self.stdir) 
+            self.chkdir(self.stdir)
             # write default wdir to config file
             self.write_wdir_config(self.stdir)
-        
+
         if not match_kd:
             self.show_message(_("Kdenlive support is enabled."))
             self.kd_supp = True
@@ -1206,7 +1233,11 @@ class GoProGo:
                         self.cardpath = os.path.join(path, d)
                         self.show_message(_("Found GoPro device."))
                         return True
-                    elif os.path.exists(os.path.join(os.getcwd(), "PRIVATE", "SONY", "SONYCARD.IND")):
+                    elif os.path.exists(os.path.join(os.getcwd(),
+                                                     "PRIVATE",
+                                                     "SONY",
+                                                     "SONYCARD.IND")
+                                        ):
                         self.subpath_card = "MP_ROOT"
                         self.cardpath = os.path.join(path, d)
                         self.show_message(_("Found Sony device."))
@@ -1239,10 +1270,10 @@ class GoProGo:
                     img_size += os.path.getsize(os.path.join(root, filename))
 
         info = _("Number of videos: {}, total size: {}\nNumber of images: {}, total size: {}").format(vid_count,
-                                                                                                  app.sizeof_fmt(vid_size),
-                                                                                                  img_count,
-                                                                                                  app.sizeof_fmt(img_size),
-                                                                                                  )
+                                                                                                      app.sizeof_fmt(vid_size),
+                                                                                                      img_count,
+                                                                                                      app.sizeof_fmt(img_size),
+                                                                                                     )
         print(info)
         # (just for clarity) set separate variable for progress bar use
         self.abs_vid = vid_count
@@ -1347,12 +1378,13 @@ class GoProGo:
             # number of videos in subdirectory
             vid_counter = [v.count(".MP4") for v in os.listdir()].count(1)
             # this probably needs some explanation:
-            # this list is used to show the threads remaining to be finished, not the active_count because there are
-            # only max 3 active threads when copying video files; I"m open for a clean solution here but as long at
-            # this works for me this will last - nothing is as duable as a makeshift...
+            # this list is used to show the threads remaining to be finished, not the active_count
+            # because there are only max 3 active threads when copying video files; I"m open for a
+            # clean solution here but as long at this works for me this will last -
+            # nothing is as duable as a makeshift...
             self.thread_counter = []
             [self.thread_counter.append("x") for i in range(vid_counter)]
-            
+
             for f in sorted(os.listdir()):
                 # image files
                 if f.endswith(".JPG"):
@@ -1366,13 +1398,13 @@ class GoProGo:
                     t = threading.Thread(target=self.copyvid_thread, args=(f, dest, abs_files,))
                     # prepare threads
                     thread_list.append(t)
-            
+
             for thread in thread_list:
                 thread.start()
                 while Gtk.events_pending():
                     Gtk.main_iteration()
                 thread.join()   # wait until thread is finished
-            
+
             counter += vid_counter
             os.chdir("..")
 
@@ -1386,8 +1418,9 @@ class GoProGo:
         app.refresh_progressbar(abs_files - len(self.thread_counter), abs_files)
 
     # Verzeichnisse anlegen, wenn möglich, falls nicht, Fallback in vorheriges Arbeitsverzeichnis
-    # Gebrauch: Initialisierung/Änderung des Arbeitsverzeichnisses, Erstellung von Unterordnern vor
-    # Kopieren der Speicherkarte (Abfrage, um eventuelle Fehlermeldung wegen bereits vorhandenen Ordners zu vermeiden)
+    # Gebrauch: Initialisierung/Änderung des Arbeitsverzeichnisses, Erstellung von Unterordnern
+    # vor Kopieren der Speicherkarte (Abfrage, um eventuelle Fehlermeldung wegen bereits
+    # vorhandenen Ordners zu vermeiden)
     def chkdir(self, path):
         """Create folder if nonexistent, check for write permission then change into directory"""
         try:
@@ -1419,9 +1452,10 @@ class GoProGo:
         os.chdir(path)
 
     def sortfiles(self):
-        """Save video files in (chrono)logical order. Photos are seperated by single shots and sequences.
-           FFmpeg explicitly requires file numbering in "%d" format for timelapse creation. GoPro saves a
-           maximum of 999 files per subfolder so 001.JPG..00n.JPG is sufficient"""
+        """Save video files in (chrono)logical order. Photos are seperated by single shots and
+           sequences. FFmpeg explicitly requires file numbering in "%d" format for timelapse
+           creation. GoPro saves a maximum of 999 files per subfolder so 001.JPG..00n.JPG is
+           sufficient"""
 
         # Video
         if glob.glob("GP*.MP4") or glob.glob("GOPR*.MP4"):
@@ -1584,7 +1618,7 @@ class GoProGo:
 class KdenliveSupport:
 
     def __init__(self):
-        
+
         self.wdir = os.getcwd()
 
     def create_project(self, folder):
@@ -1626,7 +1660,7 @@ class KdenliveSupport:
             cli.show_message(_("Delete old Kdenlive project file."))
         except FileNotFoundError:
             cli.show_message(_("No existing Kdenlive project file to remove."))
-           
+
         # add mediafiles
         counter = 1
         for f in sorted(glob.glob("*.MP4")):
@@ -1646,7 +1680,8 @@ class KdenliveSupport:
         self.tree.write("mlt-playlist.kdenlive")
         cli.show_message(_("Open Kdenlive project"))
         # open Kdenlive as separate thread to keep GPT responsive
-        thread = threading.Thread(target=self.openproject, args=("kdenlive", "mlt-playlist.kdenlive"))
+        thread = threading.Thread(target=self.openproject,
+                                  args=("kdenlive", "mlt-playlist.kdenlive"))
         thread.start()
         cli.workdir(self.wdir)
 
@@ -1698,7 +1733,7 @@ class TimeLapse:
 
     def __init__(self):
         self.wdir = os.getcwd()
-        
+
     def makeldir(self):
         """Create folder for timelapses"""
         try:
@@ -1897,7 +1932,7 @@ Images:
 
 
 class TimelapseCalculator:
-    
+
     def __init__(self):
 
         # data for dropdown menus saved in liststores
@@ -1915,7 +1950,7 @@ class TimelapseCalculator:
                          ("30 seconds interval", 2),
                          ("60 seconds interval", 1),
                          ]
-        
+
         # create liststore rows
         for d in resolution_data:
             app.obj("list_res").append([d[0], d[1], d[2]])
@@ -1933,7 +1968,7 @@ class TimelapseCalculator:
 
         self.fsize = self.get_combobox_data(app.obj("combobox_res"), 2)
         self.intvl = self.get_combobox_data(app.obj("combobox_intvl"), 1)
-        
+
         self.dur_hours = self.get_spinbutton_data(app.obj("spin_hours"))
         self.dur_min = self.get_spinbutton_data(app.obj("spin_minutes"))
         self.fps = self.get_spinbutton_data(app.obj("spin_fps"))
@@ -1952,7 +1987,7 @@ class TimelapseCalculator:
         files = (self.dur_hours * 60 + self.dur_min) * self.intvl
         size = files * self.fsize
         tl_dur = files // self.fps
-        
+
         self.filenum_label.set_text(str(files))
         self.memory_label.set_text(app.sizeof_fmt(size))
         self.tl_dur_label.set_text("{} min {} s".format(tl_dur // 60, tl_dur % 60))
