@@ -410,7 +410,6 @@ class GoProGUI:
 
         for f in self.gladefiles:
             self.gladefiles[f] = os.path.join(cli.install_dir,
-                                              "herostuff",
                                               "ui",
                                               self.gladefiles[f])
 
@@ -517,7 +516,7 @@ class GoProGUI:
     def on_app_startup(self, app):
         # initiate custom css
         # css stylesheet
-        stylesheet = os.path.join(cli.install_dir, "herostuff", "ui", "gtk.css")
+        stylesheet = os.path.join(cli.install_dir, "ui", "gtk.css")
         # ...encode() is needed because CssProvider expects byte type input
         with open(stylesheet, "r") as f:
             css = f.read().encode()
@@ -1001,7 +1000,7 @@ class GoProGo:
         # set up logging
         os.chdir(self.user_app_dir)
         self.log = logging.getLogger("gpt")
-        with open(os.path.join(self.install_dir, "herostuff", "logging.yaml")) as f:
+        with open(os.path.join(self.install_dir, "logging.yaml")) as f:
             config = yaml.load(f)
             logging.config.dictConfig(config)
 
@@ -1020,7 +1019,7 @@ class GoProGo:
                                                           ))
         self.log.debug(_("Application executed from {}").format(self.install_dir))
 
-        self.locales_dir = os.path.join(self.install_dir, "herostuff", "po", "locale")
+        self.locales_dir = os.path.join(self.install_dir, "po", "locale")
         self.appname = "GPT"
 
         # setting up localization
@@ -1625,7 +1624,6 @@ class KdenliveSupport:
 
         # load Kdenlive template without clips for later project file generation
         with open(os.path.join(cli.install_dir,
-                               "herostuff",
                                "kdenlive-template.xml",
                                ),
                   "r") as f:

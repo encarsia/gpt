@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=GPT
+GenericName=The GoPro Tool
+Comment=Manager for actioncam footage
+Exec=sh -c "cd /path/to/gpt/gpt && python3 run.py"
+Icon=../herostuff/ui/icon_col.svg
+Terminal=false
+Type=Application
+Categories=Utility;Application;Multimedia;
+Keywords=GPT;Actioncam;GoPro;Camera;Video
+

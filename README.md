@@ -31,8 +31,27 @@
 
 ### HOW DO I GET THIS THING TO WORK ON MY MACHINE?
 
-(add installation guide here)
 
+### INSTALLATION
+
+ * download and extract or clone repository and change into said folder
+ 
+> FTR: when executing `python`, it is Python 3
+ 
+### ARE WE THERE YET?
+
+ * execute `run.py`
+ * if you intend to use the desktop icon, edit `data/GPT.desktop` and customize path of "Exec", and "Icon" and copy file to `~/.local/share/applications/`
+
+### I'M LAZY!
+
+ * run `python setup.py install --user` to install the app just for the current user or
+ * run `python setup.py build` and then `python setup.py install` with administrator privilege for system-wide installation
+ * press the <kbd>SUPER</kbd> key and start typing <kbd>G</kbd>...<kbd>P</kbd>...<kbd>T</kbd>...<kbd>ENTER</kbd>
+
+### HOW DO I GET RID OF THIS?
+
+ * Lucky you asked. If you installed the application via `setup.py`, run `python setup.py uninstall --user` or `python setup.py uninstall` (with superuserpowers) to undo the installation. This will remove the Python package and any desktop files.
 
 ### HOW DO I USE IT?
 
@@ -58,12 +77,17 @@
 
 #### Default application window
 
-![Default application window v0.5](screenshots/win_v0.5.png)
+![Default application window v0.5](data/screenshots/win_v0.5.png)
 
 #### Compact view
 
-![Compact view v0.5](screenshots/compact_v0.5.png)
+![Compact view v0.5](data/screenshots/compact_v0.5.png)
 
 #### CLI
 
-![CLI v0.5](screenshots/cli_v0.5.png)
+![CLI v0.5](data/screenshots/cli_v0.5.png)
+
+### SOURCES AND LICENSES
+
+* application: [GNU General Public License v3](LICENSE.md)
+* icon: [Action camera by Green](https://thenounproject.com/term/action-camera/207962/) from the [Noun Project](https://thenounproject.com/), licensed under [Creative Commons Attribution (CC BY)](https://creativecommons.org/licenses/by/3.0/)

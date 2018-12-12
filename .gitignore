@@ -11,7 +11,7 @@ __pycache__/
 build/
 dist/
 *.egg-info/
-data/non.desktop
+data/gpt.desktop
 
 # localization helper scripts
 *localizeorcry.py
