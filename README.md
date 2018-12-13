@@ -11,10 +11,10 @@
 
 - import your stuff from SD card
 - rename files in a more logical order than according to the GoPro naming convention
-- overview of your footage, directly rename folders
+- keep an eye on your footage, directly rename folders
 - create timelapse videos from your stuff via FFmpeg
 - localization: English, German
-- open older content as Kdenlive project
+- open folder content as Kdenlive project
 - extended application window with fancy video preview and media information (requires GStreamer and MediaInfo)
 
 ### YOU MUST BE JOKING!
@@ -31,8 +31,8 @@
  * recommended: Git (it's probably already installed)
  * if you plan an installation: [setuptools](https://github.com/pypa/setuptools)
  * FFmpeg (optional)
- * GStreamer and MediaInfo (optional) for the extended application window
- * GoPro camera
+ * [GStreamer](https://gstreamer.freedesktop.org/) and [MediaInfo](https://mediaarea.net/MediaInfo) (optional) for the extended application window
+ * GoPro camera...
 
 ### INSTALLATION
 
