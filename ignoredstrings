@@ -1,0 +1,11 @@
+print("----------------------")
+print()
+print("--> {0:^6} | {1:25}".format(n[0], n[1]))
+print("--> {0:^6} | {1:50} | {2:>4}".format(n[0], n[1], n[2]))
+print("**************************************")
+print("GPT:    {}".format(__version__))
+print("Python: {}".format(sys.version[:5]))
+print("GTK+:   {}.{}.{}".format(Gtk.MAJOR_VERSION,
+self.log.debug("Application version: {}".format(__version__))
+self.log.debug("GTK+ version: {}.{}.{}".format(Gtk.get_major_version(),
+print("Could not load GObject Python bindings, only command-line version is available.")
