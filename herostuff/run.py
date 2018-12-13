@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
-from herostuff import modules
+import modules
 
 try:
     modules.app.main(sys.argv)

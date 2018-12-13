@@ -123,6 +123,7 @@
   </object>
   <object class="GtkApplicationWindow" id="gpwindow">
     <property name="can_focus">False</property>
+    <property name="icon">icon_col.svg</property>
     <signal name="destroy" handler="on_window_destroy" swapped="no"/>
     <child type="titlebar">
       <object class="GtkHeaderBar">

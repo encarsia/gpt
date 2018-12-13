@@ -28,9 +28,10 @@ try:
     gi.require_version("Gtk", "3.0")
     gi.require_version("Gst", "1.0")
     from gi.repository import Gtk, Gdk, Gst, GLib, Gio
-except ImportError:
-    print("Could not load GObject Python bindings, only command-line version is available.")
-    raise
+except (ImportError, ValueError) as e:
+    print("Could not load GObject Python bindings.")
+    print(e)
+    sys.exit(1)
 
 _ = gettext.gettext
 
@@ -410,7 +411,6 @@ class GoProGUI:
 
         for f in self.gladefiles:
             self.gladefiles[f] = os.path.join(cli.install_dir,
-                                              "herostuff",
                                               "ui",
                                               self.gladefiles[f])
 
@@ -517,7 +517,7 @@ class GoProGUI:
     def on_app_startup(self, app):
         # initiate custom css
         # css stylesheet
-        stylesheet = os.path.join(cli.install_dir, "herostuff", "ui", "gtk.css")
+        stylesheet = os.path.join(cli.install_dir, "ui", "gtk.css")
         # ...encode() is needed because CssProvider expects byte type input
         with open(stylesheet, "r") as f:
             css = f.read().encode()
@@ -1001,7 +1001,7 @@ class GoProGo:
         # set up logging
         os.chdir(self.user_app_dir)
         self.log = logging.getLogger("gpt")
-        with open(os.path.join(self.install_dir, "herostuff", "logging.yaml")) as f:
+        with open(os.path.join(self.install_dir, "logging.yaml")) as f:
             config = yaml.load(f)
             logging.config.dictConfig(config)
 
@@ -1020,7 +1020,7 @@ class GoProGo:
                                                           ))
         self.log.debug(_("Application executed from {}").format(self.install_dir))
 
-        self.locales_dir = os.path.join(self.install_dir, "herostuff", "po", "locale")
+        self.locales_dir = os.path.join(self.install_dir, "po", "locale")
         self.appname = "GPT"
 
         # setting up localization
@@ -1049,16 +1049,18 @@ class GoProGo:
 
         self.show_message(_("Creating config file..."))
         config = open(self.config, "w")
-        config.write(_("""##### CONFIG FILE FOR GOPRO TOOL #####
-##### EDIT IF YOU LIKE. YOU ARE AN ADULT. #####"""))
+        config.write("""##### CONFIG FILE FOR GOPRO TOOL #####
+##### EDIT IF YOU LIKE. YOU ARE AN ADULT. #####\n""")
         config.close()
         self.write_wdir_config(wdir)
         self.write_kd_supp_config()
+        self.default_app_view = "ext"
+        self.write_app_view_config(self.default_app_view)
 
     def write_wdir_config(self, wdir):
         """Write value for working directory to configuration file"""
         config = open(self.config, "a")
-        config.write("\n##### working directory #####\nwdir = {}\n".format(wdir))
+        config.write("\n##### working directory #####\nwdir = \"{}\"\n".format(wdir))
         config.close()
 
     def write_kd_supp_config(self):
@@ -1070,14 +1072,14 @@ class GoProGo:
     def write_app_view_config(self, appview):
         """Write value for default application window stack page to configuration file"""
         config = open(self.config, "a")
-        config.write("\n##### default application view #####\nappview = {}\n".format(appview))
+        config.write("\n##### default application view #####\nappview = \"{}\"\n".format(appview))
         config.close()
 
     def replace_wdir_config(self, wdir):
         """Writes new working directory in config file when changed"""
         for line in fileinput.input(self.config, inplace=True):
             if line.startswith("wdir"):
-                sys.stdout.write("wdir = {}\n".format(wdir))
+                sys.stdout.write("wdir = \"{}\"\n".format(wdir))
             else:
                 sys.stdout.write(line)
 
@@ -1085,7 +1087,7 @@ class GoProGo:
         """Changes Kdenlive support in config file when changed (menu item toggled)"""
         for line in fileinput.input(self.config, inplace=True):
             if line.startswith("kdsupp"):
-                sys.stdout.write("kdsupp = {}".format(supp))
+                sys.stdout.write("kdsupp = {}\n".format(supp))
             else:
                 sys.stdout.write(line)
 
@@ -1094,7 +1096,7 @@ class GoProGo:
            (menu item toggled)"""
         for line in fileinput.input(self.config, inplace=True):
             if line.startswith("appview"):
-                sys.stdout.write("appview = {}".format(view))
+                sys.stdout.write("appview = \"{}\"".format(view))
             else:
                 sys.stdout.write(line)
 
@@ -1625,7 +1627,6 @@ class KdenliveSupport:
 
         # load Kdenlive template without clips for later project file generation
         with open(os.path.join(cli.install_dir,
-                               "herostuff",
                                "kdenlive-template.xml",
                                ),
                   "r") as f:
