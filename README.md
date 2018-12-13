@@ -22,25 +22,41 @@
 - well, these are the basic tasks I usually perform before doing the video editing in Kdenlive (use it, it's great)
 - I'm thinking about polishing and new features but no warranty that this will get any better
 
-### WHAT ABOUT SYSTEM REQUIREMENTS?
+### WHAT DO I NEED TO GET IT WORKING?
 
-- Python 3 bindings for GObject
-- FFmpeg (optional)
-- GStreamer and MediaInfo for the extended application window
-- GoPro camera
-
-### HOW DO I GET THIS THING TO WORK ON MY MACHINE?
-
+ * Python 3
+ * Python GObject Introspection bindings ([PyGObject](http://pygobject.readthedocs.io/en/latest/getting_started.html))
+ * [PyYAML](https://github.com/yaml/pyyaml)
+ * [lxml](https://lxml.de/)
+ * recommended: Git (it's probably already installed)
+ * if you plan an installation: [setuptools](https://github.com/pypa/setuptools)
+ * FFmpeg (optional)
+ * GStreamer and MediaInfo (optional) for the extended application window
+ * GoPro camera
 
 ### INSTALLATION
 
  * download and extract or clone repository and change into said folder
  
 > FTR: when executing `python`, it is Python 3
- 
+
+The PyGObject Introspection bindings are probably already installed (tested with a plain Openbox and MATE desktop). You can install dependencies from the repositories:
+
+#### PREPARE ARCHLINUX AND ITS RELATIVES
+
+``` bash
+$ sudo pacman -S python-gobject python-yaml python-setuptools python-lxml python-setproctitle mediainfo ffmpeg
+```
+
+#### PREPARE UBUNTU 18.04 LTS
+
+``` bash
+$ sudo apt-get install python3-gi python3-setuptools python3-lxml gir1.2-gtk-3.0 gir1.2-gstreamer-1.0 gstreamer1.0-gtk3 mediainfo ffmpeg
+```
+
 ### ARE WE THERE YET?
 
- * execute `run.py`
+ * change into the `herostuff` folder and execute `run.py`
  * if you intend to use the desktop icon, edit `data/GPT.desktop` and customize path of "Exec", and "Icon" and copy file to `~/.local/share/applications/`
 
 ### I'M LAZY!
@@ -51,11 +67,11 @@
 
 ### HOW DO I GET RID OF THIS?
 
- * Lucky you asked. If you installed the application via `setup.py`, run `python setup.py uninstall --user` or `python setup.py uninstall` (with superuserpowers) to undo the installation. This will remove the Python package and any desktop files.
+ * Lucky you asked. If you installed the application via `setup.py`, run `python setup.py uninstall --user` or `python setup.py uninstall` (with superuserpowers) to undo the installation. This will remove the Python package and any desktop files. If not just delete the downloaded and extracted archive or the cloned repository.
 
 ### HOW DO I USE IT?
 
-* execute `run.py`, this will load the default application window with media preview
+* execute `run.py` from a terminal or application starter, this will load the default application window with media preview
 * these commandline options are available (run `run.py --help`:
 
 ```txt

@@ -28,9 +28,10 @@ try:
     gi.require_version("Gtk", "3.0")
     gi.require_version("Gst", "1.0")
     from gi.repository import Gtk, Gdk, Gst, GLib, Gio
-except ImportError:
-    print("Could not load GObject Python bindings, only command-line version is available.")
-    raise
+except (ImportError, ValueError) as e:
+    print("Could not load GObject Python bindings.")
+    print(e)
+    sys.exit(1)
 
 _ = gettext.gettext
 
@@ -1048,16 +1049,18 @@ class GoProGo:
 
         self.show_message(_("Creating config file..."))
         config = open(self.config, "w")
-        config.write(_("""##### CONFIG FILE FOR GOPRO TOOL #####
-##### EDIT IF YOU LIKE. YOU ARE AN ADULT. #####"""))
+        config.write("""##### CONFIG FILE FOR GOPRO TOOL #####
+##### EDIT IF YOU LIKE. YOU ARE AN ADULT. #####\n""")
         config.close()
         self.write_wdir_config(wdir)
         self.write_kd_supp_config()
+        self.default_app_view = "ext"
+        self.write_app_view_config(self.default_app_view)
 
     def write_wdir_config(self, wdir):
         """Write value for working directory to configuration file"""
         config = open(self.config, "a")
-        config.write("\n##### working directory #####\nwdir = {}\n".format(wdir))
+        config.write("\n##### working directory #####\nwdir = \"{}\"\n".format(wdir))
         config.close()
 
     def write_kd_supp_config(self):
@@ -1069,14 +1072,14 @@ class GoProGo:
     def write_app_view_config(self, appview):
         """Write value for default application window stack page to configuration file"""
         config = open(self.config, "a")
-        config.write("\n##### default application view #####\nappview = {}\n".format(appview))
+        config.write("\n##### default application view #####\nappview = \"{}\"\n".format(appview))
         config.close()
 
     def replace_wdir_config(self, wdir):
         """Writes new working directory in config file when changed"""
         for line in fileinput.input(self.config, inplace=True):
             if line.startswith("wdir"):
-                sys.stdout.write("wdir = {}\n".format(wdir))
+                sys.stdout.write("wdir = \"{}\"\n".format(wdir))
             else:
                 sys.stdout.write(line)
 
@@ -1084,7 +1087,7 @@ class GoProGo:
         """Changes Kdenlive support in config file when changed (menu item toggled)"""
         for line in fileinput.input(self.config, inplace=True):
             if line.startswith("kdsupp"):
-                sys.stdout.write("kdsupp = {}".format(supp))
+                sys.stdout.write("kdsupp = {}\n".format(supp))
             else:
                 sys.stdout.write(line)
 
@@ -1093,7 +1096,7 @@ class GoProGo:
            (menu item toggled)"""
         for line in fileinput.input(self.config, inplace=True):
             if line.startswith("appview"):
-                sys.stdout.write("appview = {}".format(view))
+                sys.stdout.write("appview = \"{}\"".format(view))
             else:
                 sys.stdout.write(line)
 
