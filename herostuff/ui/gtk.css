@@ -1,0 +1,25 @@
+levelbar trough block.filled.empty {
+    border-color: transparent;
+    background-color: transparent;
+    }
+
+levelbar trough block.filled {
+    background-color: #FF0000;
+}
+
+levelbar trough block.filled.lower {
+    background-color: #00D30F;
+}
+
+levelbar trough block.filled.low {
+    background-color: #0000FF;
+}
+
+levelbar trough block.filled.high {
+    background-color: #FF4D00;
+}
+
+textview {
+    font-family: monospace;
+    font-size: small;
+}

@@ -1,511 +1,573 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Translations template for GPT - The GoProTool.
+# Copyright (C) 2018.
+# This file is distributed under the same license as the GPT project.
+# Anke K <An.Ke@bahnfreikartoffelbrei.de>, 2018.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-01-18 22:29+0100\n"
+"Project-Id-Version: GPT v0.5\n"
+"Report-Msgid-Bugs-To: https://github.com/encarsia/gpt\n"
+"POT-Creation-Date: 2018-09-30 17:08+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: modules_copy.py:513 modules.py_copy.py:684 modules.py_copy.py:681
-#: modules_copy.py:681
 msgid ""
 "\n"
 "        (h)elp\n"
+"        ------------- working directory ----------\n"
+"        {}\n"
 "        \n"
-"        ------- routines ----\n"
+"        ------------- routines -------------------\n"
 "        change (w)orking directory\n"
 "        detect (c)ard\n"
 "        (r)ead directory and rename GoPro files\n"
+"        (d)elete all files on external memory card\n"
 "\n"
-"        ------- create ------\n"
+"        ------------- create ---------------------\n"
 "        timelapse from (v)ideo\n"
 "        timelapse from (i)mages\n"
+"        (k)denlive project \n"
 "\n"
 "        (q)uit"
 msgstr ""
 
-#: modules_copy.py:653 modules.py_copy.py:824 modules.py_copy.py:821
-#: modules_copy.py:821
 msgid ""
 "\n"
 "Images:\n"
 "*******"
 msgstr ""
 
-#: modules_copy.py:573 modules.py_copy.py:744 modules.py_copy.py:741
-#: modules_copy.py:741
 msgid ""
 "\n"
 "Video:\n"
 "******"
 msgstr ""
 
-#: modules.py_copy.py:365 modules.py_copy.py:362 modules_copy.py:362
 msgid ""
 "##### CONFIG FILE FOR GOPRO TOOL #####\n"
-"##### EDIT IF YOU LIKE. YOU ARE AN ADULT. #####\n"
-"\n"
+"##### EDIT IF YOU LIKE. YOU ARE AN ADULT. #####"
 msgstr ""
 
-#: modules.py_copy.py:625 modules_copy.py:625
-#, python-format
-msgid "%d image files will be renamed."
+msgid "(none)"
 msgstr ""
 
-#: modules.py_copy.py:558 modules.py_copy.py:564 modules_copy.py:558
-#: modules_copy.py:564
-#, python-format
-msgid "%s already exists in target directory."
-msgstr ""
-
-#: modules.py_copy.py:517 modules.py_copy.py:514 modules_copy.py:514
 msgid "(project) folders in working directory"
 msgstr ""
 
-#: modules.py_copy.py:518 modules.py_copy.py:515 modules_copy.py:515
-msgid "**************************************"
+msgid "About"
 msgstr ""
 
-#: modules_copy.py:109 modules.py_copy.py:158 modules.py_copy.py:155
-#: modules_copy.py:155
-msgid "Cancel clicked"
+msgid "An import job is running. Please wait until finished."
 msgstr ""
 
-#: gopro.glade:195 gopro.glade:342
+msgid "Application executed from {}"
+msgstr ""
+
+msgid "Application terminated on window close button. Bye."
+msgstr ""
+
+msgid "Apply"
+msgstr ""
+
+msgid "Are you sure to remove all files from media card? (y/n) "
+msgstr ""
+
+msgid "Card mount point:"
+msgstr ""
+
 msgid "Change"
 msgstr ""
 
-#: modules_copy.py:431 modules.py_copy.py:602 modules.py_copy.py:599
-#: modules_copy.py:599
-#, python-format
-msgid "Change directory to %s"
+msgid "Change directory to {}"
 msgstr ""
 
-#: modules.py_copy.py:143 modules_copy.py:143
 msgid "Change working directory"
 msgstr ""
 
-#: modules_copy.py:296 modules.py_copy.py:422 modules.py_copy.py:419
-#: modules_copy.py:419
 msgid "Change working directory? (y/N) "
 msgstr ""
 
-#: gopro.glade:145
+msgid "Changed directory to {}"
+msgstr ""
+
 msgid "Choose destination folder"
 msgstr ""
 
-#: modules_copy.py:529
-#, python-format
-msgid "Choose destination folder (return for default value: %s): "
+msgid "Choose destination folder (return for default value: {}): "
 msgstr ""
 
-#: modules.py_copy.py:144 modules_copy.py:144
+msgid "Choose different location"
+msgstr ""
+
 msgid "Choose directory"
 msgstr ""
 
-#: modules_copy.py:396 modules_copy.py:402 modules.py_copy.py:563
-#: modules.py_copy.py:569 modules.py_copy.py:560 modules_copy.py:560
-#, python-format
-msgid "Copy %s"
+msgid "Compact view"
 msgstr ""
 
-#: modules.py_copy.py:566 modules_copy.py:566
-#, python-format
-msgid "Copy %s..."
+msgid "Content"
 msgstr ""
 
-#: modules.py_copy.py:487 modules.py_copy.py:484 modules_copy.py:484
-#, python-format
-msgid "Copy files from %s to %s."
+msgid "Copy files from {} to {}."
 msgstr ""
 
-#: modules_copy.py:20 modules.py_copy.py:23 modules_copy.py:23
-msgid "Could not load GTK+, only command-line version is available."
+msgid "Copying files finished."
 msgstr ""
 
-#: modules_copy.py:219 modules_copy.py:625 modules_copy.py:695
-#: modules.py_copy.py:265 modules.py_copy.py:796 modules.py_copy.py:866
-#: modules.py_copy.py:262 modules.py_copy.py:793 modules.py_copy.py:863
-#: modules_copy.py:262 modules_copy.py:793 modules_copy.py:863
-#, python-format
-msgid "Create %d of %d"
+msgid "Could not write message to statusbar"
 msgstr ""
 
-#: gopro.glade:508 gopro.glade:666
+msgid "Couldn't fetch current position to update slider"
+msgstr ""
+
+msgid "Couldn't fetch duration"
+msgstr ""
+
 msgid "Create timelapse"
 msgstr ""
 
-#: modules_copy.py:674 modules.py_copy.py:845 modules.py_copy.py:842
-#: modules.py_copy.py:761 modules_copy.py:761 modules_copy.py:842
-msgid "Create timelapse for directory "
+msgid "Create timelapse for directory {}"
 msgstr ""
 
-#: modules.py_copy.py:363 modules.py_copy.py:360 modules_copy.py:360
+msgid "Create timelapse for directory {}."
+msgstr ""
+
+msgid "Create timelapse videos..."
+msgstr ""
+
+msgid "Create {} of {}"
+msgstr ""
+
 msgid "Creating config file..."
 msgstr ""
 
-#: modules_copy.py:498 modules.py_copy.py:669 modules.py_copy.py:666
-#: modules_copy.py:666
+msgid "Default application view is set to extended."
+msgstr ""
+
+msgid "Default view"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
 msgid "Delete (y/n) "
 msgstr ""
 
-#: modules_copy.py:502 modules.py_copy.py:673 modules.py_copy.py:670
-#: modules_copy.py:670
-#, python-format
-msgid "Deleting %s."
+msgid "Delete data on memory card?"
 msgstr ""
 
-#: gopro.glade:133
+msgid "Delete files in {}..."
+msgstr ""
+
+msgid "Delete files on external card?"
+msgstr ""
+
+msgid "Delete old Kdenlive project file."
+msgstr ""
+
+msgid "Deleting {}."
+msgstr ""
+
 msgid "Destination folder"
 msgstr ""
 
-#: modules_copy.py:418 modules.py_copy.py:585 modules.py_copy.py:582
-#: modules_copy.py:582
+msgid "Device is not supported."
+msgstr ""
+
 msgid "Directory already exists. OK."
 msgstr ""
 
-#: modules_copy.py:641 modules_copy.py:710 modules.py_copy.py:812
-#: modules.py_copy.py:881 modules.py_copy.py:809 modules.py_copy.py:878
-#: modules_copy.py:809 modules_copy.py:878
+msgid "Directory already exists. Trying {}..."
+msgstr ""
+
+msgid "Disc space"
+msgstr ""
+
 msgid "Done."
 msgstr ""
 
-#: modules.py_copy.py:121 modules_copy.py:121
-#, python-format
-msgid "Entered: %s"
+msgid "Duration"
 msgstr ""
 
-#: modules_copy.py:422 modules.py_copy.py:589 modules.py_copy.py:586
-#: modules_copy.py:586
+msgid "Entered: {}"
+msgstr ""
+
 msgid "Error: no write permission"
 msgstr ""
 
-#: modules_copy.py:307 modules.py_copy.py:434 modules.py_copy.py:431
-#: modules_copy.py:431
+msgid "Estimated memory use"
+msgstr ""
+
 msgid "Everything stays as it is."
 msgstr ""
 
-#: modules_copy.py:365 modules.py_copy.py:55 modules.py_copy.py:453
-#: modules.py_copy.py:450 modules_copy.py:55 modules_copy.py:450
+msgid "Exception error"
+msgstr ""
+
 msgid "Failed to copy files. Not enough free space."
 msgstr ""
 
-#: modules_copy.py:358 modules.py_copy.py:489 modules.py_copy.py:486
-#: modules_copy.py:486
+msgid "Failed to delete directory. Check permissions."
+msgstr ""
+
+msgid "Failed to delete file. Check permissions."
+msgstr ""
+
+msgid "File"
+msgstr ""
+
+msgid "Files"
+msgstr ""
+
 msgid "Files successfully copied."
 msgstr ""
 
-#: gopro.glade:417 gopro.glade:564
 msgid "Folder"
 msgstr ""
 
-#: modules_copy.py:560 modules.py_copy.py:731 modules.py_copy.py:728
-#: modules_copy.py:728
 msgid "Folder already exists. OK."
 msgstr ""
 
-#: modules_copy.py:414 modules_copy.py:558 modules.py_copy.py:581
-#: modules.py_copy.py:729 modules.py_copy.py:578 modules.py_copy.py:726
-#: modules_copy.py:578 modules_copy.py:726
 msgid "Folder created."
 msgstr ""
 
-#: modules_copy.py:106 modules.py_copy.py:155 modules.py_copy.py:152
-#: modules_copy.py:152
-msgid "Folder selected: "
+msgid "Folder renamed"
 msgstr ""
 
-#: modules.py_copy.py:547 modules_copy.py:547
+msgid "Found GoPro device."
+msgstr ""
+
+msgid "Found Sony device."
+msgstr ""
+
+msgid "Found default profile: {}"
+msgstr ""
+
 msgid "Found photos..."
 msgstr ""
 
-#: gopro.glade:795
-msgid "Helps you to organize your GoPro adventures."
+msgid "Frames per second"
 msgstr ""
 
-#: gopro.glade:448 gopro.glade:595
+msgid "Helps you organizing your GoPro adventures."
+msgstr ""
+
 msgid "Image"
 msgstr ""
 
-#: modules_copy.py:481 modules.py_copy.py:652 modules.py_copy.py:649
-#: modules_copy.py:649
+msgid "Image files are not a sequence."
+msgstr ""
+
 msgid ""
 "Image files do not match the GoPro naming convention. No need for renaming "
 "or renaming already done."
 msgstr ""
 
-#: gopro.glade:303 gopro.glade:450
 msgid "Import"
 msgstr ""
 
-#: modules_copy.py:298 modules.py_copy.py:424 modules.py_copy.py:421
-#: modules_copy.py:421
+msgid "Import in progress"
+msgstr ""
+
+msgid "Import...wait"
+msgstr ""
+
 msgid "Input path: "
 msgstr ""
 
-#: modules_copy.py:310 modules_copy.py:324 modules.py_copy.py:437
-#: modules.py_copy.py:456 modules.py_copy.py:434 modules.py_copy.py:453
-#: modules_copy.py:434 modules_copy.py:453
+msgid "Interval"
+msgstr ""
+
 msgid "Invalid input"
 msgstr ""
 
-#: modules.py_copy.py:540 modules.py_copy.py:537 modules_copy.py:537
 msgid "Invalid input (integer required). Try again..."
 msgstr ""
 
-#: modules_copy.py:598 modules_copy.py:679 modules.py_copy.py:769
-#: modules.py_copy.py:850 modules.py_copy.py:766 modules.py_copy.py:847
-#: modules_copy.py:766 modules_copy.py:847
 msgid "Invalid input (no integer). Try again..."
 msgstr ""
 
-#: modules_copy.py:615 modules.py_copy.py:786 modules.py_copy.py:783
-#: modules_copy.py:783
 msgid "Invalid input (no number). Try again..."
 msgstr ""
 
-#: modules_copy.py:591 modules_copy.py:672 modules.py_copy.py:762
-#: modules.py_copy.py:843 modules.py_copy.py:759 modules.py_copy.py:840
-#: modules_copy.py:759 modules_copy.py:840
-msgid "Invalid input, input must be integer between 1 and"
+msgid "Invalid input, input must be integer between 1 and {}. Try again..."
 msgstr ""
 
-#: modules.py_copy.py:536 modules.py_copy.py:533 modules_copy.py:533
-#, python-format
-msgid "Invalid input, input must be integer between 1 and %d. Try again..."
-msgstr ""
-
-#: modules_copy.py:508 modules_copy.py:547 modules.py_copy.py:679
-#: modules.py_copy.py:718 modules.py_copy.py:676 modules.py_copy.py:715
-#: modules_copy.py:676 modules_copy.py:715
 msgid "Invalid input. Try again..."
 msgstr ""
 
-#: modules_copy.py:425 modules.py_copy.py:595 modules.py_copy.py:592
-#: modules_copy.py:592
 msgid "Invalid path"
 msgstr ""
 
-#: gopro.glade:280 gopro.glade:427
+msgid "Kdenlive support"
+msgstr ""
+
+msgid "Kdenlive support is enabled."
+msgstr ""
+
+msgid "Media information"
+msgstr ""
+
+msgid "Media preview"
+msgstr ""
+
+msgid "MediaInfo data"
+msgstr ""
+
+msgid "MediaInfo is not installed."
+msgstr ""
+
 msgid "Memory card"
 msgstr ""
 
-#: modules_copy.py:316 modules.py_copy.py:444 modules.py_copy.py:441
-#: modules_copy.py:441
 msgid ""
 "Memory card found. Copy and rename media files to working directory? (y/n) "
 msgstr ""
 
-#: modules_copy.py:318 modules.py_copy.py:446 modules.py_copy.py:443
-#: modules_copy.py:443
+msgid "Message: {}"
+msgstr ""
+
 msgid "Move along. There is nothing to see here."
 msgstr ""
 
-#: gopro.glade:16
 msgid "Multiplier"
 msgstr ""
 
-#: gopro.glade:34
 msgid "Multiplier for timelapse videos"
 msgstr ""
 
-#: modules_copy.py:610 modules.py_copy.py:781 modules.py_copy.py:778
-#: modules_copy.py:778
 msgid "Multiplier must be larger than 1."
 msgstr ""
 
-#: modules_copy.py:606 modules.py_copy.py:777 modules.py_copy.py:774
-#: modules_copy.py:774
 msgid "Multiplier: "
 msgstr ""
 
-#: modules.py_copy.py:473 modules_copy.py:473
-msgid "No GoPro device."
+msgid "New name is old name, there is nothing to do here."
 msgstr ""
 
-#: modules_copy.py:300 modules.py_copy.py:426 modules.py_copy.py:423
-#: modules_copy.py:423
 msgid "No change."
 msgstr ""
 
-#: modules.py_copy.py:404 modules.py_copy.py:401 modules_copy.py:401
 msgid ""
 "No configuration for working directory in config file. Set default value (~/"
 "GP)..."
 msgstr ""
 
-#: modules_copy.py:348 modules.py_copy.py:481 modules.py_copy.py:478
-#: modules_copy.py:478
-msgid "No devices found."
+msgid "No device found in path {}."
 msgstr ""
 
-#: gopro.glade:839
-msgid "No free space"
+msgid "No existing Kdenlive project file to remove."
 msgstr ""
 
-#: modules_copy.py:484 modules.py_copy.py:655 modules.py_copy.py:652
-#: modules_copy.py:652
+msgid "No files here to import..."
+msgstr ""
+
 msgid "No matching image files."
 msgstr ""
 
-#: modules_copy.py:661 modules.py_copy.py:832 modules.py_copy.py:829
-#: modules_copy.py:829
 msgid "No photos found."
 msgstr ""
 
-#: modules_copy.py:581 modules.py_copy.py:752 modules.py_copy.py:749
-#: modules_copy.py:749
 msgid "No video files found."
 msgstr ""
 
-#: modules_copy.py:452 modules.py_copy.py:623 modules.py_copy.py:620
-#: modules_copy.py:620
 msgid "No video files."
 msgstr ""
 
-#: gopro.glade:846
-msgid "Not enough disc space"
+msgid "No."
 msgstr ""
 
-#: gopro.glade:223 gopro.glade:332 gopro.glade:370 gopro.glade:479
+msgid ""
+"Not enough disc space.\n"
+"Free at least {}."
+msgstr ""
+
+msgid ""
+"Number of videos: {}, total size: {}\n"
+"Number of images: {}, total size: {}"
+msgstr ""
+
 msgid "Open"
 msgstr ""
 
-#: modules.py_copy.py:592 modules.py_copy.py:589 modules_copy.py:589
+msgid "Open Kdenlive project"
+msgstr ""
+
+msgid "Open folder"
+msgstr ""
+
+msgid "Open with Kdenlive"
+msgstr ""
+
+msgid "Other"
+msgstr ""
+
+msgid "Other location"
+msgstr ""
+
 msgid "Permission denied."
 msgstr ""
 
-#: gopro.glade:544 gopro.glade:702
 msgid "Photo"
 msgstr ""
 
-#: gopro.glade:559 gopro.glade:717
 msgid "Photo (subdirectories)"
 msgstr ""
 
-#: gopro.glade:209 gopro.glade:356
+msgid "Preferences"
+msgstr ""
+
+msgid "Processing Kdenlive project for {}"
+msgstr ""
+
+msgid "Quantity"
+msgstr ""
+
+msgid "Record settings"
+msgstr ""
+
 msgid "Refresh"
 msgstr ""
 
-#: modules_copy.py:442 modules_copy.py:446 modules_copy.py:462
-#: modules_copy.py:476 modules.py_copy.py:613 modules.py_copy.py:617
-#: modules.py_copy.py:633 modules.py_copy.py:647 modules.py_copy.py:610
-#: modules.py_copy.py:614 modules.py_copy.py:630 modules.py_copy.py:644
-#: modules_copy.py:610 modules_copy.py:614 modules_copy.py:630
-#: modules_copy.py:644
-#, python-format
-msgid "Rename %s to %s."
+msgid "Resolution"
 msgstr ""
 
-#: gopro.glade:318 gopro.glade:465
 msgid "Search"
 msgstr ""
 
-#: modules_copy.py:332 modules.py_copy.py:465 modules.py_copy.py:462
-#: modules_copy.py:462
-#, python-format
-msgid "Search device in %s"
+msgid "Search in {}"
 msgstr ""
 
-#: modules_copy.py:337 modules.py_copy.py:470 modules.py_copy.py:467
-#: modules_copy.py:467
-#, python-format
-msgid "Search in %s"
+msgid "Select directory to create and open Kdenlive project (0 to cancel): "
 msgstr ""
 
-#: modules_copy.py:105 modules.py_copy.py:154 modules.py_copy.py:151
-#: modules_copy.py:151
-msgid "Select clicked"
-msgstr ""
-
-#: modules_copy.py:587 modules_copy.py:668 modules.py_copy.py:758
-#: modules.py_copy.py:839 modules.py_copy.py:755 modules.py_copy.py:836
-#: modules_copy.py:755 modules_copy.py:836
 msgid "Select directory to create timelapse video of (0 to cancel): "
 msgstr ""
 
-#: modules.py_copy.py:118 modules_copy.py:118
-#, python-format
-msgid "Selected: %s"
+msgid "Selected: {}"
 msgstr ""
 
-#: gopro.glade:464 gopro.glade:611
+msgid "Sequence"
+msgstr ""
+
 msgid "Size"
 msgstr ""
 
-#: modules.py_copy.py:523 modules.py_copy.py:520 modules_copy.py:520
+msgid "Specify multiplier for timelapse"
+msgstr ""
+
+msgid "Status"
+msgstr ""
+
+msgid "Switch to extended application window"
+msgstr ""
+
+msgid "Switch to normal application window"
+msgstr ""
+
 msgid "There are no subfolders in the working directory yet"
 msgstr ""
 
-#: gopro.glade:847
-msgid ""
-"There is not enough space to copy media files to the working directory. Try "
-"again later after problem is solved."
+msgid "ThereGoesMyHero (GStreamer Preview)"
 msgstr ""
 
-#: gopro.glade:432 gopro.glade:528 gopro.glade:579 gopro.glade:686
+msgid "Timelapse calculator"
+msgstr ""
+
+msgid "Timelapse settings"
+msgstr ""
+
 msgid "Video"
 msgstr ""
 
-#: modules_copy.py:450 modules.py_copy.py:621 modules.py_copy.py:618
-#: modules_copy.py:618
 msgid ""
 "Video files do not match the GoPro naming convention. No need for renaming "
 "or renaming already done."
 msgstr ""
 
-#: gopro.glade:171 gopro.glade:318
 msgid "Working directory"
 msgstr ""
 
-#: modules.py_copy.py:358 modules.py_copy.py:355 modules_copy.py:355
-#, python-format
-msgid "Working directory: %s"
+msgid "Working directory: {}"
 msgstr ""
 
-#: gopro.glade:261
-msgid "_Help"
+msgid ""
+"You are about to delete all files on your memory card.\n"
+"\n"
+"Are you really sure to proceed?"
 msgstr ""
 
-#: modules.py_copy.py:744 modules.py_copy.py:824 modules_copy.py:744
-#: modules_copy.py:824
+msgid "compact"
+msgstr ""
+
 msgid "directory"
 msgstr ""
 
-#: modules.py_copy.py:519 modules.py_copy.py:516 modules_copy.py:516
+msgid "free:"
+msgstr ""
+
+msgid "free: "
+msgstr ""
+
+#, python-brace-format
+msgid "free: {0} of {1}"
+msgstr ""
+
+msgid "hours"
+msgstr ""
+
+msgid "media preview"
+msgstr ""
+
+msgid "memory"
+msgstr ""
+
+msgid "minutes"
+msgstr ""
+
 msgid "name"
 msgstr ""
 
-#: modules.py_copy.py:516 modules.py_copy.py:744 modules.py_copy.py:824
-#: modules_copy.py:516 modules_copy.py:744 modules_copy.py:824
 msgid "no."
 msgstr ""
 
-#: gopro.glade:355 gopro.glade:502
+msgid "path/to/another/location"
+msgstr ""
+
 msgid "path/to/memory/card"
 msgstr ""
 
-#: gopro.glade:246 gopro.glade:393
+msgid "path/to/other/location"
+msgstr ""
+
 msgid "path/to/working/directory"
 msgstr ""
 
-#: modules_copy.py:489 modules.py_copy.py:660 modules.py_copy.py:657
-#: modules_copy.py:657
-msgid "preview file(s) (LRV/THM) found."
+msgid "play"
 msgstr ""
 
-#: modules.py_copy.py:744 modules.py_copy.py:824 modules_copy.py:744
-#: modules_copy.py:824
+msgid "playback paused"
+msgstr ""
+
 msgid "quantity"
+msgstr ""
+
+msgid "timelapse duration"
+msgstr ""
+
+msgid "{} copied ({}/{})"
+msgstr ""
+
+msgid "{} deleted."
+msgstr ""
+
+msgid "{} image files will be renamed."
+msgstr ""
+
+msgid "{} video file(s) will be renamed."
 msgstr ""
