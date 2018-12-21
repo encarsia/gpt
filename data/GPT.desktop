@@ -2,10 +2,28 @@
 Name=GPT
 GenericName=The GoPro Tool
 Comment=Manager for actioncam footage
-Exec=sh -c "cd /path/to/gpt/gpt && python3 run.py"
+Path=/path/to/gpt/gpt
+Exec=python3 run.py
 Icon=../herostuff/ui/icon_col.svg
 Terminal=false
 Type=Application
 Categories=Utility;Application;Multimedia;
 Keywords=GPT;Actioncam;GoPro;Camera;Video
+StartupWMClass=GPT
+Actions=compact;extended;terminal;tl-calc;
 
+[Desktop Action compact]
+Name=Compact window
+Exec=python3 run.py -c
+
+[Desktop Action extended]
+Name=Extended window
+Exec=python3 run.py -e
+
+[Desktop Action terminal]
+Name=Run CLI in terminal
+Exec=gnome-terminal -- python3 run.py --cli
+
+[Desktop Action tl-calc]
+Name=Timelapse calculator
+Exec=python3 run.py -t
