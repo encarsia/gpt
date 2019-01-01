@@ -17,7 +17,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 
 # package meta data
 NAME = "gpt"
-DESCRIPTION = "GTP - The GoPro Tool"
+DESCRIPTION = "GPT - The GoPro Tool"
 URL = "https://github.com/encarsia/gpt"
 EMAIL = "An.Ke@bahnfreikartoffelbrei.de"
 AUTHOR = "Anke K"
@@ -72,7 +72,7 @@ class CustomInstall(install):
             content = f.readlines()
         content_new = ""
         for line in content:
-            if line.startswith("Exec="):
+            if line.startswith("Path="):
                 line = line.replace("/path/to/gpt", install_path)
             elif line.startswith("Icon="):
                 line = line.replace("../herostuff/ui", icon_path)

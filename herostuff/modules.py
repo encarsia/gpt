@@ -435,7 +435,7 @@ class GoProGUI:
                                      description="Default GUI with integrated view switch"),
             self.create_option_entry("--alt-gui-compact",
                                      "-c",
-                                     description="Altenative GUI, compact view"),
+                                     description="Alternative GUI, compact view"),
             self.create_option_entry("--alt-gui-ext",
                                      "-e",
                                      description="Alternative GUI, extended view (GStreamer preview)"),
@@ -996,7 +996,7 @@ class GoProGo:
             os.makedirs(self.user_app_dir)
 
         # initiate GTK+ application
-        GLib.set_prgname("GoProTool")
+        GLib.set_prgname("GPT")
 
         # set up logging
         os.chdir(self.user_app_dir)
@@ -1112,7 +1112,7 @@ class GoProGo:
         for line in config:
             if line.startswith("wdir"):
                 match_wdir = True
-                self.stdir = os.path.abspath(line.split("=")[1].strip())
+                self.stdir = line.split("\"")[1]
                 if not self.chkdir(self.stdir):
                     self.stdir = self.defaultwdir
                     self.replace_wdir_config(self.stdir)
@@ -1588,7 +1588,7 @@ class GoProGo:
         timelapse from (i)mages
         (k)denlive project 
 
-        (q)uit""")).format(self.stdir)
+        (q)uit""").format(self.stdir))
 
     def shell(self):
         """Input prompt"""

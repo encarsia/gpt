@@ -69,7 +69,7 @@ $ sudo apt-get install python3-gi python3-setuptools python3-lxml gir1.2-gtk-3.0
 
  * Lucky you asked. If you installed the application via `setup.py`, run `python setup.py uninstall --user` or `python setup.py uninstall` (with superuserpowers) to undo the installation. This will remove the Python package and any desktop files. If not just delete the downloaded and extracted archive or the cloned repository.
 
-### HOW DO I USE IT?
+### HOW DO I LAUNCH IT?
 
 * execute `run.py` from a terminal or application starter, this will load the default application window with media preview
 * these commandline options are available (run `run.py --help`:
@@ -77,11 +77,13 @@ $ sudo apt-get install python3-gi python3-setuptools python3-lxml gir1.2-gtk-3.0
 ```txt
   -v, --version               Show version info
   --default                   Default GUI with integrated view switch
-  -c, --alt-gui-compact       Altenative GUI, compact view
+  -c, --alt-gui-compact       Alternative GUI, compact view
   -e, --alt-gui-ext           Alternative GUI, extended view (GStreamer preview)
   --cli                       Commandline interface
   -t, --tl-calc               Run the timelapse calculator
 ```
+
+If you have installed the application you can run GPT from the menu. The available options are accessible as desktop actions so you can also launch these from the GNOME shell application overview or dash.
 
 ### I HAVE SOME IDEAS.
 ### YOUR CODE NEEDS SOME IMPROVEMENTS.
