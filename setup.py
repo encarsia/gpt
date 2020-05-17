@@ -75,7 +75,7 @@ class CustomInstall(install):
             if line.startswith("Path="):
                 line = line.replace("/path/to/gpt", install_path)
             elif line.startswith("Icon="):
-                line = line.replace("../herostuff/ui", icon_path)
+                line = line.replace("../herostuff/ui/", "")
             content_new += line
         with open("data/gpt.desktop", "w") as f:
             f.writelines(content_new) 

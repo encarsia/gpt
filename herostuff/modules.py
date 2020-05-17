@@ -1356,6 +1356,7 @@ class GoProGo:
         # absolute number of all files being copied
         abs_files = self.abs_vid + self.abs_img
         counter = 0
+        digits = len(str(self.abs_img))
 
         # reset progressbar
         app.refresh_progressbar(0, 1)
@@ -1371,7 +1372,7 @@ class GoProGo:
             # create subfolder for image sequences
             if glob.glob("*.JPG"):
                 self.show_message(_("Found photos..."))
-                self.chkdir(os.path.join(dest, "Images_" + d[0:3]))
+                self.chkdir(os.path.join(dest, "Images"))
                 self.workdir(os.path.join(src, d))
 
             # #### preparations for video files #####
@@ -1387,10 +1388,10 @@ class GoProGo:
             self.thread_counter = []
             [self.thread_counter.append("x") for i in range(vid_counter)]
 
-            for f in sorted(os.listdir()):
+            for f in os.listdir():
                 # image files
                 if f.endswith(".JPG"):
-                    shutil.copy(f, os.path.join(dest, "Images_" + d[0:3]))
+                    shutil.copy(f, os.path.join(dest, "Images"))
                     counter += 1
                     self.show_message(_("{} copied ({}/{})").format(f, counter, abs_files))
                     app.refresh_progressbar(counter, abs_files)
@@ -1491,26 +1492,30 @@ class GoProGo:
 
         # Foto
         # pattern for sequences: Seq_0n_00n.JPG, single shots: Img_00n.JPG
+        digits = len(str(self.abs_img))
+
         if glob.glob("G0*.JPG") or glob.glob("GOPR*.JPG"):
             # Einzelbilder
-            message = _("{} image files will be renamed.").format(len(glob.glob("G*.JPG")) + len(glob.glob("GOPR*.JPG")))
+            message = _("{} image files will be renamed.").format(len(glob.glob("G*.JPG")))
             self.show_message(message)
             counter = 1
             for f in sorted(glob.glob("GOPR*.JPG")):
-                newfile = "Img_%03d.JPG" % counter
+                newfile = f"Img_{counter:0{digits}d}.JPG"
                 os.rename(f, newfile)
                 counter += 1
             # counter for files
             counter = 1
             # sequence number can be extracted from file name
-            seq = sorted(os.listdir())[0][2:4]
+            # file numbering starts at "G001xxxx.JPG" counting upwards
+            # long recordings will be split into multiple sequences (> 1000 pics)
+            seq = sorted(os.listdir())[0][2]
             for f in sorted(glob.glob("G0*.JPG")):
                 if f[2:4] == seq:
-                    newfile = "Seq_" + seq + "_%03d.JPG" % counter
+                    newfile = f"Seq_{seq}_{counter:0{digits}d}.JPG"
                 else:
                     counter = 1
                     seq = f[2:4]
-                    newfile = "Seq_" + seq + "_%03d.JPG" % counter
+                    newfile = f"Seq_{seq}_{counter:0{digits}d}.JPG"
                 os.rename(f, newfile)
                 counter += 1
         else:
@@ -1814,6 +1819,8 @@ Video:
         for f in glob.glob("*.MP4"):
             # converted from bash script
             # ffmpeg -i $file -r 30 -filter:v "setpts=1/$1*PTS" -an lapse/${file:0:-4}-x$1.MP4
+            # ffmpeg -r 30 -f image2 -pattern_type glob -i 'Seq_02_*.JPG' -c:v mjpeg -q:v 10 balkon2.mov
+
             filename = os.path.join("lapse", f[0:-4] + "-x" + str(m) + ".MP4")
             speed = "setpts=1/" + str(m) + "*PTS"
             command = ["ffmpeg",
@@ -1825,14 +1832,19 @@ Video:
                        "-nostats",
                        "-loglevel", "0",
                        filename]
-            t = threading.Thread(target=self._create_timelapse, args=(command,))
+            t = threading.Thread(target=self._create_timelapse,
+                                 args=(path, command, f"Image_seq_{s:02d}.MP4"),
+                                 name=filename,
+                                 )
             self._thread_list.append(t)
         # this will start the threads but itself is a thread to avoid mainloop blocking
         t = threading.Thread(target=self._start_threads, args=(self._thread_list,))
         t.start()
 
-    def _create_timelapse(self, command):
+    def _create_timelapse(self, path, command, filename):
+        os.chdir(path)
         subprocess.run(command)
+        cli.show_message(f"{filename} generated.")
 
     def _pulse_thread(self):
         while threading.active_count() > 2:
@@ -1845,7 +1857,7 @@ Video:
         for thread in threads:
             thread.start()  # first run will start the progressbar pulse
             while threading.active_count() > 3: # only run one ffmpeg job at a time
-                time.sleep(10)
+                time.sleep(1)
 
     def countimg(self):
         """Find image files in directory"""
@@ -1903,28 +1915,35 @@ Images:
         # format and probably some color enhancement, background music etc. so a video editing program is mandatory anyway.
         os.chdir(path)
         self._thread_list = []
-        t = threading.Thread(target=self._pulse_thread)
+        t = threading.Thread(target=self._pulse_thread, name="ProgressbarPulse")
         self._thread_list.append(t)
 
         try:
             seq = int(sorted(glob.glob("Seq_*_*.JPG"))[-1][4:6])
-            for s in range(1, seq+1):
+            for s in range(1, seq + 1):
                 # converted from bash script
-                # ffmpeg -f image2 -r 30 -i %04d.jpg -r 30 ../lapse/$dir.MP4
-                f = "Seq_%02d_" % s + "%03d.JPG"
-                filename = os.path.join("..", "lapse", "Seq_%02d_%s.MP4" % (s, path[-2:]))
+                # ffmpeg -r 30 -f image2 -pattern_type glob -i 'Seq_xx_*.JPG' -c:v mjpeg -q:v 10 fiel.MP4
+                f = f"Seq_{s:02d}_*.JPG"
+                filename = os.path.join("..", "lapse", f"Image_seq_{s:02d}.MP4")
                 command = ["ffmpeg",
+                           "-r", "30",
                            "-y",
-                           "-f", "image2",
-                           "-r", "30",
+                           "-f",
+                           "image2",
+                           "-pattern_type", "glob",
                            "-i", f,
-                           "-r", "30",
+                           "-c:v", "mjpeg", "-q:v", "10",
+                           # activate when problems occur
+                           # "-analyzeduration", "2147483647", "-probesize", "2147483647",
                            "-nostats",
                            "-loglevel", "0",
                            filename,
                            ]
                 # this will start the threads but itself is a thread to avoid mainloop blocking
-                t = threading.Thread(target=self._create_timelapse, args=(command,))
+                t = threading.Thread(target=self._create_timelapse,
+                                     args=(path, command, f"Image_seq_{s:02d}.MP4"),
+                                     name=filename,
+                                     )
                 self._thread_list.append(t)
             t = threading.Thread(target=self._start_threads, args=(self._thread_list,))
             t.start()
