@@ -51,7 +51,7 @@ $ sudo pacman -S python-gobject python-yaml python-setuptools python-lxml python
 #### PREPARE UBUNTU 18.04 LTS
 
 ``` bash
-$ sudo apt-get install python3-gi python3-setuptools python3-lxml gir1.2-gtk-3.0 gir1.2-gstreamer-1.0 gstreamer1.0-gtk3 mediainfo ffmpeg
+$ sudo apt-get install python3-gi python3-setuptools python3-setproctitle python3-lxml gir1.2-gtk-3.0 gir1.2-gstreamer-1.0 gstreamer1.0-gtk3 mediainfo ffmpeg
 ```
 
 ### ARE WE THERE YET?
